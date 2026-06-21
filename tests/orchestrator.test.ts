@@ -89,8 +89,8 @@ describe('Autonomous Multi-Agent Orchestration Layer', () => {
 
       const updated = await engine.execute(context, plan);
       expect(updated.status).toBe('completed');
-      expect(updated.sharedMemory.research).toBeDefined();
-      expect(updated.sharedMemory.research.companyName).toBe('STRIPE');
+      const research = updated.sharedMemory.research as { company?: { name?: string } };
+      expect(research.company?.name).toBe('Stripe');
     });
 
     it('should run sequential dependent steps in correct order', async () => {
@@ -116,7 +116,8 @@ describe('Autonomous Multi-Agent Orchestration Layer', () => {
       expect(updated.status).toBe('completed');
       expect(updated.sharedMemory.research).toBeDefined();
       expect(updated.sharedMemory.opportunityAnalysis).toBeDefined();
-      expect(updated.sharedMemory.opportunityAnalysis.opportunityScore).toBe(88);
+      const opportunityAnalysis = updated.sharedMemory.opportunityAnalysis as { opportunityScore?: number };
+      expect(opportunityAnalysis.opportunityScore).toBe(88);
 
       const timelineEvts = updated.timeline.filter((e) => e.type === 'agent_end');
       expect(timelineEvts[0].agentName).toBe('ResearchAgent');
@@ -144,7 +145,9 @@ describe('Autonomous Multi-Agent Orchestration Layer', () => {
       const updated = await engine.execute(context, plan);
       expect(updated.status).toBe('completed');
       expect(failingAgent.executionCount).toBe(3);
-      expect(updated.sharedMemory.research.value).toBe('recovered');
+      expect(updated.sharedMemory.research).toBeDefined();
+      const research = updated.sharedMemory.research as { value?: string };
+      expect(research.value).toBe('recovered');
     });
 
     it('should fail the workflow if step exceeds retry limits', async () => {
