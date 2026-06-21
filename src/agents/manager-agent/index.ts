@@ -219,6 +219,25 @@ export class ManagerAgent {
       }),
     });
 
+    const needsOpportunity =
+      query.includes('opportunities') ||
+      query.includes('opportunity') ||
+      query.includes('analysis') ||
+      query.includes('analyze') ||
+      query.includes('strategy') ||
+      query.includes('market');
+
+    if (needsOpportunity && !steps.some((s) => s.id === 'step_opportunity')) {
+      steps.push({
+        id: 'step_opportunity',
+        agentCapability: 'opportunity-analysis',
+        dependsOn: ['step_research'],
+        inputMapping: (ctx) => ({
+          researchData: ctx.sharedMemory.research,
+        }),
+      });
+    }
+
     if (query.includes('outreach') || query.includes('campaign') || query.includes('email')) {
       steps.push({
         id: 'step_opportunity',

@@ -115,7 +115,7 @@ describe('Research Agent Pipeline & Submodules', () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toBeDefined();
-      const report = result.output as ResearchReport;
+      const report = result.output as unknown as ResearchReport;
 
       expect(report.company.name).toBe('HubSpot');
       expect(report.industry.classification).toBe('SaaS');

@@ -14,6 +14,7 @@ import {
   Bot,
   Menu,
   X,
+  Lightbulb,
 } from 'lucide-react';
 
 interface NavItem {
@@ -26,6 +27,7 @@ const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Leads', href: '/leads', icon: Users },
   { label: 'Research', href: '/research', icon: Search },
+  { label: 'Opportunities', href: '/opportunities', icon: Lightbulb },
   { label: 'Outreach', href: '/outreach', icon: Mail },
   { label: 'CRM Sync', href: '/crm', icon: Database },
   { label: 'Proposals', href: '/proposals', icon: FileText },
