@@ -11,6 +11,13 @@ import {
   SalesTrigger,
   StrategicRecommendation,
 } from '../agents/specialists/opportunity/types';
+import {
+  OutreachPackage,
+  ColdEmailVariant,
+  DiscoveryCallPlan,
+  ObjectionResponse,
+  LinkedInMessage,
+} from '../agents/specialists/outreach/types';
 
 export const reportsRepository = new FirestoreRepository<ResearchReport>('research_reports');
 export const jobsRepository = new FirestoreRepository<ResearchJob>('research_jobs');
@@ -59,3 +66,24 @@ export const strategicRecommendationsRepository = new FirestoreRepository<
     reportId?: string;
   }
 >('strategic_recommendations');
+
+// Outreach Agent Repositories
+export const outreachCampaignsRepository = new FirestoreRepository<OutreachPackage>(
+  'outreach_campaigns',
+);
+
+export const emailTemplatesRepository = new FirestoreRepository<
+  ColdEmailVariant & { id?: string; createdAt?: unknown; updatedAt?: unknown; reportId?: string }
+>('email_templates');
+
+export const callPreparationRepository = new FirestoreRepository<
+  DiscoveryCallPlan & { id?: string; createdAt?: unknown; updatedAt?: unknown; reportId?: string }
+>('call_preparation');
+
+export const objectionLibraryRepository = new FirestoreRepository<
+  ObjectionResponse & { id?: string; createdAt?: unknown; updatedAt?: unknown; reportId?: string }
+>('objection_library');
+
+export const generatedMessagesRepository = new FirestoreRepository<
+  LinkedInMessage & { id?: string; createdAt?: unknown; updatedAt?: unknown; reportId?: string }
+>('generated_messages');

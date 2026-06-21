@@ -255,15 +255,23 @@ export class ManagerAgent {
       });
     }
 
-    if (query.includes('outreach') || query.includes('campaign') || query.includes('email')) {
-      steps.push({
-        id: 'step_opportunity',
-        agentCapability: 'opportunity-analysis',
-        dependsOn: ['step_research'],
-        inputMapping: (ctx) => ({
-          researchData: ctx.sharedMemory.research,
-        }),
-      });
+    if (
+      query.includes('outreach') ||
+      query.includes('campaign') ||
+      query.includes('email') ||
+      query.includes('messaging') ||
+      query.includes('engagement')
+    ) {
+      if (!steps.some((s) => s.id === 'step_opportunity')) {
+        steps.push({
+          id: 'step_opportunity',
+          agentCapability: 'opportunity-analysis',
+          dependsOn: ['step_research'],
+          inputMapping: (ctx) => ({
+            researchData: ctx.sharedMemory.research,
+          }),
+        });
+      }
 
       steps.push({
         id: 'step_outreach',
