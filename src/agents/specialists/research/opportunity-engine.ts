@@ -24,7 +24,7 @@ export class OpportunityDiscoveryEngine {
         const prompt = `Profile: ${JSON.stringify(profile)}\nProducts: ${JSON.stringify(
           products,
         )}\nCompetitors: ${JSON.stringify(competitors)}\nIdentify opportunities and risks.`;
-        
+
         const result = await model.generateContent({
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
           systemInstruction: OPPORTUNITY_DISCOVERY_PROMPT,

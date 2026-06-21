@@ -9,9 +9,7 @@ export class WebsiteAnalyzer {
   /**
    * Analyzes a company's website products and signals based on its profile.
    */
-  public async analyze(
-    profile: CompanyProfile,
-  ): Promise<{
+  public async analyze(profile: CompanyProfile): Promise<{
     products: ProductService[];
     signals: { hiringSignal: string; growthIndicator: string };
   }> {

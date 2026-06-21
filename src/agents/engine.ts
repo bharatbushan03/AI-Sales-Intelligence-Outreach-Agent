@@ -43,7 +43,10 @@ async function withRetry<T>(
         throw error;
       }
       const delay = initialDelayMs * Math.pow(2, attempt);
-      logger.warn(`Step "${stepId}" failed (attempt ${attempt}/${limit}). Retrying in ${delay}ms...`, { error });
+      logger.warn(
+        `Step "${stepId}" failed (attempt ${attempt}/${limit}). Retrying in ${delay}ms...`,
+        { error },
+      );
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
@@ -69,7 +72,7 @@ export class WorkflowEngine {
       // Find all steps that have not been executed and whose dependencies are completely satisfied
       const executableSteps = remainingSteps.filter((step) => {
         if (activeSteps.has(step.id)) return false;
-        
+
         const deps = step.dependsOn || [];
         return deps.every((depId) => completedStepIds.has(depId));
       });
@@ -85,10 +88,15 @@ export class WorkflowEngine {
       // Execute all available steps in parallel
       const executionPromises = executableSteps.map(async (step) => {
         activeSteps.add(step.id);
-        
+
         const startTime = new Date().toISOString();
         const startTimestamp = Date.now();
-        logTimelineEvent(context, 'agent_start', `Starting execution of step "${step.id}"`, undefined);
+        logTimelineEvent(
+          context,
+          'agent_start',
+          `Starting execution of step "${step.id}"`,
+          undefined,
+        );
 
         const agents = this.registry.findAgentsByCapability(step.agentCapability);
         const agent = agents[0]; // Select the first registered specialist
@@ -96,7 +104,7 @@ export class WorkflowEngine {
         if (!agent) {
           const errorMsg = `No specialist agent registered for capability: "${step.agentCapability}"`;
           const duration = Date.now() - startTimestamp;
-          
+
           const trace: AgentTrace = {
             agentName: `UnknownAgent-${step.agentCapability}`,
             status: 'failed',
@@ -107,8 +115,14 @@ export class WorkflowEngine {
             error: errorMsg,
           };
           recordAgentTrace(context, trace);
-          logTimelineEvent(context, 'agent_error', `Step "${step.id}" failed: ${errorMsg}`, undefined, duration);
-          
+          logTimelineEvent(
+            context,
+            'agent_error',
+            `Step "${step.id}" failed: ${errorMsg}`,
+            undefined,
+            duration,
+          );
+
           failedStepIds.add(step.id);
           return;
         }
@@ -120,8 +134,12 @@ export class WorkflowEngine {
 
           const runExecution = () => agent.execute(context, mappedInput);
           const runWithRetryWrapper = () => withRetry(runExecution, limit, step.id);
-          
-          const result: AgentStepResult = await withTimeout(runWithRetryWrapper(), timeout, step.id);
+
+          const result: AgentStepResult = await withTimeout(
+            runWithRetryWrapper(),
+            timeout,
+            step.id,
+          );
           const duration = Date.now() - startTimestamp;
 
           if (result.success) {
@@ -149,7 +167,7 @@ export class WorkflowEngine {
         } catch (error) {
           const duration = Date.now() - startTimestamp;
           const errorMsg = error instanceof Error ? error.message : String(error);
-          
+
           const trace: AgentTrace = {
             agentName: agent.name,
             status: 'failed',
@@ -167,7 +185,7 @@ export class WorkflowEngine {
             agent.name,
             duration,
           );
-          
+
           failedStepIds.add(step.id);
         } finally {
           activeSteps.delete(step.id);

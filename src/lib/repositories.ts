@@ -39,7 +39,9 @@ export const competitorProfilesRepository = new FirestoreRepository<
   }
 >('competitor_profiles');
 
-export const opportunityReportsRepository = new FirestoreRepository<OpportunityReport>('opportunity_reports');
+export const opportunityReportsRepository = new FirestoreRepository<OpportunityReport>(
+  'opportunity_reports',
+);
 
 export const opportunityScoresRepository = new FirestoreRepository<
   OpportunityScore & { id?: string; createdAt?: unknown; updatedAt?: unknown; reportId?: string }
@@ -50,5 +52,10 @@ export const salesTriggersRepository = new FirestoreRepository<
 >('sales_triggers');
 
 export const strategicRecommendationsRepository = new FirestoreRepository<
-  StrategicRecommendation & { id?: string; createdAt?: unknown; updatedAt?: unknown; reportId?: string }
+  StrategicRecommendation & {
+    id?: string;
+    createdAt?: unknown;
+    updatedAt?: unknown;
+    reportId?: string;
+  }
 >('strategic_recommendations');

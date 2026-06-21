@@ -147,17 +147,20 @@ export default function OpportunitiesPage() {
   return (
     <div className="space-y-8 text-slate-100 print:bg-white print:text-black">
       {/* Header Panel */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5 print:hidden">
+      <div className="flex flex-col justify-between gap-4 border-b border-slate-800 pb-5 md:flex-row md:items-center print:hidden">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">Revenue Opportunity Workspace</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
+            Revenue Opportunity Workspace
+          </h1>
           <p className="mt-2 text-sm text-slate-400">
-            Identify latent target pain points, score transactional opportunities, and discover custom strategic recommendations.
+            Identify latent target pain points, score transactional opportunities, and discover
+            custom strategic recommendations.
           </p>
         </div>
         {report && (
           <button
             onClick={() => window.print()}
-            className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-200 rounded-xl text-sm font-semibold transition-all duration-200"
+            className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-semibold text-slate-200 transition-all duration-200 hover:bg-slate-700"
           >
             <FileDown className="h-4 w-4" /> Export Report (PDF)
           </button>
@@ -166,16 +169,16 @@ export default function OpportunitiesPage() {
 
       <div className="grid gap-8 lg:grid-cols-4 print:grid-cols-1">
         {/* Search Drawer & History */}
-        <div className="lg:col-span-1 space-y-6 print:hidden">
+        <div className="space-y-6 lg:col-span-1 print:hidden">
           {/* Search Card */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 space-y-4">
-            <h2 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-              <Bot className="h-4.5 w-4.5 text-indigo-400 animate-pulse" /> Trigger Analysis
+          <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
+            <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-200">
+              <Bot className="h-4.5 w-4.5 animate-pulse text-indigo-400" /> Trigger Analysis
             </h2>
 
             <form onSubmit={handleSearch} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                <label className="text-xs font-semibold tracking-wide text-slate-400 uppercase">
                   Account Name or Domain
                 </label>
                 <div className="relative">
@@ -185,16 +188,16 @@ export default function OpportunitiesPage() {
                     onChange={(e) => setQuery(e.target.value)}
                     disabled={loading}
                     placeholder="e.g. stripe.com or Notion"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 pl-3 pr-10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 disabled:opacity-50"
+                    className="w-full rounded-xl border border-slate-800 bg-slate-950 py-2.5 pr-10 pl-3 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none disabled:opacity-50"
                   />
-                  <Search className="absolute right-3 top-3 h-4 w-4 text-slate-500" />
+                  <Search className="absolute top-3 right-3 h-4 w-4 text-slate-500" />
                 </div>
               </div>
 
               <button
                 type="submit"
                 disabled={loading || !query.trim()}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white rounded-xl text-sm font-semibold transition-all duration-200 disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-indigo-500 disabled:bg-slate-800 disabled:opacity-50"
               >
                 {loading ? (
                   <>
@@ -208,31 +211,31 @@ export default function OpportunitiesPage() {
           </div>
 
           {/* History Card */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/30 p-6 space-y-4">
-            <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+          <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/30 p-6">
+            <h3 className="flex items-center gap-2 text-xs font-semibold tracking-wider text-slate-400 uppercase">
               <History className="h-4 w-4" /> Strategic History
             </h3>
             {history.length === 0 ? (
               <p className="text-xs text-slate-500 italic">No reports generated.</p>
             ) : (
-              <div className="space-y-2 overflow-y-auto max-h-80 pr-1">
+              <div className="max-h-80 space-y-2 overflow-y-auto pr-1">
                 {history.map((hist, idx) => (
                   <button
                     key={idx}
                     onClick={() => loadReport(hist)}
-                    className={`w-full text-left p-3 rounded-xl border text-xs transition-all ${
+                    className={`w-full rounded-xl border p-3 text-left text-xs transition-all ${
                       report?.id === hist.id
-                        ? 'bg-indigo-950/40 border-indigo-500 text-indigo-200'
-                        : 'bg-slate-900/20 border-slate-850 text-slate-400 hover:bg-slate-900/60 hover:text-slate-200'
+                        ? 'border-indigo-500 bg-indigo-950/40 text-indigo-200'
+                        : 'border-slate-850 bg-slate-900/20 text-slate-400 hover:bg-slate-900/60 hover:text-slate-200'
                     }`}
                   >
-                    <div className="flex justify-between items-center gap-1">
-                      <div className="font-semibold truncate">{hist.company?.name}</div>
-                      <span className="text-[10px] font-bold text-slate-500 shrink-0">
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="truncate font-semibold">{hist.company?.name}</div>
+                      <span className="shrink-0 text-[10px] font-bold text-slate-500">
                         {hist.overallOpportunityScore}%
                       </span>
                     </div>
-                    <div className="text-[10px] text-slate-500 mt-1">
+                    <div className="mt-1 text-[10px] text-slate-500">
                       {new Date(hist.metadata?.timestamp || '').toLocaleDateString()}
                     </div>
                   </button>
@@ -243,20 +246,23 @@ export default function OpportunitiesPage() {
         </div>
 
         {/* Workspace Display Area */}
-        <div className="lg:col-span-3 space-y-6 print:col-span-1">
+        <div className="space-y-6 lg:col-span-3 print:col-span-1">
           {/* Loading state container */}
           {loading && (
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/20 p-12 text-center flex flex-col items-center justify-center space-y-6 print:hidden">
-              <Bot className="h-12 w-12 text-indigo-400 animate-bounce" />
+            <div className="flex flex-col items-center justify-center space-y-6 rounded-2xl border border-slate-800 bg-slate-900/20 p-12 text-center print:hidden">
+              <Bot className="h-12 w-12 animate-bounce text-indigo-400" />
               <div className="space-y-2">
-                <h3 className="text-lg font-semibold text-white">Running Strategic Consulting Audit</h3>
-                <p className="text-sm text-slate-400 max-w-sm mx-auto">
-                  Google Gemini Agent is executing multi-stage analysis, evaluating company parameters and scoring opportunities.
+                <h3 className="text-lg font-semibold text-white">
+                  Running Strategic Consulting Audit
+                </h3>
+                <p className="mx-auto max-w-sm text-sm text-slate-400">
+                  Google Gemini Agent is executing multi-stage analysis, evaluating company
+                  parameters and scoring opportunities.
                 </p>
               </div>
 
               {/* Progress Stage Tracker */}
-              <div className="w-full max-w-xs text-left space-y-2 text-xs border-t border-slate-800/80 pt-4">
+              <div className="w-full max-w-xs space-y-2 border-t border-slate-800/80 pt-4 text-left text-xs">
                 {[
                   '1. Detecting structural organizational challenges...',
                   '2. Crawling active expansion growth indicators...',
@@ -275,7 +281,7 @@ export default function OpportunitiesPage() {
                         isDone
                           ? 'text-emerald-400'
                           : isActive
-                            ? 'text-indigo-400 font-semibold animate-pulse'
+                            ? 'animate-pulse font-semibold text-indigo-400'
                             : 'text-slate-600'
                       }`}
                     >
@@ -290,23 +296,26 @@ export default function OpportunitiesPage() {
 
           {/* Error Message */}
           {error && !loading && (
-            <div className="rounded-2xl border border-rose-900/30 bg-rose-950/20 p-6 flex items-start gap-3.5 print:hidden">
-              <AlertCircle className="h-6 w-6 text-rose-400 shrink-0" />
+            <div className="flex items-start gap-3.5 rounded-2xl border border-rose-900/30 bg-rose-950/20 p-6 print:hidden">
+              <AlertCircle className="h-6 w-6 shrink-0 text-rose-400" />
               <div>
                 <h3 className="text-sm font-semibold text-rose-200">Analysis Aborted</h3>
-                <p className="text-xs text-rose-400 mt-1">{error}</p>
+                <p className="mt-1 text-xs text-rose-400">{error}</p>
               </div>
             </div>
           )}
 
           {/* Empty state */}
           {!report && !loading && !error && (
-            <div className="rounded-2xl border border-dashed border-slate-800 bg-slate-900/10 p-20 text-center flex flex-col items-center justify-center space-y-4 print:hidden">
+            <div className="flex flex-col items-center justify-center space-y-4 rounded-2xl border border-dashed border-slate-800 bg-slate-900/10 p-20 text-center print:hidden">
               <Lightbulb className="h-10 w-10 text-slate-600" />
               <div>
-                <h3 className="text-md font-semibold text-slate-300">Opportunity Workspace Empty</h3>
-                <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
-                  Run an audit on a target company name or domain in the New Audit drawer to compile McKinsey-style opportunities.
+                <h3 className="text-md font-semibold text-slate-300">
+                  Opportunity Workspace Empty
+                </h3>
+                <p className="mx-auto mt-1 max-w-xs text-xs text-slate-500">
+                  Run an audit on a target company name or domain in the New Audit drawer to compile
+                  McKinsey-style opportunities.
                 </p>
               </div>
             </div>
@@ -316,9 +325,9 @@ export default function OpportunitiesPage() {
           {report && !loading && (
             <div className="space-y-6 print:space-y-8">
               {/* Scorecard Summary Row */}
-              <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 print:grid-cols-4">
-                <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/40 space-y-2">
-                  <div className="text-xs text-slate-400 font-medium uppercase tracking-wider flex items-center gap-1.5">
+              <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 print:grid-cols-4">
+                <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+                  <div className="flex items-center gap-1.5 text-xs font-medium tracking-wider text-slate-400 uppercase">
                     <Target className="h-4 w-4 text-indigo-400" /> Overall Opportunity
                   </div>
                   <div className="flex items-baseline gap-2">
@@ -328,8 +337,8 @@ export default function OpportunitiesPage() {
                   </div>
                 </div>
 
-                <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/40 space-y-2">
-                  <div className="text-xs text-slate-400 font-medium uppercase tracking-wider flex items-center gap-1.5">
+                <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+                  <div className="flex items-center gap-1.5 text-xs font-medium tracking-wider text-slate-400 uppercase">
                     <Zap className="h-4 w-4 text-amber-400" /> Sales Triggers
                   </div>
                   <div className="flex items-baseline gap-2">
@@ -340,8 +349,8 @@ export default function OpportunitiesPage() {
                   </div>
                 </div>
 
-                <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/40 space-y-2">
-                  <div className="text-xs text-slate-400 font-medium uppercase tracking-wider flex items-center gap-1.5">
+                <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+                  <div className="flex items-center gap-1.5 text-xs font-medium tracking-wider text-slate-400 uppercase">
                     <ShieldAlert className="h-4 w-4 text-rose-400" /> Latent Pain Points
                   </div>
                   <div className="flex items-baseline gap-2">
@@ -352,19 +361,21 @@ export default function OpportunitiesPage() {
                   </div>
                 </div>
 
-                <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/40 space-y-2">
-                  <div className="text-xs text-slate-400 font-medium uppercase tracking-wider flex items-center gap-1.5">
+                <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+                  <div className="flex items-center gap-1.5 text-xs font-medium tracking-wider text-slate-400 uppercase">
                     <Award className="h-4 w-4 text-emerald-400" /> Target Account
                   </div>
-                  <div className="text-lg font-bold text-white print:text-black truncate mt-1">
+                  <div className="mt-1 truncate text-lg font-bold text-white print:text-black">
                     {report.company?.name}
                   </div>
                 </div>
               </div>
 
               {/* Priority matrix block */}
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/20 p-6 space-y-4">
-                <h3 className="text-sm font-semibold text-slate-200">Opportunities Priority Matrix</h3>
+              <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/20 p-6">
+                <h3 className="text-sm font-semibold text-slate-200">
+                  Opportunities Priority Matrix
+                </h3>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 print:grid-cols-1">
                   {report.opportunities?.map((opp, idx) => {
                     let priorityLabel = 'Medium Opportunity';
@@ -382,15 +393,15 @@ export default function OpportunitiesPage() {
                     return (
                       <div
                         key={idx}
-                        className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${priorityStyle}`}
+                        className={`flex flex-col justify-between space-y-3 rounded-xl border p-4 ${priorityStyle}`}
                       >
                         <div className="space-y-1">
-                          <div className="text-[10px] uppercase font-bold tracking-wider opacity-80">
+                          <div className="text-[10px] font-bold tracking-wider uppercase opacity-80">
                             {priorityLabel}
                           </div>
-                          <h4 className="text-sm font-bold truncate">{opp.opportunityName}</h4>
+                          <h4 className="truncate text-sm font-bold">{opp.opportunityName}</h4>
                         </div>
-                        <p className="text-xs opacity-75 leading-relaxed line-clamp-3">
+                        <p className="line-clamp-3 text-xs leading-relaxed opacity-75">
                           {opp.rationale}
                         </p>
                         <div className="flex items-center justify-between border-t border-current/10 pt-2.5 text-xs font-semibold">
@@ -415,7 +426,7 @@ export default function OpportunitiesPage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as ActiveTabName)}
-                    className={`px-5 py-3.5 text-xs font-semibold transition-all border-b-2 -mb-[2px] ${
+                    className={`-mb-[2px] border-b-2 px-5 py-3.5 text-xs font-semibold transition-all ${
                       activeTab === tab.id
                         ? 'border-indigo-500 text-indigo-400'
                         : 'border-transparent text-slate-500 hover:text-slate-300'
@@ -427,46 +438,54 @@ export default function OpportunitiesPage() {
               </div>
 
               {/* Tab outputs */}
-              <div className="bg-slate-900/10 rounded-2xl border border-slate-800 p-6 md:p-8 print:border-none print:p-0">
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/10 p-6 md:p-8 print:border-none print:p-0">
                 {/* 1. Summary Tab */}
                 {(activeTab === 'summary' || typeof window === 'undefined') && (
                   <div className="space-y-6 print:block">
-                    <h3 className="hidden print:block text-lg font-bold border-b pb-2 mb-4">
+                    <h3 className="mb-4 hidden border-b pb-2 text-lg font-bold print:block">
                       Strategic Consulting Analysis
                     </h3>
                     <div className="space-y-4">
                       <div>
-                        <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                        <h4 className="text-xs font-semibold tracking-wider text-slate-400 uppercase">
                           Executive Briefing
                         </h4>
-                        <p className="text-sm text-slate-300 leading-relaxed mt-2.5 print:text-slate-700">
+                        <p className="mt-2.5 text-sm leading-relaxed text-slate-300 print:text-slate-700">
                           {report.executiveSummary}
                         </p>
                       </div>
 
-                      <div className="pt-6 border-t border-slate-800/80 space-y-4">
-                        <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                      <div className="space-y-4 border-t border-slate-800/80 pt-6">
+                        <h4 className="text-xs font-semibold tracking-wider text-slate-400 uppercase">
                           Consulting Insights
                         </h4>
                         <div className="space-y-4">
                           {report.executiveInsights?.map((ins, idx) => (
                             <div
                               key={idx}
-                              className="p-4 rounded-xl border border-slate-800 bg-slate-950/40 space-y-2.5 print:border-none print:p-0"
+                              className="space-y-2.5 rounded-xl border border-slate-800 bg-slate-950/40 p-4 print:border-none print:p-0"
                             >
-                              <div className="flex justify-between items-center">
+                              <div className="flex items-center justify-between">
                                 <strong className="text-sm text-indigo-300 print:text-black">
                                   {ins.insight}
                                 </strong>
-                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${getScoreBadgeColor(ins.confidence)}`}>
+                                <span
+                                  className={`rounded px-2 py-0.5 text-[10px] font-bold ${getScoreBadgeColor(ins.confidence)}`}
+                                >
                                   {ins.confidence}% Confidence
                                 </span>
                               </div>
                               <div className="text-xs text-slate-400">
-                                <span className="font-semibold text-slate-500">Supporting Evidence:</span> {ins.evidence}
+                                <span className="font-semibold text-slate-500">
+                                  Supporting Evidence:
+                                </span>{' '}
+                                {ins.evidence}
                               </div>
-                              <div className="text-xs text-slate-400 border-l-2 border-indigo-500 pl-3">
-                                <span className="font-semibold text-indigo-400">Strategic Implication:</span> {ins.implication}
+                              <div className="border-l-2 border-indigo-500 pl-3 text-xs text-slate-400">
+                                <span className="font-semibold text-indigo-400">
+                                  Strategic Implication:
+                                </span>{' '}
+                                {ins.implication}
                               </div>
                             </div>
                           ))}
@@ -478,29 +497,40 @@ export default function OpportunitiesPage() {
 
                 {/* 2. Pain Points Tab */}
                 {(activeTab === 'pains' || typeof window === 'undefined') && (
-                  <div className="space-y-6 print:block print:mt-8">
-                    <h3 className="hidden print:block text-lg font-bold border-b pb-2 mb-4">
+                  <div className="space-y-6 print:mt-8 print:block">
+                    <h3 className="mb-4 hidden border-b pb-2 text-lg font-bold print:block">
                       Latent Pain Points
                     </h3>
                     <div className="space-y-4">
                       {report.painPoints?.map((p, idx) => (
                         <div
                           key={idx}
-                          className="p-5 rounded-xl border border-slate-800 bg-slate-950/40 flex justify-between items-start gap-4 print:border-none print:p-0"
+                          className="flex items-start justify-between gap-4 rounded-xl border border-slate-800 bg-slate-950/40 p-5 print:border-none print:p-0"
                         >
                           <div className="space-y-2">
                             <div className="flex items-center gap-3">
-                              <h4 className="text-sm font-bold text-slate-200 print:text-black">{p.title}</h4>
-                              <span className={`px-2 py-0.5 rounded text-[9px] font-bold border uppercase tracking-wider ${getImpactBadgeColor(p.businessImpact)}`}>
+                              <h4 className="text-sm font-bold text-slate-200 print:text-black">
+                                {p.title}
+                              </h4>
+                              <span
+                                className={`rounded border px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase ${getImpactBadgeColor(p.businessImpact)}`}
+                              >
                                 {p.businessImpact} Impact
                               </span>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed print:text-slate-700">{p.explanation}</p>
+                            <p className="text-xs leading-relaxed text-slate-400 print:text-slate-700">
+                              {p.explanation}
+                            </p>
                             <div className="text-[10px] text-slate-500">
-                              <span className="font-semibold uppercase tracking-wider">Evidence:</span> {p.evidence}
+                              <span className="font-semibold tracking-wider uppercase">
+                                Evidence:
+                              </span>{' '}
+                              {p.evidence}
                             </div>
                           </div>
-                          <span className={`px-2 py-1 rounded text-xs font-mono font-bold ${getScoreBadgeColor(p.confidenceScore)} shrink-0`}>
+                          <span
+                            className={`rounded px-2 py-1 font-mono text-xs font-bold ${getScoreBadgeColor(p.confidenceScore)} shrink-0`}
+                          >
                             {p.confidenceScore}% Conf
                           </span>
                         </div>
@@ -511,32 +541,39 @@ export default function OpportunitiesPage() {
 
                 {/* 3. Growth Signals Tab */}
                 {(activeTab === 'signals' || typeof window === 'undefined') && (
-                  <div className="space-y-6 print:block print:mt-8">
-                    <h3 className="hidden print:block text-lg font-bold border-b pb-2 mb-4">
+                  <div className="space-y-6 print:mt-8 print:block">
+                    <h3 className="mb-4 hidden border-b pb-2 text-lg font-bold print:block">
                       Corporate Growth Signals
                     </h3>
                     <div className="space-y-4">
                       {report.growthSignals?.map((sig, idx) => (
                         <div
                           key={idx}
-                          className="p-5 rounded-xl border border-slate-800 bg-slate-950/40 space-y-3.5 print:border-none print:p-0"
+                          className="space-y-3.5 rounded-xl border border-slate-800 bg-slate-950/40 p-5 print:border-none print:p-0"
                         >
-                          <div className="flex justify-between items-center">
-                            <h4 className="text-sm font-bold text-emerald-400 print:text-black flex items-center gap-1.5">
+                          <div className="flex items-center justify-between">
+                            <h4 className="flex items-center gap-1.5 text-sm font-bold text-emerald-400 print:text-black">
                               <TrendingUp className="h-4 w-4 shrink-0" /> {sig.signal}
                             </h4>
-                            <span className={`px-2.5 py-0.5 rounded text-xs font-mono font-bold ${getScoreBadgeColor(sig.confidence)}`}>
+                            <span
+                              className={`rounded px-2.5 py-0.5 font-mono text-xs font-bold ${getScoreBadgeColor(sig.confidence)}`}
+                            >
                               {sig.confidence}% Conf
                             </span>
                           </div>
-                          <p className="text-xs text-slate-400 leading-relaxed">
-                            <strong className="text-slate-500 uppercase tracking-wide text-[10px]">Market Significance:</strong> {sig.significance}
+                          <p className="text-xs leading-relaxed text-slate-400">
+                            <strong className="text-[10px] tracking-wide text-slate-500 uppercase">
+                              Market Significance:
+                            </strong>{' '}
+                            {sig.significance}
                           </p>
-                          <div className="p-3.5 rounded-lg bg-indigo-950/15 border border-indigo-900/30 text-xs text-indigo-300 flex items-start gap-2.5 print:border-none print:bg-transparent print:p-0">
-                            <Target className="h-4 w-4 shrink-0 text-indigo-400 mt-0.5" />
+                          <div className="flex items-start gap-2.5 rounded-lg border border-indigo-900/30 bg-indigo-950/15 p-3.5 text-xs text-indigo-300 print:border-none print:bg-transparent print:p-0">
+                            <Target className="mt-0.5 h-4 w-4 shrink-0 text-indigo-400" />
                             <div>
                               <strong className="font-semibold">Recommended Sales Approach:</strong>
-                              <p className="text-slate-450 mt-1 print:text-slate-700">{sig.recommendedApproach}</p>
+                              <p className="text-slate-450 mt-1 print:text-slate-700">
+                                {sig.recommendedApproach}
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -547,33 +584,41 @@ export default function OpportunitiesPage() {
 
                 {/* 4. Sales Triggers Tab */}
                 {(activeTab === 'triggers' || typeof window === 'undefined') && (
-                  <div className="space-y-6 print:block print:mt-8">
-                    <h3 className="hidden print:block text-lg font-bold border-b pb-2 mb-4">
+                  <div className="space-y-6 print:mt-8 print:block">
+                    <h3 className="mb-4 hidden border-b pb-2 text-lg font-bold print:block">
                       Active Sales Triggers
                     </h3>
                     <div className="grid gap-4 md:grid-cols-2 print:grid-cols-1">
                       {report.salesTriggers?.map((trg, idx) => (
                         <div
                           key={idx}
-                          className="p-5 rounded-xl border border-slate-850 bg-slate-950/40 space-y-3 flex flex-col justify-between print:border-none print:p-0"
+                          className="border-slate-850 flex flex-col justify-between space-y-3 rounded-xl border bg-slate-950/40 p-5 print:border-none print:p-0"
                         >
                           <div className="space-y-2">
-                            <div className="flex justify-between items-center gap-2 border-b border-slate-900 pb-2">
-                              <span className={`px-2 py-0.5 rounded text-[9px] font-bold border uppercase tracking-wider ${getLevelColor(trg.opportunityLevel)}`}>
+                            <div className="flex items-center justify-between gap-2 border-b border-slate-900 pb-2">
+                              <span
+                                className={`rounded border px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase ${getLevelColor(trg.opportunityLevel)}`}
+                              >
                                 {trg.opportunityLevel} Priority
                               </span>
-                              <span className={`px-2 py-0.5 rounded text-[9px] font-bold border uppercase tracking-wider ${getLevelColor(trg.urgency)}`}>
+                              <span
+                                className={`rounded border px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase ${getLevelColor(trg.urgency)}`}
+                              >
                                 {trg.urgency} Urgency
                               </span>
                             </div>
-                            <h4 className="text-sm font-bold text-slate-200 print:text-black flex items-start gap-1.5">
-                              <Zap className="h-4 w-4 text-amber-400 mt-0.5 shrink-0" />
+                            <h4 className="flex items-start gap-1.5 text-sm font-bold text-slate-200 print:text-black">
+                              <Zap className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
                               <span>{trg.trigger}</span>
                             </h4>
                           </div>
-                          <div className="pt-3 border-t border-slate-900 space-y-1.5">
-                            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Suggested Outreach Angle</span>
-                            <p className="text-xs text-slate-400 leading-relaxed print:text-slate-700">{trg.suggestedOutreachAngle}</p>
+                          <div className="space-y-1.5 border-t border-slate-900 pt-3">
+                            <span className="text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+                              Suggested Outreach Angle
+                            </span>
+                            <p className="text-xs leading-relaxed text-slate-400 print:text-slate-700">
+                              {trg.suggestedOutreachAngle}
+                            </p>
                           </div>
                         </div>
                       ))}
@@ -583,40 +628,47 @@ export default function OpportunitiesPage() {
 
                 {/* 5. Recommendations Tab */}
                 {(activeTab === 'recommendations' || typeof window === 'undefined') && (
-                  <div className="space-y-8 print:block print:mt-8">
-                    <h3 className="hidden print:block text-lg font-bold border-b pb-2 mb-4">
+                  <div className="space-y-8 print:mt-8 print:block">
+                    <h3 className="mb-4 hidden border-b pb-2 text-lg font-bold print:block">
                       Strategic Recommendations & Pitch Assets
                     </h3>
                     {report.recommendations?.map((rec, idx) => (
-                      <div key={idx} className="space-y-6 first:mt-0 mt-8 border-t first:border-t-0 border-slate-800 pt-6 first:pt-0">
+                      <div
+                        key={idx}
+                        className="mt-8 space-y-6 border-t border-slate-800 pt-6 first:mt-0 first:border-t-0 first:pt-0"
+                      >
                         <div className="flex items-start gap-3">
-                          <div className="h-7 w-7 rounded-full bg-indigo-950 border border-indigo-900 flex items-center justify-center font-bold text-xs text-indigo-400 shrink-0 print:border-none">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-indigo-900 bg-indigo-950 text-xs font-bold text-indigo-400 print:border-none">
                             {idx + 1}
                           </div>
                           <div>
-                            <h4 className="text-sm font-bold text-indigo-300 print:text-black">Proposed Business Offering</h4>
-                            <p className="text-xs text-slate-400 leading-relaxed mt-1">{rec.solution}</p>
+                            <h4 className="text-sm font-bold text-indigo-300 print:text-black">
+                              Proposed Business Offering
+                            </h4>
+                            <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                              {rec.solution}
+                            </p>
                           </div>
                         </div>
 
                         {/* Value propositions & messaging */}
                         <div className="grid gap-4 md:grid-cols-2">
-                          <div className="p-4 rounded-xl border border-slate-900 bg-slate-950/60">
-                            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                          <div className="rounded-xl border border-slate-900 bg-slate-950/60 p-4">
+                            <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-wider text-slate-500 uppercase">
                               <Target className="h-3.5 w-3.5 text-indigo-400" /> Messaging Themes
                             </span>
-                            <ul className="mt-2.5 space-y-1.5 text-xs text-slate-450 list-disc pl-4">
+                            <ul className="text-slate-450 mt-2.5 list-disc space-y-1.5 pl-4 text-xs">
                               {rec.messagingThemes?.map((theme, i) => (
                                 <li key={i}>{theme}</li>
                               ))}
                             </ul>
                           </div>
 
-                          <div className="p-4 rounded-xl border border-slate-900 bg-slate-950/60">
-                            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                          <div className="rounded-xl border border-slate-900 bg-slate-950/60 p-4">
+                            <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-wider text-slate-500 uppercase">
                               <Users className="h-3.5 w-3.5 text-emerald-400" /> Value Propositions
                             </span>
-                            <ul className="mt-2.5 space-y-1.5 text-xs text-slate-450 list-disc pl-4">
+                            <ul className="text-slate-450 mt-2.5 list-disc space-y-1.5 pl-4 text-xs">
                               {rec.valueProps?.map((prop, i) => (
                                 <li key={i}>{prop}</li>
                               ))}
@@ -626,22 +678,24 @@ export default function OpportunitiesPage() {
 
                         {/* Executive talking points & Discovery questions */}
                         <div className="grid gap-4 md:grid-cols-2">
-                          <div className="p-4 rounded-xl border border-slate-900 bg-slate-950/60">
-                            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                              <FileText className="h-3.5 w-3.5 text-indigo-400" /> Executive Talking Points
+                          <div className="rounded-xl border border-slate-900 bg-slate-950/60 p-4">
+                            <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+                              <FileText className="h-3.5 w-3.5 text-indigo-400" /> Executive Talking
+                              Points
                             </span>
-                            <ul className="mt-2.5 space-y-2 text-xs text-slate-450 list-decimal pl-4 leading-normal">
+                            <ul className="text-slate-450 mt-2.5 list-decimal space-y-2 pl-4 text-xs leading-normal">
                               {rec.talkingPoints?.map((pt, i) => (
                                 <li key={i}>{pt}</li>
                               ))}
                             </ul>
                           </div>
 
-                          <div className="p-4 rounded-xl border border-slate-900 bg-slate-950/60">
-                            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                              <HelpCircle className="h-3.5 w-3.5 text-indigo-400" /> Discovery Call Questions
+                          <div className="rounded-xl border border-slate-900 bg-slate-950/60 p-4">
+                            <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+                              <HelpCircle className="h-3.5 w-3.5 text-indigo-400" /> Discovery Call
+                              Questions
                             </span>
-                            <ul className="mt-2.5 space-y-2 text-xs text-slate-450 list-decimal pl-4 leading-normal">
+                            <ul className="text-slate-450 mt-2.5 list-decimal space-y-2 pl-4 text-xs leading-normal">
                               {rec.discoveryQuestions?.map((q, i) => (
                                 <li key={i}>{q}</li>
                               ))}
@@ -651,16 +705,18 @@ export default function OpportunitiesPage() {
 
                         {/* Objection handling block */}
                         {rec.objectionPrep && rec.objectionPrep.length > 0 && (
-                          <div className="rounded-xl border border-slate-900 bg-slate-950/40 p-4 space-y-3.5">
-                            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Anticipated Objections & Handling</span>
+                          <div className="space-y-3.5 rounded-xl border border-slate-900 bg-slate-950/40 p-4">
+                            <span className="text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+                              Anticipated Objections & Handling
+                            </span>
                             <div className="space-y-3 divide-y divide-slate-900">
                               {rec.objectionPrep.map((obj, i) => (
-                                <div key={i} className="pt-3 first:pt-0 space-y-1">
-                                  <div className="text-xs font-semibold text-rose-400 flex items-start gap-1">
+                                <div key={i} className="space-y-1 pt-3 first:pt-0">
+                                  <div className="flex items-start gap-1 text-xs font-semibold text-rose-400">
                                     <span className="font-bold">Q:</span>
                                     <span>{obj.objection}</span>
                                   </div>
-                                  <div className="text-xs text-slate-400 flex items-start gap-1 pl-4 border-l-2 border-emerald-500">
+                                  <div className="flex items-start gap-1 border-l-2 border-emerald-500 pl-4 text-xs text-slate-400">
                                     <span className="font-bold text-emerald-400">A:</span>
                                     <p className="print:text-slate-700">{obj.response}</p>
                                   </div>

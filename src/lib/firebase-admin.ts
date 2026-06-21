@@ -29,7 +29,10 @@ try {
   adminDb = getFirestore(app);
   adminAuth = getAuth(app);
 } catch (error) {
-  console.warn('Firebase Admin initialization failed. Using mock interfaces for build/fallback.', error);
+  console.warn(
+    'Firebase Admin initialization failed. Using mock interfaces for build/fallback.',
+    error,
+  );
 
   const mockQuery = {
     where: () => mockQuery,

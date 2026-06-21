@@ -18,7 +18,11 @@ import { OpportunityReport } from '@/agents/specialists/opportunity/types';
  */
 export async function GET() {
   try {
-    const reports = await opportunityReportsRepository.list(undefined, 'metadata.timestamp', 'desc');
+    const reports = await opportunityReportsRepository.list(
+      undefined,
+      'metadata.timestamp',
+      'desc',
+    );
     return ApiResponse.success(reports);
   } catch (error) {
     logger.error('Failed to fetch opportunity reports history', error);
@@ -54,13 +58,18 @@ export async function POST(req: NextRequest) {
 
     // 2. Execute Opportunity Agent passing the research data
     const opportunityAgent = new OpportunityAgent();
-    const opportunityCtx = createAgentContext(userId, `Analyze strategic triggers and opportunities for "${query}"`);
+    const opportunityCtx = createAgentContext(
+      userId,
+      `Analyze strategic triggers and opportunities for "${query}"`,
+    );
     opportunityCtx.sharedMemory.research = researchData;
 
     const opportunityResult = await opportunityAgent.execute(opportunityCtx, { researchData });
 
     if (!opportunityResult.success || !opportunityResult.output) {
-      throw new Error(opportunityResult.error || 'Failed to calculate strategic opportunity metrics.');
+      throw new Error(
+        opportunityResult.error || 'Failed to calculate strategic opportunity metrics.',
+      );
     }
 
     const reportData = opportunityResult.output as unknown as OpportunityReport;

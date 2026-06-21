@@ -16,7 +16,11 @@ class MockFailingAgent implements IAgent {
   public capabilities = ['research'] as const;
   public executionCount = 0;
 
-  constructor(private failAttempts: number, private delayMs = 0, name = 'ResearchAgent') {
+  constructor(
+    private failAttempts: number,
+    private delayMs = 0,
+    name = 'ResearchAgent',
+  ) {
     this.name = name;
   }
 
@@ -25,7 +29,7 @@ class MockFailingAgent implements IAgent {
     if (!context.workflowId) {
       throw new Error('Missing workflowId context');
     }
-    
+
     if (this.delayMs > 0) {
       await new Promise((resolve) => setTimeout(resolve, this.delayMs));
     }
@@ -94,7 +98,10 @@ describe('Autonomous Multi-Agent Orchestration Layer', () => {
     });
 
     it('should run sequential dependent steps in correct order', async () => {
-      const context = createAgentContext('user_123', 'Research stripe.com and analyze opportunities');
+      const context = createAgentContext(
+        'user_123',
+        'Research stripe.com and analyze opportunities',
+      );
       const plan = {
         goal: 'Research stripe.com and analyze opportunities',
         steps: [
@@ -116,7 +123,9 @@ describe('Autonomous Multi-Agent Orchestration Layer', () => {
       expect(updated.status).toBe('completed');
       expect(updated.sharedMemory.research).toBeDefined();
       expect(updated.sharedMemory.opportunityAnalysis).toBeDefined();
-      const opportunityAnalysis = updated.sharedMemory.opportunityAnalysis as { opportunityScore?: number };
+      const opportunityAnalysis = updated.sharedMemory.opportunityAnalysis as {
+        opportunityScore?: number;
+      };
       expect(opportunityAnalysis.opportunityScore).toBe(88);
 
       const timelineEvts = updated.timeline.filter((e) => e.type === 'agent_end');
@@ -200,7 +209,10 @@ describe('Autonomous Multi-Agent Orchestration Layer', () => {
   describe('Manager Agent Orchestrator', () => {
     it('should parse intent, plan, and synthesize final outcome successfully (Mock Mode)', async () => {
       const orchestrator = new ManagerAgent(true); // force mock mode
-      const result = await orchestrator.orchestrate('user_123', 'Research stripe.com and write outreach campaign');
+      const result = await orchestrator.orchestrate(
+        'user_123',
+        'Research stripe.com and write outreach campaign',
+      );
 
       expect(result.status).toBe('completed');
       expect(result.agentsInvoked).toContain('ResearchAgent');

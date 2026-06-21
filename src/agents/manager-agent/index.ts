@@ -58,7 +58,9 @@ export class ManagerAgent {
     if (!this.forceMock && key && key !== 'mock-gemini-key') {
       this.genAI = new GoogleGenerativeAI(key);
     } else {
-      logger.info('Manager Agent initialized in Mock mode (either forced or missing Gemini API key).');
+      logger.info(
+        'Manager Agent initialized in Mock mode (either forced or missing Gemini API key).',
+      );
     }
   }
 
@@ -86,7 +88,13 @@ export class ManagerAgent {
       const synthesis = await this.synthesizeOutputs(userGoal, updatedContext.sharedMemory);
 
       const duration = Date.now() - startTimestamp;
-      logTimelineEvent(context, 'workflow_end', 'Workflow completed successfully.', undefined, duration);
+      logTimelineEvent(
+        context,
+        'workflow_end',
+        'Workflow completed successfully.',
+        undefined,
+        duration,
+      );
 
       // Collect observability trace
       const report = generateObservabilityReport(updatedContext);
@@ -106,8 +114,14 @@ export class ManagerAgent {
     } catch (error) {
       const duration = Date.now() - startTimestamp;
       const errorMsg = error instanceof Error ? error.message : String(error);
-      logTimelineEvent(context, 'workflow_end', `Workflow execution failed: ${errorMsg}`, undefined, duration);
-      
+      logTimelineEvent(
+        context,
+        'workflow_end',
+        `Workflow execution failed: ${errorMsg}`,
+        undefined,
+        duration,
+      );
+
       return {
         workflowId: context.workflowId,
         agentsInvoked: context.executionHistory.map((h) => h.agentName),
@@ -116,7 +130,10 @@ export class ManagerAgent {
         results: {
           error: errorMsg,
         },
-        recommendations: ['Check system integrations and logs.', 'Retry workflow with structured goal parameters.'],
+        recommendations: [
+          'Check system integrations and logs.',
+          'Retry workflow with structured goal parameters.',
+        ],
       };
     }
   }
@@ -140,7 +157,7 @@ export class ManagerAgent {
 
         const text = result.response.text();
         const responseJson = JSON.parse(text);
-        
+
         return this.mapJsonToWorkflowPlan(userGoal, responseJson);
       } catch (error) {
         logger.error('Gemini planning failed. Falling back to rule-based planner.', error);
@@ -287,7 +304,7 @@ export class ManagerAgent {
     const lastStepIds = steps
       .filter((s) => s.id !== 'step_research' && s.id !== 'step_opportunity')
       .map((s) => s.id);
-      
+
     steps.push({
       id: 'step_crm',
       agentCapability: 'crm',
@@ -316,7 +333,10 @@ export class ManagerAgent {
     };
   }
 
-  private getInputMappingForCapability(capability: AgentCapability, ctx: AgentContext): Record<string, unknown> {
+  private getInputMappingForCapability(
+    capability: AgentCapability,
+    ctx: AgentContext,
+  ): Record<string, unknown> {
     switch (capability) {
       case 'research':
         return { websiteUrl: this.extractWebsite(ctx.userGoal) || 'prospect.com' };

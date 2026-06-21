@@ -45,7 +45,7 @@ describe('Research Agent Pipeline & Submodules', () => {
     it('should identify product offering catalog and signals for Stripe', async () => {
       const profile = { name: 'Stripe', website: 'stripe.com', description: 'desc' };
       const result = await webAnalyzer.analyze(profile);
-      
+
       expect(result.products.length).toBeGreaterThan(0);
       expect(result.products[0].name).toBe('Stripe Payments');
       expect(result.signals.hiringSignal).toContain('Enterprise Account Executives');
@@ -55,7 +55,7 @@ describe('Research Agent Pipeline & Submodules', () => {
     it('should extract generic product placeholders for other targets', async () => {
       const profile = { name: 'Acme Corp', website: 'acme.com', description: 'desc' };
       const result = await webAnalyzer.analyze(profile);
-      
+
       expect(result.products[0].name).toBe('Core Solution Suite');
       expect(result.products[0].pricing).toBe('Contact Sales');
     });
@@ -78,8 +78,16 @@ describe('Research Agent Pipeline & Submodules', () => {
     it('should identify growth opportunities with validation confidence scores', async () => {
       const profile = { name: 'Stripe', website: 'stripe.com', description: 'desc' };
       const products = [{ name: 'Stripe Payments', description: 'desc' }];
-      const competitors = [{ name: 'Adyen', website: 'adyen.com', relationship: 'direct' as const, advantage: 'adv', disadvantage: 'dis' }];
-      
+      const competitors = [
+        {
+          name: 'Adyen',
+          website: 'adyen.com',
+          relationship: 'direct' as const,
+          advantage: 'adv',
+          disadvantage: 'dis',
+        },
+      ];
+
       const result = await opportunityEngine.discover(profile, products, competitors);
 
       expect(result.opportunities.length).toBeGreaterThan(0);
@@ -96,8 +104,10 @@ describe('Research Agent Pipeline & Submodules', () => {
   describe('InsightGenerator Submodule', () => {
     it('should generate executive synthesis summaries and sales rep recommendations', async () => {
       const profile = { name: 'Stripe', website: 'stripe.com', description: 'desc' };
-      const opportunities = [{ insight: 'integration tax', confidence: 90, source: 'gap', type: 'technology' as const }];
-      
+      const opportunities = [
+        { insight: 'integration tax', confidence: 90, source: 'gap', type: 'technology' as const },
+      ];
+
       const result = await insightGenerator.generate(profile, opportunities);
 
       expect(result.summary).toContain('Stripe');
@@ -110,7 +120,7 @@ describe('Research Agent Pipeline & Submodules', () => {
     it('should coordinate all submodules sequentially and output final ResearchReport', async () => {
       const agent = new ResearchAgent();
       const context = createAgentContext('user_999', 'Research HubSpot');
-      
+
       const result = await agent.execute(context, { websiteUrl: 'hubspot.com' });
 
       expect(result.success).toBe(true);

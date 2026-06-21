@@ -9,9 +9,7 @@ export class CompanyProfiler {
   /**
    * Profiles a target company based on query input.
    */
-  public async profile(
-    query: string,
-  ): Promise<{
+  public async profile(query: string): Promise<{
     company: CompanyProfile;
     industry: { classification: string; vertical: string; tags: string[] };
   }> {

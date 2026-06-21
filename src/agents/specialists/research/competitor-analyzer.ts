@@ -111,14 +111,16 @@ export class CompetitorAnalyzer {
         website: 'competitor-alpha.com',
         relationship: 'direct',
         advantage: `Cleaner API endpoints and faster onboarding times compared to Competitor Alpha.`,
-        disadvantage: 'Competitor Alpha has a larger physical distribution presence in European markets.',
+        disadvantage:
+          'Competitor Alpha has a larger physical distribution presence in European markets.',
       },
       {
         name: 'Competitor Beta',
         website: 'competitor-beta.com',
         relationship: 'indirect',
         advantage: `More competitive pricing schemes and modular contracts than Competitor Beta.`,
-        disadvantage: 'Competitor Beta maintains longer historical contract relationships in this space.',
+        disadvantage:
+          'Competitor Beta maintains longer historical contract relationships in this space.',
       },
     ];
   }

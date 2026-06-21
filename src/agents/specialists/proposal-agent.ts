@@ -2,13 +2,16 @@ import { IAgent, AgentContext, AgentStepResult } from '../types';
 
 export class ProposalAgent implements IAgent {
   public name = 'ProposalAgent';
-  public description = 'Drafts structural B2B proposals, outlines recommended solutions, and generates pricing frames.';
+  public description =
+    'Drafts structural B2B proposals, outlines recommended solutions, and generates pricing frames.';
   public capabilities = ['proposal'] as const;
 
   public async execute(context: AgentContext): Promise<AgentStepResult> {
     const research = context.sharedMemory.research as Record<string, unknown> | undefined;
     const companyName = (research?.companyName as string) || 'Valued Prospect';
-    const opportunity = context.sharedMemory.opportunityAnalysis as Record<string, unknown> | undefined;
+    const opportunity = context.sharedMemory.opportunityAnalysis as
+      | Record<string, unknown>
+      | undefined;
     const valueProps = (opportunity?.valuePropositionsMatched as string[]) || [];
 
     // Simulate proposal rendering latency

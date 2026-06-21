@@ -1,12 +1,12 @@
 import { AgentContext, AgentTrace, TimelineEvent } from './types';
 
 /**
-   * Initializes a fresh Agent Context object for a new workflow.
-   */
+ * Initializes a fresh Agent Context object for a new workflow.
+ */
 export function createAgentContext(userId: string, userGoal: string): AgentContext {
   const workflowId = `wf_${Math.random().toString(36).substring(2, 11)}`;
   const timestamp = new Date().toISOString();
-  
+
   return {
     workflowId,
     userId,
@@ -50,12 +50,9 @@ export function logTimelineEvent(
 /**
  * Commits a completed agent trace to history and updates shared memory.
  */
-export function recordAgentTrace(
-  context: AgentContext,
-  trace: AgentTrace,
-): void {
+export function recordAgentTrace(context: AgentContext, trace: AgentTrace): void {
   context.executionHistory.push(trace);
-  
+
   if (trace.status === 'success' && trace.output) {
     // Map capability indicators or names into memory namespace
     const memoryKey = mapAgentNameToMemoryKey(trace.agentName);
@@ -68,11 +65,17 @@ export function recordAgentTrace(
  */
 function mapAgentNameToMemoryKey(name: string): string {
   switch (name) {
-    case 'ResearchAgent': return 'research';
-    case 'OpportunityAgent': return 'opportunityAnalysis';
-    case 'OutreachAgent': return 'outreach';
-    case 'CrmAgent': return 'crm';
-    case 'ProposalAgent': return 'proposal';
-    default: return name.toLowerCase().replace('agent', '');
+    case 'ResearchAgent':
+      return 'research';
+    case 'OpportunityAgent':
+      return 'opportunityAnalysis';
+    case 'OutreachAgent':
+      return 'outreach';
+    case 'CrmAgent':
+      return 'crm';
+    case 'ProposalAgent':
+      return 'proposal';
+    default:
+      return name.toLowerCase().replace('agent', '');
   }
 }

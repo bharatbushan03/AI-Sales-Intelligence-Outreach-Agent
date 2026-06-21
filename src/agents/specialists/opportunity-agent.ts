@@ -42,7 +42,9 @@ export class OpportunityAgent implements IAgent {
     context: AgentContext,
     options?: Record<string, unknown>,
   ): Promise<AgentStepResult> {
-    const researchData = (options?.researchData || context.sharedMemory.research) as unknown as ResearchReport | undefined;
+    const researchData = (options?.researchData || context.sharedMemory.research) as unknown as
+      | ResearchReport
+      | undefined;
 
     const company = researchData?.company || {
       name: this.extractCompanyName(context.userGoal) || 'Prospect Company',
@@ -76,11 +78,19 @@ export class OpportunityAgent implements IAgent {
 
       // Stage 5: Recommendation Engine
       logger.info('Stage 5: Running RecommendationEngine...');
-      const recommendations = await this.recommendationEngine.recommend(company, painPoints, opportunities);
+      const recommendations = await this.recommendationEngine.recommend(
+        company,
+        painPoints,
+        opportunities,
+      );
 
       // Stage 6: Strategic Insight Synthesis
       logger.info('Stage 6: Running StrategicInsightGenerator...');
-      const insightResult = await this.insightGenerator.generate(company, painPoints, opportunities);
+      const insightResult = await this.insightGenerator.generate(
+        company,
+        painPoints,
+        opportunities,
+      );
       const executiveSummary = insightResult.executiveSummary;
       const executiveInsights = insightResult.executiveInsights;
 

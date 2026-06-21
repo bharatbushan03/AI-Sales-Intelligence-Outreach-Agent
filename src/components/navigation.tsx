@@ -41,18 +41,20 @@ export function NavigationShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-slate-950 font-sans text-slate-100">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 bg-slate-900 border-r border-slate-800 text-slate-400">
+      <aside className="hidden w-64 flex-col border-r border-slate-800 bg-slate-900 text-slate-400 md:flex">
         {/* Brand Banner */}
-        <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-800">
-          <Bot className="h-7 w-7 text-indigo-400 animate-pulse" />
+        <div className="flex items-center gap-3 border-b border-slate-800 px-6 py-5">
+          <Bot className="h-7 w-7 animate-pulse text-indigo-400" />
           <div className="flex flex-col">
-            <span className="font-semibold text-slate-100 text-sm tracking-wide uppercase">B2B Autonomous</span>
-            <span className="text-xs text-indigo-400 font-medium">Sales Intelligence Agent</span>
+            <span className="text-sm font-semibold tracking-wide text-slate-100 uppercase">
+              B2B Autonomous
+            </span>
+            <span className="text-xs font-medium text-indigo-400">Sales Intelligence Agent</span>
           </div>
         </div>
 
         {/* Navigation Link list */}
-        <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+        <nav className="flex-1 space-y-1.5 overflow-y-auto px-4 py-6">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
@@ -60,7 +62,7 @@ export function NavigationShell({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                className={`flex items-center gap-3.5 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
                   isActive
                     ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10'
                     : 'hover:bg-slate-800 hover:text-slate-200'
@@ -74,27 +76,29 @@ export function NavigationShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         {/* User Card placeholder */}
-        <div className="p-4 border-t border-slate-800 bg-slate-900/50 flex items-center gap-3">
-          <div className="h-9 w-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-200">
+        <div className="flex items-center gap-3 border-t border-slate-800 bg-slate-900/50 p-4">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-700 bg-slate-800 font-bold text-slate-200">
             JD
           </div>
           <div className="flex flex-col overflow-hidden">
-            <span className="text-sm font-medium text-slate-200 truncate">John Doe</span>
-            <span className="text-xs text-slate-500 truncate">sales@example.com</span>
+            <span className="truncate text-sm font-medium text-slate-200">John Doe</span>
+            <span className="truncate text-xs text-slate-500">sales@example.com</span>
           </div>
         </div>
       </aside>
 
       {/* Mobile Header */}
-      <div className="flex flex-col flex-1 overflow-hidden">
-        <header className="md:hidden flex items-center justify-between px-6 py-4 bg-slate-900 border-b border-slate-800">
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <header className="flex items-center justify-between border-b border-slate-800 bg-slate-900 px-6 py-4 md:hidden">
           <div className="flex items-center gap-2">
             <Bot className="h-6 w-6 text-indigo-400" />
-            <span className="font-semibold text-slate-100 text-sm tracking-wider uppercase">B2B Agent</span>
+            <span className="text-sm font-semibold tracking-wider text-slate-100 uppercase">
+              B2B Agent
+            </span>
           </div>
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="p-1 rounded-lg border border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+            className="rounded-lg border border-slate-800 p-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
           >
             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -102,19 +106,24 @@ export function NavigationShell({ children }: { children: React.ReactNode }) {
 
         {/* Mobile Navigation Drawer */}
         {isOpen && (
-          <div className="md:hidden absolute inset-0 z-50 flex">
+          <div className="absolute inset-0 z-50 flex md:hidden">
             <div className="fixed inset-0 bg-black/60" onClick={() => setIsOpen(false)} />
-            <aside className="relative flex flex-col w-72 bg-slate-900 h-full border-r border-slate-800">
-              <div className="flex items-center justify-between px-6 py-5 border-b border-slate-800">
+            <aside className="relative flex h-full w-72 flex-col border-r border-slate-800 bg-slate-900">
+              <div className="flex items-center justify-between border-b border-slate-800 px-6 py-5">
                 <div className="flex items-center gap-2">
                   <Bot className="h-6 w-6 text-indigo-400" />
-                  <span className="font-semibold text-slate-100 text-sm tracking-wider uppercase">Sales Agent</span>
+                  <span className="text-sm font-semibold tracking-wider text-slate-100 uppercase">
+                    Sales Agent
+                  </span>
                 </div>
-                <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-slate-200">
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="text-slate-400 hover:text-slate-200"
+                >
                   <X className="h-6 w-6" />
                 </button>
               </div>
-              <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+              <nav className="flex-1 space-y-1.5 overflow-y-auto px-4 py-6">
                 {navItems.map((item) => {
                   const isActive = pathname === item.href;
                   const Icon = item.icon;
@@ -123,8 +132,10 @@ export function NavigationShell({ children }: { children: React.ReactNode }) {
                       key={item.href}
                       href={item.href}
                       onClick={() => setIsOpen(false)}
-                      className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                        isActive ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 hover:text-slate-200'
+                      className={`flex items-center gap-3.5 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                        isActive
+                          ? 'bg-indigo-600 text-white'
+                          : 'hover:bg-slate-800 hover:text-slate-200'
                       }`}
                     >
                       <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
@@ -139,9 +150,7 @@ export function NavigationShell({ children }: { children: React.ReactNode }) {
 
         {/* Content Area */}
         <main className="flex-1 overflow-y-auto bg-slate-950 p-6 md:p-10">
-          <div className="max-w-7xl mx-auto space-y-8">
-            {children}
-          </div>
+          <div className="mx-auto max-w-7xl space-y-8">{children}</div>
         </main>
       </div>
     </div>

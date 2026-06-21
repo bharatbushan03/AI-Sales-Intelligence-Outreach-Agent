@@ -5,7 +5,9 @@ const clientSchema = z.object({
   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: z.string().min(1, 'Firebase Auth Domain is required'),
   NEXT_PUBLIC_FIREBASE_PROJECT_ID: z.string().min(1, 'Firebase Project ID is required'),
   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: z.string().min(1, 'Firebase Storage Bucket is required'),
-  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: z.string().min(1, 'Firebase Messaging Sender ID is required'),
+  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: z
+    .string()
+    .min(1, 'Firebase Messaging Sender ID is required'),
   NEXT_PUBLIC_FIREBASE_APP_ID: z.string().min(1, 'Firebase App ID is required'),
 });
 
@@ -14,7 +16,12 @@ const serverSchema = z.object({
   GEMINI_API_KEY: z.string().min(1, 'Gemini API Key is required'),
   FIREBASE_CLIENT_EMAIL: z.string().email('Valid client email is required'),
   FIREBASE_PRIVATE_KEY: z.string().min(1, 'Firebase private key is required'),
-  CLOUD_RUN_URL: z.string().url().optional().or(z.string().length(0)).transform((val) => val || 'http://localhost:3000'),
+  CLOUD_RUN_URL: z
+    .string()
+    .url()
+    .optional()
+    .or(z.string().length(0))
+    .transform((val) => val || 'http://localhost:3000'),
 });
 
 const combinedSchema = clientSchema.merge(serverSchema);
@@ -35,7 +42,8 @@ if (process.env.SKIP_ENV_VALIDATION === 'true' || process.env.NODE_ENV === 'test
     NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: '1234567890',
     NEXT_PUBLIC_FIREBASE_APP_ID: '1:1234567890:web:1234567890',
     FIREBASE_CLIENT_EMAIL: 'firebase-adminsdk-mock@mock-project.iam.gserviceaccount.com',
-    FIREBASE_PRIVATE_KEY: '-----BEGIN PRIVATE KEY-----\nmock-private-key\n-----END PRIVATE KEY-----',
+    FIREBASE_PRIVATE_KEY:
+      '-----BEGIN PRIVATE KEY-----\nmock-private-key\n-----END PRIVATE KEY-----',
     CLOUD_RUN_URL: 'http://localhost:3000',
   };
 } else if (isServer) {

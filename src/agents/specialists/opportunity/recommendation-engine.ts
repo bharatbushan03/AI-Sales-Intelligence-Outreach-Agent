@@ -30,7 +30,10 @@ export class RecommendationEngine {
         const json = JSON.parse(result.response.text());
         return json.recommendations || [];
       } catch (error) {
-        logger.error(`RecommendationEngine live analysis failed for ${profile.name}. Falling back to mock.`, error);
+        logger.error(
+          `RecommendationEngine live analysis failed for ${profile.name}. Falling back to mock.`,
+          error,
+        );
       }
     }
 
@@ -63,7 +66,8 @@ export class RecommendationEngine {
           objectionPrep: [
             {
               objection: 'We already use Stripe Radar and smart retries for decline recovery.',
-              response: 'Smart retries run after the initial fail; our dynamic routing selects the correct gateway before execution to prevent triggers.',
+              response:
+                'Smart retries run after the initial fail; our dynamic routing selects the correct gateway before execution to prevent triggers.',
             },
           ],
         },
@@ -93,7 +97,8 @@ export class RecommendationEngine {
           objectionPrep: [
             {
               objection: 'Our existing database setup is too deeply customized to migrate.',
-              response: 'Our API dynamically maps Salesforce objects, allowing a parallel sync to test latency before committing to cutoff.',
+              response:
+                'Our API dynamically maps Salesforce objects, allowing a parallel sync to test latency before committing to cutoff.',
             },
           ],
         },
@@ -123,7 +128,8 @@ export class RecommendationEngine {
           objectionPrep: [
             {
               objection: 'We already build custom API endpoints for Einstein agents.',
-              response: 'Custom endpoints require code updates on every schema change; our ledger adapts automatically.',
+              response:
+                'Custom endpoints require code updates on every schema change; our ledger adapts automatically.',
             },
           ],
         },
@@ -153,7 +159,8 @@ export class RecommendationEngine {
           objectionPrep: [
             {
               objection: 'Our employees manage their own workspace permissions.',
-              response: 'Our auditor runs silently in the background, alerting administrators to leaks without changing user workflows.',
+              response:
+                'Our auditor runs silently in the background, alerting administrators to leaks without changing user workflows.',
             },
           ],
         },
@@ -183,7 +190,8 @@ export class RecommendationEngine {
           objectionPrep: [
             {
               objection: 'We already sync using third-party CSV automation tools.',
-              response: 'CSV runs on schedules and creates data gaps; our ledger uses webhooks to sync stock instantly.',
+              response:
+                'CSV runs on schedules and creates data gaps; our ledger uses webhooks to sync stock instantly.',
             },
           ],
         },
@@ -210,7 +218,8 @@ export class RecommendationEngine {
         objectionPrep: [
           {
             objection: 'We are satisfied with our current manual processes.',
-            response: 'Manual tasks limit team growth potential; our software automates updates to save time.',
+            response:
+              'Manual tasks limit team growth potential; our software automates updates to save time.',
           },
         ],
       },

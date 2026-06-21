@@ -2,13 +2,16 @@ import { IAgent, AgentContext, AgentStepResult } from '../types';
 
 export class OutreachAgent implements IAgent {
   public name = 'OutreachAgent';
-  public description = 'Generates personalized multi-channel outreach campaigns including email and LinkedIn messages.';
+  public description =
+    'Generates personalized multi-channel outreach campaigns including email and LinkedIn messages.';
   public capabilities = ['outreach'] as const;
 
   public async execute(context: AgentContext): Promise<AgentStepResult> {
     const research = context.sharedMemory.research as Record<string, unknown> | undefined;
     const companyName = (research?.companyName as string) || 'Valued Prospect';
-    const opportunity = context.sharedMemory.opportunityAnalysis as Record<string, unknown> | undefined;
+    const opportunity = context.sharedMemory.opportunityAnalysis as
+      | Record<string, unknown>
+      | undefined;
     const valueProps = opportunity?.valuePropositionsMatched as string[] | undefined;
     const match = valueProps?.[0] || 'our custom B2B solutions';
 

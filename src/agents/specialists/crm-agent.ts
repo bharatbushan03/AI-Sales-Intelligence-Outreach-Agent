@@ -2,10 +2,14 @@ import { IAgent, AgentContext, AgentStepResult } from '../types';
 
 export class CrmAgent implements IAgent {
   public name = 'CrmAgent';
-  public description = 'Maintains CRM integrity by writing meeting summaries, creating tracking links, and scheduling followups.';
+  public description =
+    'Maintains CRM integrity by writing meeting summaries, creating tracking links, and scheduling followups.';
   public capabilities = ['crm'] as const;
 
-  public async execute(context: AgentContext, options?: Record<string, unknown>): Promise<AgentStepResult> {
+  public async execute(
+    context: AgentContext,
+    options?: Record<string, unknown>,
+  ): Promise<AgentStepResult> {
     const action = options?.action || 'SYNC_LEAD';
 
     // Simulate CRM activity log latency

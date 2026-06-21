@@ -21,14 +21,18 @@ export interface ObservabilityReport {
  */
 export function generateObservabilityReport(context: AgentContext): ObservabilityReport {
   const startEvent = context.timeline.find((t) => t.type === 'workflow_start');
-  const endEvent = context.timeline.find((t) => t.type === 'workflow_end' || t.type === 'agent_error');
-  
-  const startTime = startEvent ? new Date(startEvent.timestamp).getTime() : new Date(context.createdAt).getTime();
+  const endEvent = context.timeline.find(
+    (t) => t.type === 'workflow_end' || t.type === 'agent_error',
+  );
+
+  const startTime = startEvent
+    ? new Date(startEvent.timestamp).getTime()
+    : new Date(context.createdAt).getTime();
   const endTime = endEvent ? new Date(endEvent.timestamp).getTime() : Date.now();
   const totalDurationMs = endTime - startTime;
 
   const agentsInvoked = context.executionHistory.map((h) => h.agentName);
-  
+
   // Latency breakdown per agent
   const totalAgentDuration = context.executionHistory.reduce((sum, h) => sum + h.durationMs, 0);
   const latencyBreakdown: LatencyBreakdown[] = context.executionHistory.map((h) => ({
