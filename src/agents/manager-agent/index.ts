@@ -317,10 +317,17 @@ export class ManagerAgent {
       id: 'step_crm',
       agentCapability: 'crm',
       dependsOn: lastStepIds.length > 0 ? lastStepIds : ['step_research'],
-      inputMapping: (ctx) => ({
-        action: 'LOG_WORKFLOW_RUN',
-        summary: `Workflow completed. Goal: ${ctx.userGoal}`,
-      }),
+      inputMapping: (ctx) => {
+        const goal = ctx.userGoal.toLowerCase();
+        let action = 'LOG_WORKFLOW_RUN';
+        if (goal.includes('create lead')) action = 'CREATE_LEAD';
+        else if (goal.includes('summarize meeting')) action = 'SUMMARIZE_MEETING';
+        else if (goal.includes('pipeline analysis') || goal.includes('analyze pipeline')) action = 'ANALYZE_PIPELINE';
+        return {
+          action,
+          summary: `Workflow completed. Goal: ${ctx.userGoal}`,
+        };
+      },
     });
 
     return {
