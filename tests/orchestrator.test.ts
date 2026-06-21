@@ -8,6 +8,7 @@ import { ResearchAgent } from '../src/agents/specialists/research-agent';
 import { OpportunityAgent } from '../src/agents/specialists/opportunity-agent';
 import { OutreachAgent } from '../src/agents/specialists/outreach-agent';
 import { CrmAgent } from '../src/agents/specialists/crm-agent';
+import { ProposalAgent } from '../src/agents/specialists/proposal-agent';
 
 // Custom Mock Agent that fails or delays to verify retry and timeout loops
 class MockFailingAgent implements IAgent {
@@ -56,6 +57,7 @@ describe('Autonomous Multi-Agent Orchestration Layer', () => {
     registry.register(new OpportunityAgent());
     registry.register(new OutreachAgent());
     registry.register(new CrmAgent());
+    registry.register(new ProposalAgent());
   });
 
   describe('Agent Registry & Interfaces', () => {

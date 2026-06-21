@@ -29,6 +29,13 @@ import {
   PipelineReport,
   RelationshipScore,
 } from '../agents/specialists/crm/types';
+import {
+  ProposalPackage,
+  BusinessCase,
+  RoiAnalysis,
+  ExecutiveSummary,
+  SlideOutline,
+} from '../agents/specialists/proposal/types';
 
 export const reportsRepository = new FirestoreRepository<ResearchReport>('research_reports');
 export const jobsRepository = new FirestoreRepository<ResearchJob>('research_jobs');
@@ -109,3 +116,18 @@ export const opportunitiesRepository = new FirestoreRepository<OpportunityRecord
 export const followupsRepository = new FirestoreRepository<FollowUpTask>('followups');
 export const pipelineReportsRepository = new FirestoreRepository<PipelineReport>('pipeline_reports');
 export const relationshipScoresRepository = new FirestoreRepository<RelationshipScore>('relationship_scores');
+
+// Proposal Agent Repositories
+export const proposalsRepository = new FirestoreRepository<ProposalPackage>('proposals');
+export const businessCasesRepository = new FirestoreRepository<
+  BusinessCase & { id?: string; createdAt?: unknown; updatedAt?: unknown; reportId?: string }
+>('business_cases');
+export const roiReportsRepository = new FirestoreRepository<
+  RoiAnalysis & { id?: string; createdAt?: unknown; updatedAt?: unknown; reportId?: string }
+>('roi_reports');
+export const executiveBriefsRepository = new FirestoreRepository<
+  ExecutiveSummary & { id?: string; createdAt?: unknown; updatedAt?: unknown; reportId?: string }
+>('executive_briefs');
+export const presentationsRepository = new FirestoreRepository<
+  SlideOutline & { id?: string; createdAt?: unknown; updatedAt?: unknown; reportId?: string }
+>('presentations');

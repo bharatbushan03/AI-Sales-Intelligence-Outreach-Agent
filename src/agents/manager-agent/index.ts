@@ -284,7 +284,36 @@ export class ManagerAgent {
       });
     }
 
-    if (query.includes('proposal') || query.includes('quote') || query.includes('pricing')) {
+    const needsProposal = query.includes('proposal') || query.includes('quote') || query.includes('pricing');
+
+    // Always append CRM update
+    const crmDepends = [];
+    if (steps.some((s) => s.id === 'step_outreach')) {
+      crmDepends.push('step_outreach');
+    } else if (steps.some((s) => s.id === 'step_opportunity')) {
+      crmDepends.push('step_opportunity');
+    } else {
+      crmDepends.push('step_research');
+    }
+
+    steps.push({
+      id: 'step_crm',
+      agentCapability: 'crm',
+      dependsOn: crmDepends,
+      inputMapping: (ctx) => {
+        const goal = ctx.userGoal.toLowerCase();
+        let action = 'LOG_WORKFLOW_RUN';
+        if (goal.includes('create lead')) action = 'CREATE_LEAD';
+        else if (goal.includes('summarize meeting')) action = 'SUMMARIZE_MEETING';
+        else if (goal.includes('pipeline analysis') || goal.includes('analyze pipeline')) action = 'ANALYZE_PIPELINE';
+        return {
+          action,
+          summary: `Workflow completed. Goal: ${ctx.userGoal}`,
+        };
+      },
+    });
+
+    if (needsProposal) {
       // Ensure opportunity runs if not already added
       if (!steps.some((s) => s.id === 'step_opportunity')) {
         steps.push({
@@ -300,35 +329,14 @@ export class ManagerAgent {
       steps.push({
         id: 'step_proposal',
         agentCapability: 'proposal',
-        dependsOn: ['step_opportunity'],
+        dependsOn: ['step_crm'],
         inputMapping: (ctx) => ({
           research: ctx.sharedMemory.research,
           opportunityAnalysis: ctx.sharedMemory.opportunityAnalysis,
+          crm: ctx.sharedMemory.crm,
         }),
       });
     }
-
-    // Always append CRM update at the end
-    const lastStepIds = steps
-      .filter((s) => s.id !== 'step_research' && s.id !== 'step_opportunity')
-      .map((s) => s.id);
-
-    steps.push({
-      id: 'step_crm',
-      agentCapability: 'crm',
-      dependsOn: lastStepIds.length > 0 ? lastStepIds : ['step_research'],
-      inputMapping: (ctx) => {
-        const goal = ctx.userGoal.toLowerCase();
-        let action = 'LOG_WORKFLOW_RUN';
-        if (goal.includes('create lead')) action = 'CREATE_LEAD';
-        else if (goal.includes('summarize meeting')) action = 'SUMMARIZE_MEETING';
-        else if (goal.includes('pipeline analysis') || goal.includes('analyze pipeline')) action = 'ANALYZE_PIPELINE';
-        return {
-          action,
-          summary: `Workflow completed. Goal: ${ctx.userGoal}`,
-        };
-      },
-    });
 
     return {
       goal,
@@ -366,6 +374,7 @@ export class ManagerAgent {
         return {
           research: ctx.sharedMemory.research,
           opportunityAnalysis: ctx.sharedMemory.opportunityAnalysis,
+          crm: ctx.sharedMemory.crm,
         };
       case 'crm':
         return {
