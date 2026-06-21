@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { AIPlatformGenerativeAI } from '../platform/wrapper';
 import { env } from '../../lib/env';
 import { IAgent, AgentContext, AgentStepResult } from '../types';
 import { LeadManager } from './crm/lead-manager';
@@ -37,11 +37,11 @@ export class CrmAgent implements IAgent {
   private followUpEngine: FollowUpEngine;
   private pipelineAnalyzer: PipelineAnalyzer;
   private relationshipScorer: RelationshipScoringEngine;
-  private genAI: GoogleGenerativeAI | null = null;
+  private genAI: any = null;
 
   constructor() {
     const key = env.GEMINI_API_KEY;
-    this.genAI = key && key !== 'mock-gemini-key' ? new GoogleGenerativeAI(key) : null;
+    this.genAI = key && key !== 'mock-gemini-key' ? new AIPlatformGenerativeAI(key) as any : null;
 
     this.leadManager = new LeadManager();
     this.opportunityManager = new OpportunityManager();

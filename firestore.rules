@@ -1,0 +1,94 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper: checks if user is logged in
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper: gets user record data
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // Helper: checks if user role is Admin
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.role == 'Admin' || 
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role == 'Admin')
+      );
+    }
+
+    // Helper: checks if user has one of the allowed roles
+    function hasRole(allowedRoles) {
+      return isSignedIn() && (
+        request.auth.token.role in allowedRoles || 
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().role in allowedRoles)
+      );
+    }
+
+    // Helper: checks if a document is owned by the user's tenant
+    function isTenantOwner(resourceDoc) {
+      return isSignedIn() && (
+        resourceDoc.organizationId == request.auth.token.organizationId || 
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && resourceDoc.organizationId == getUserData().organizationId)
+      );
+    }
+
+    // Helper: checks if the incoming data matches the user's tenant ID
+    function isValidWrite(incomingDoc) {
+      return isSignedIn() && (
+        incomingDoc.organizationId == request.auth.token.organizationId || 
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && incomingDoc.organizationId == getUserData().organizationId)
+      );
+    }
+
+    // Default rules for standard collections
+    match /{collection}/{document} {
+      allow read: if isSignedIn() && (isAdmin() || isTenantOwner(resource.data));
+      allow create: if isSignedIn() && (isAdmin() || (hasRole(['Sales Rep', 'Manager']) && isValidWrite(request.resource.data)));
+      allow update: if isSignedIn() && (isAdmin() || (hasRole(['Sales Rep', 'Manager']) && isTenantOwner(resource.data) && isValidWrite(request.resource.data)));
+      allow delete: if isSignedIn() && isAdmin();
+    }
+
+    // Global prompt registry configuration (read-only for standard users)
+    match /prompt_registry/{promptId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isAdmin();
+    }
+
+    match /prompt_versions/{versionId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isAdmin();
+    }
+
+    // Immutable system logs collections (Audit logs and Domain events)
+    match /audit_logs/{logId} {
+      allow read: if isSignedIn() && (isAdmin() || isTenantOwner(resource.data));
+      allow create: if isSignedIn() && (isAdmin() || isValidWrite(request.resource.data));
+      allow update, delete: if false; // Strict immutability
+    }
+
+    match /domain_events/{eventId} {
+      allow read: if isSignedIn() && (isAdmin() || isTenantOwner(resource.data));
+      allow create: if isSignedIn() && (isAdmin() || isValidWrite(request.resource.data));
+      allow update, delete: if false; // Strict immutability
+    }
+    
+    // User profile matching
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin() || isTenantOwner(resource.data));
+      allow write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+    }
+
+    match /organizations/{orgId} {
+      allow read: if isSignedIn() && (
+        request.auth.token.organizationId == orgId || 
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && getUserData().organizationId == orgId) || 
+        isAdmin()
+      );
+      allow write: if isSignedIn() && isAdmin();
+    }
+  }
+}

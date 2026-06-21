@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { AIPlatformGenerativeAI } from '../platform/wrapper';
 import { env } from '../../lib/env';
 import { IAgent, AgentContext, AgentStepResult } from '../types';
 import { SolutionDesigner } from './proposal/solution-designer';
@@ -22,11 +22,11 @@ export class ProposalAgent implements IAgent {
   private proposalWriter: ProposalWriter;
   private summaryGenerator: ExecutiveSummaryGenerator;
   private presentationGenerator: PresentationGenerator;
-  private genAI: GoogleGenerativeAI | null = null;
+  private genAI: any = null;
 
   constructor() {
     const key = env.GEMINI_API_KEY;
-    this.genAI = key && key !== 'mock-gemini-key' ? new GoogleGenerativeAI(key) : null;
+    this.genAI = key && key !== 'mock-gemini-key' ? new AIPlatformGenerativeAI(key) as any : null;
 
     this.solutionDesigner = new SolutionDesigner(this.genAI);
     this.businessCaseGenerator = new BusinessCaseGenerator(this.genAI);

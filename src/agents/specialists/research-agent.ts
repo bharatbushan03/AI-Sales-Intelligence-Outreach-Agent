@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { AIPlatformGenerativeAI } from '../platform/wrapper';
 import { env } from '../../lib/env';
 import { IAgent, AgentContext, AgentStepResult } from '../types';
 import { CompanyProfiler } from './research/profiler';
@@ -22,7 +22,7 @@ export class ResearchAgent implements IAgent {
 
   constructor() {
     const key = env.GEMINI_API_KEY;
-    const genAI = key && key !== 'mock-gemini-key' ? new GoogleGenerativeAI(key) : null;
+    const genAI = key && key !== 'mock-gemini-key' ? new AIPlatformGenerativeAI(key) as any : null;
 
     this.profiler = new CompanyProfiler(genAI);
     this.webAnalyzer = new WebsiteAnalyzer(genAI);

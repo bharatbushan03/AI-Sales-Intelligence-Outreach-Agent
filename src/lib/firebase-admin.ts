@@ -30,27 +30,132 @@ try {
   adminAuth = getAuth(app);
 } catch (error) {
   console.warn(
-    'Firebase Admin initialization failed. Using mock interfaces for build/fallback.',
+    'Firebase Admin initialization failed. Using in-memory mock database for build/fallback.',
     error,
   );
 
-  const mockQuery = {
-    where: () => mockQuery,
-    orderBy: () => mockQuery,
-    limit: () => mockQuery,
-    get: async () => ({ docs: [] }),
-    doc: () => ({
-      get: async () => ({ exists: false, data: () => ({}) }),
-      set: async () => ({}),
-      add: async () => ({ id: 'mock-id' }),
-      update: async () => ({}),
-      delete: async () => ({}),
-    }),
-    add: async () => ({ id: 'mock-id' }),
+  const db: Record<string, Record<string, any>> = {};
+
+  const makeQuery = (collectionName: string, filters: any[] = [], order: any = null, limitVal: number | null = null) => {
+    const getDocs = async () => {
+      const col = db[collectionName] || {};
+      let list = Object.entries(col).map(([id, data]) => ({
+        id,
+        ref: {
+          delete: async () => {
+            if (db[collectionName]) {
+              delete db[collectionName][id];
+            }
+          }
+        },
+        exists: true,
+        data: () => data,
+      }));
+
+      // Apply filters
+      for (const filter of filters) {
+        list = list.filter((item) => {
+          const val = item.data()[filter.field];
+          if (filter.op === '==') return val === filter.value;
+          if (filter.op === '!=') return val !== filter.value;
+          if (filter.op === '<') return val < filter.value;
+          if (filter.op === '>') return val > filter.value;
+          return true;
+        });
+      }
+
+      // Apply order
+      if (order) {
+        list.sort((a, b) => {
+          const valA = a.data()[order.field];
+          const valB = b.data()[order.field];
+          if (valA === undefined || valB === undefined) return 0;
+          if (order.dir === 'asc') {
+            return String(valA).localeCompare(String(valB));
+          } else {
+            return String(valB).localeCompare(String(valA));
+          }
+        });
+      }
+
+      // Apply limit
+      if (limitVal !== null) {
+        list = list.slice(0, limitVal);
+      }
+
+      return { docs: list };
+    };
+
+    const queryObj: any = {
+      where: (field: string, op: string, value: any) => {
+        return makeQuery(collectionName, [...filters, { field, op, value }], order, limitVal);
+      },
+      orderBy: (field: string, dir: 'asc' | 'desc' = 'asc') => {
+        return makeQuery(collectionName, filters, { field, dir }, limitVal);
+      },
+      limit: (val: number) => {
+        return makeQuery(collectionName, filters, order, val);
+      },
+      get: getDocs,
+      doc: (id: string) => {
+        return {
+          get: async () => {
+            const data = db[collectionName]?.[id];
+            return {
+              exists: !!data,
+              data: () => data || {},
+              id,
+            };
+          },
+          set: async (payload: any) => {
+            if (!db[collectionName]) db[collectionName] = {};
+            db[collectionName][id] = { ...payload };
+          },
+          add: async (payload: any) => {
+            if (!db[collectionName]) db[collectionName] = {};
+            const generatedId = Math.random().toString(36).substring(2, 11);
+            db[collectionName][generatedId] = { ...payload };
+            return { id: generatedId };
+          },
+          update: async (payload: any) => {
+            if (!db[collectionName]) db[collectionName] = {};
+            db[collectionName][id] = { ...db[collectionName][id], ...payload };
+          },
+          delete: async () => {
+            if (db[collectionName]) {
+              delete db[collectionName][id];
+            }
+          },
+        };
+      },
+      add: async (payload: any) => {
+        if (!db[collectionName]) db[collectionName] = {};
+        const generatedId = Math.random().toString(36).substring(2, 11);
+        db[collectionName][generatedId] = { ...payload };
+        return { id: generatedId };
+      },
+    };
+
+    return queryObj;
   };
 
   adminDb = {
-    collection: () => mockQuery,
+    collection: (name: string) => makeQuery(name),
+    batch: () => {
+      const ops: Array<() => Promise<void>> = [];
+      return {
+        delete: (ref: any) => {
+          ops.push(async () => {
+            await ref.delete();
+          });
+        },
+        commit: async () => {
+          for (const op of ops) {
+            await op();
+          }
+        }
+      };
+    }
   } as unknown as Firestore;
 
   adminAuth = {} as unknown as Auth;

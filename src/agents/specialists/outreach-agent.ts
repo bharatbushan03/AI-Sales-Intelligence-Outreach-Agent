@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { AIPlatformGenerativeAI } from '../platform/wrapper';
 import { env } from '../../lib/env';
 import { IAgent, AgentContext, AgentStepResult } from '../types';
 import { PersonaAnalyzer } from './outreach/persona-analyzer';
@@ -27,11 +27,11 @@ export class OutreachAgent implements IAgent {
   private campaignPlanner: CampaignPlanner;
   private callPrepEngine: CallPreparationEngine;
   private objectionEngine: ObjectionHandlingEngine;
-  private genAI: GoogleGenerativeAI | null = null;
+  private genAI: any = null;
 
   constructor() {
     const key = env.GEMINI_API_KEY;
-    this.genAI = key && key !== 'mock-gemini-key' ? new GoogleGenerativeAI(key) : null;
+    this.genAI = key && key !== 'mock-gemini-key' ? new AIPlatformGenerativeAI(key) as any : null;
 
     this.personaAnalyzer = new PersonaAnalyzer(this.genAI);
     this.messagingStrategist = new MessagingStrategist(this.genAI);

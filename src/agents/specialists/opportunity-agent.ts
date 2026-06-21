@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { AIPlatformGenerativeAI } from '../platform/wrapper';
 import { env } from '../../lib/env';
 import { IAgent, AgentContext, AgentStepResult } from '../types';
 import { PainPointDetector } from './opportunity/pain-point-detector';
@@ -25,7 +25,7 @@ export class OpportunityAgent implements IAgent {
 
   constructor() {
     const key = env.GEMINI_API_KEY;
-    const genAI = key && key !== 'mock-gemini-key' ? new GoogleGenerativeAI(key) : null;
+    const genAI = key && key !== 'mock-gemini-key' ? new AIPlatformGenerativeAI(key) as any : null;
 
     this.painDetector = new PainPointDetector(genAI);
     this.growthAnalyzer = new GrowthSignalAnalyzer(genAI);

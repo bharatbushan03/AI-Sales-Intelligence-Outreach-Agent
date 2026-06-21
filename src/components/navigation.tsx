@@ -15,6 +15,9 @@ import {
   Menu,
   X,
   Lightbulb,
+  Brain,
+  Cpu,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface NavItem {
@@ -31,6 +34,9 @@ const navItems: NavItem[] = [
   { label: 'Outreach', href: '/outreach', icon: Mail },
   { label: 'CRM Sync', href: '/crm', icon: Database },
   { label: 'Proposals', href: '/proposals', icon: FileText },
+  { label: 'Shared Memory', href: '/memory', icon: Brain },
+  { label: 'AI Intelligence', href: '/intelligence', icon: Cpu },
+  { label: 'Admin Console', href: '/admin/data', icon: ShieldCheck },
   { label: 'Settings', href: '/settings', icon: SettingsIcon },
 ];
 
