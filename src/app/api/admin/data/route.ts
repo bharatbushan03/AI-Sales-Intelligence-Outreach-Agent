@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     logger.error(`Admin GET API failed: ${errorMsg}`, error);
-    return ApiResponse.error(`Failed to fetch administrative data: ${errorMsg}`, 'ADMIN_GET_ERROR', 500);
+    return ApiResponse.error(`Failed to fetch administrative data: ${errorMsg}`, 'INTERNAL_ERROR', 500);
   }
 }
 
@@ -322,6 +322,6 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     logger.error(`Admin POST API failed: ${errorMsg}`, error);
-    return ApiResponse.error(`Action execution failed: ${errorMsg}`, 'ADMIN_POST_ERROR', 500);
+    return ApiResponse.error(`Action execution failed: ${errorMsg}`, 'INTERNAL_ERROR', 500);
   }
 }

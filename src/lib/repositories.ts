@@ -215,3 +215,22 @@ export const notificationsRepository = new FirestoreRepository<any>('notificatio
   enableMultiTenancy: true,
   enableSoftDelete: true,
 });
+
+export const workspacesRepository = new FirestoreRepository<any>('workspaces', {
+  enableMultiTenancy: true,
+  enableSoftDelete: true,
+});
+
+export const invitationsRepository = new FirestoreRepository<any>('invitations', {
+  enableMultiTenancy: true,
+});
+
+export const activityFeedRepository = new FirestoreRepository<any>('activity_feed', {
+  enableMultiTenancy: true,
+});
+
+export const commentsRepository = new FirestoreRepository<any>('comments', {
+  enableMultiTenancy: true,
+  enableSoftDelete: true,
+});
+

@@ -99,7 +99,6 @@ export default function MemoryDashboardPage() {
   
   // Selection states
   const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowRecord | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedCompany, setSelectedCompany] = useState<CompanyRecord | null>(null);
   const [activeGraphCompany, setActiveGraphCompany] = useState<string>('Stripe');
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
@@ -147,7 +146,6 @@ export default function MemoryDashboardPage() {
   }, [activeGraphCompany]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchData();
   }, [fetchData]);
 
@@ -554,7 +552,6 @@ export default function MemoryDashboardPage() {
                             <div className="mt-6 space-y-4 max-h-[300px] overflow-y-auto pr-1">
                               {Object.entries(selectedWorkflow.agentOutputs).map(([agentKey, outputVal], idx) => {
                                 if (!outputVal) return null;
-                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                 const val = outputVal as any;
                                 return (
                                   <div key={agentKey} className="flex gap-3 items-start border-l-2 border-slate-800 pl-4 py-1 relative">

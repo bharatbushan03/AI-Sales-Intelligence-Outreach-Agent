@@ -109,7 +109,6 @@ export default function CrmWorkspacePage() {
     return () => {
       active = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleForceSync = async () => {

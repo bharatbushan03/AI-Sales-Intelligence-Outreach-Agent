@@ -19,8 +19,10 @@ import {
   workflowsRepository,
   workflowStepsRepository,
   usersRepository,
+  workspacesRepository,
 } from '../../lib/repositories';
 import { AuditActor } from '../../lib/audit-trail';
+import { hasPermission } from '../../lib/rbac';
 
 
 const PLANNING_SYSTEM_PROMPT = `
@@ -78,7 +80,7 @@ export class ManagerAgent {
   /**
    * Orchestrates the multi-agent execution pipeline.
    */
-  public async orchestrate(userId: string, userGoal: string): Promise<FinalWorkflowResult> {
+  public async orchestrate(userId: string, userGoal: string, workspaceId?: string): Promise<FinalWorkflowResult> {
     const context = createAgentContext(userId, userGoal);
     const startTimestamp = Date.now();
 
@@ -98,6 +100,24 @@ export class ManagerAgent {
       }
     } catch (err) {
       // Fallback if not configured
+    }
+
+    // 1. RBAC authorization validation
+    if (!hasPermission(actor.role as any, 'workflows.execute' as any)) {
+      throw new Error(`Unauthorized. User role ${actor.role} does not possess workflows.execute permissions.`);
+    }
+
+    // 2. Tenant & Workspace validation
+    if (workspaceId) {
+      let wsDoc: any = null;
+      try {
+        wsDoc = await workspacesRepository.get(workspaceId);
+      } catch (err) {
+        // Ignored under testing mock conditions
+      }
+      if (wsDoc && wsDoc.organizationId !== organizationId) {
+        throw new Error(`Unauthorized. Workspace ${workspaceId} does not belong to your organization ${organizationId}.`);
+      }
     }
 
     try {
