@@ -79,7 +79,7 @@ export default function AgentCommandCenter() {
               <span>Total Workflows Today</span>
               <span className="font-medium">127</span>
             </div>
-            <div class="flex justify-between text-slate-400">
+            <div className="flex justify-between text-slate-400">
               <span>Agent Uptime</span>
               <span className="font-medium">99.8%</span>
             </div>
