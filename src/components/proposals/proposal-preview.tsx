@@ -1,4 +1,36 @@
+"use client";
+
+import { Edit, FileText, Link, Cloud } from 'lucide-react';
+import { useState } from 'react';
+
 export default function ProposalPreview() {
+  const [saving, setSaving] = useState(false);
+  const [driveLink, setDriveLink] = useState('');
+
+  const handleSaveToDrive = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch('/api/proposals/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: 'Strategic Partnership Proposal - TechCorp Solutions',
+          content: '# Strategic Partnership Proposal\n\nFor TechCorp Solutions\n\n## Executive Summary\n\nThis proposal outlines a comprehensive technology partnership designed to address TechCorp Solutions current infrastructure challenges while positioning them for future growth.'
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.driveLink) {
+        setDriveLink(data.driveLink);
+      } else {
+        alert(data.error || 'Failed to save to Drive');
+      }
+    } catch (e) {
+      alert('Network error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-800">
       <div className="space-y-4">
@@ -7,15 +39,25 @@ export default function ProposalPreview() {
             Proposal Preview
           </h2>
           <div className="flex items-center gap-2">
-            <button className="text-sm text-indigo-400 hover:text-indigo-300">
+            <button className="text-sm text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
               <Edit className="h-3 w-3" /> Edit Proposal
-            </div>
-            <button className="text-sm text-indigo-400 hover:text-indigo-300">
+            </button>
+            <button className="text-sm text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
               <FileText className="h-3 w-3" /> Export PDF
-            </div>
-            <button className="text-sm text-indigo-400 hover:text-indigo-300">
-              <Link className="h-3 w-3" /> Share Link
-            </div>
+            </button>
+            <button 
+              onClick={handleSaveToDrive}
+              disabled={saving}
+              className={`text-sm flex items-center gap-1 ${saving ? 'text-slate-400 cursor-not-allowed' : 'text-emerald-400 hover:text-emerald-300'}`}
+            >
+              <Cloud className="h-3 w-3" /> {saving ? 'Saving...' : 'Save to Drive'}
+            </button>
+            <button 
+              onClick={() => driveLink ? window.open(driveLink, '_blank') : null}
+              className={`text-sm flex items-center gap-1 ${driveLink ? 'text-indigo-400 hover:text-indigo-300' : 'text-slate-500 cursor-not-allowed'}`}
+            >
+              <Link className="h-3 w-3" /> {driveLink ? 'Open in Drive' : 'Share Link'}
+            </button>
           </div>
         </div>
 
