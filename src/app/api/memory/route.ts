@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     logger.error('Failed to query Memory layer records', error);
-    return ApiResponse.error('Failed to query memory records', 'MEMORY_FETCH_ERROR', 500);
+    return ApiResponse.error('Failed to query memory records', 'INTERNAL_ERROR', 500);
   }
 }
 
@@ -101,6 +101,6 @@ export async function POST(req: NextRequest) {
     return ApiResponse.success(msg, 201);
   } catch (error) {
     logger.error('Failed to publish memory message via API', error);
-    return ApiResponse.error('Failed to publish message', 'API_MESSAGE_ERROR', 500);
+    return ApiResponse.error('Failed to publish message', 'INTERNAL_ERROR', 500);
   }
 }

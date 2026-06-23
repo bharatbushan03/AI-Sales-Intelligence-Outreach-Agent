@@ -36,7 +36,7 @@ export default function WorkspacesSettingsPage() {
         }));
         
         // Ensure unique mock workspace array
-        const unique = Array.from(new Map(filtered.map((w: any) => [w.id, w])).values());
+        const unique = Array.from(new Map(filtered.map((w: any) => [w.id, w])).values()) as any[];
         
         // Add a default General workspace if empty
         if (unique.length === 0) {
@@ -96,13 +96,13 @@ export default function WorkspacesSettingsPage() {
     }
   };
 
-  const setSuccessMsg = (msg: string) => {
+  const setSuccessMsg = (msg: string | null) => {
     setSuccessMessage(msg);
-    setTimeout(() => setSuccessMessage(null), 5000);
+    if (msg) setTimeout(() => setSuccessMessage(null), 5000);
   };
-  const setErrorMsg = (msg: string) => {
+  const setErrorMsg = (msg: string | null) => {
     setErrorMessage(msg);
-    setTimeout(() => setErrorMessage(null), 5000);
+    if (msg) setTimeout(() => setErrorMessage(null), 5000);
   };
 
   return (

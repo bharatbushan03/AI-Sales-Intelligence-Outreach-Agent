@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { withAuth, withPermissions } from '@/lib/auth-middleware';
+import { withAuth } from '@/lib/auth-middleware';
+import { hasPermission } from '@/lib/rbac';
 import { invitationsRepository, organizationsRepository, workspacesRepository } from '@/lib/repositories';
 import { sendInvitationEmail } from '@/lib/email-service';
 import { ApiResponse } from '@/utils/api-response';
 import { logger } from '@/utils/logger';
-import { InvitationType, InvitationStatus } from '@/types/auth';
+import { Invitation } from '@/types/auth';
 
 // Schema for creating invitations
 const createInvitationSchema = z.object({
@@ -29,7 +30,7 @@ const queryInvitationsSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
-  return withAuth(async (user) => {
+  return withAuth(async (req, { user }) => {
     try {
       const body = await request.json();
       const validatedData = createInvitationSchema.parse(body);
@@ -37,14 +38,9 @@ export async function POST(request: NextRequest) {
       const { email, organizationId, workspaceId, role, type, message, expiresInDays } = validatedData;
 
       // Check if user has permission to invite to this organization/workspace
-      const hasPermission = await withPermissions(
-        user.uid,
-        organizationId,
-        workspaceId,
-        ['users.invite' as any]
-      );
+      const hasPerm = hasPermission(user.role, 'users.invite' as any);
 
-      if (!hasPermission) {
+      if (!hasPerm) {
         return ApiResponse.forbidden('Insufficient permissions to send invitations');
       }
 
@@ -68,11 +64,11 @@ export async function POST(request: NextRequest) {
         organizationId,
         workspaceId,
         role,
-        type: type as InvitationType,
+        type: type as any,
         invitedBy: user.uid,
         message,
         expiresInDays,
-        status: 'pending' as InvitationStatus,
+        status: 'pending' as const,
         createdAt: new Date().toISOString()
       };
 
@@ -83,7 +79,7 @@ export async function POST(request: NextRequest) {
       await sendInvitationEmail({
         email,
         invitation,
-        inviterName: user.displayName || user.email || 'Team member',
+        inviterName: user.profile?.name || user.email || 'Team member',
         organizationName: org.name || 'Organization',
         workspaceName: wsName,
         message
@@ -101,7 +97,7 @@ export async function POST(request: NextRequest) {
 
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return ApiResponse.validationError('Invalid request data', error.errors);
+        return ApiResponse.validationError('Invalid request data', (error as any).errors);
       }
 
       logger.error('Failed to send invitation', { error, userId: user.uid });
@@ -111,7 +107,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  return withAuth(async (user) => {
+  return withAuth(async (req, { user }) => {
     try {
       const { searchParams } = new URL(request.url);
       const query = Object.fromEntries(searchParams.entries());
@@ -121,14 +117,9 @@ export async function GET(request: NextRequest) {
 
       // If querying specific org/workspace, check permissions
       if (organizationId || workspaceId) {
-        const hasPermission = await withPermissions(
-          user.uid,
-          organizationId || '',
-          workspaceId || '',
-          ['users.read' as any]
-        );
+        const hasPerm = hasPermission(user.role, 'users.read' as any);
 
-        if (!hasPermission) {
+        if (!hasPerm) {
           return ApiResponse.forbidden('Insufficient permissions to view invitations');
         }
       }
@@ -146,7 +137,7 @@ export async function GET(request: NextRequest) {
 
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return ApiResponse.validationError('Invalid query parameters', error.errors);
+        return ApiResponse.validationError('Invalid query parameters', (error as any).errors);
       }
 
       logger.error('Failed to fetch invitations', { error, userId: user.uid });

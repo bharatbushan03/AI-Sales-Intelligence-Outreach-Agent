@@ -24,7 +24,12 @@ export type ApiErrorCode =
   | 'WORKSPACE_ERROR'
   | 'INVITATION_ERROR'
   | 'NOTIFICATION_ERROR'
-  | 'PLAN_LIMIT_EXCEEDED';
+  | 'PLAN_LIMIT_EXCEEDED'
+  | 'FETCH_ERROR'
+  | 'RESEARCH_PIPELINE_ERROR'
+  | 'PROPOSAL_PIPELINE_ERROR'
+  | 'OUTREACH_PIPELINE_ERROR'
+  | 'OPPORTUNITY_PIPELINE_ERROR';
 
 interface ApiSuccessResponse<T = any> {
   success: true;

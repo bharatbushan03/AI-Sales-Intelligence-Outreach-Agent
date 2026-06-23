@@ -96,7 +96,7 @@ export function AccessibleButton({
           ${bg} ${text} font-medium
           px-${px} py-${py} rounded-lg
           ${focusRing ? 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/20' : ''}
-          ${transition-all duration-200}
+          transition-all duration-200
           ${disabled}
           ${hover}
           ${active}
@@ -234,8 +234,8 @@ export function AccessibleIconButton({
           flex items-center justify-center
           w-[${dimension}px] h-[${dimension}px]
           ${bg} ${text}
-          ${focusRing ? 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/20' : ''}
-          ${transition-all duration-200}
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/20
+          transition-all duration-200
           ${disabled}
           ${hover}
           ${active}
@@ -248,8 +248,7 @@ export function AccessibleIconButton({
       onTouchStart={() => setIsPressed(true)}
       onTouchEnd={() => setIsPressed(false)}
     >
-      {SrOnly}
-      {label}
+      <SrOnly>{label}</SrOnly>
       {isLoading ? (
         <span className="absolute inset-0 flex items-center justify-center">
           <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
@@ -263,8 +262,3 @@ export function AccessibleIconButton({
     </button>
   );
 }
-
-export {
-  AccessibleButton,
-  AccessibleIconButton
-};

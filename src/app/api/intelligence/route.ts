@@ -52,7 +52,7 @@ export async function GET() {
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     logger.error('Failed to fetch intelligence metrics', error);
-    return ApiResponse.error(errorMsg, 'INTELLIGENCE_METRICS_ERROR', 500);
+    return ApiResponse.error(errorMsg, 'INTERNAL_ERROR', 500);
   }
 }
 
@@ -100,6 +100,6 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     logger.error('Failed to handle intelligence action', error);
-    return ApiResponse.error(errorMsg, 'INTELLIGENCE_ACTION_ERROR', 500);
+    return ApiResponse.error(errorMsg, 'INTERNAL_ERROR', 500);
   }
 }

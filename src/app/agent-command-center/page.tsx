@@ -83,11 +83,11 @@ export default function AgentCommandCenter() {
               <span>Agent Uptime</span>
               <span className="font-medium">99.8%</span>
             </div>
-            <div class="flex justify-between text-slate-400">
+            <div className="flex justify-between text-slate-400">
               <span>Memory Usage</span>
               <span className="font-medium">65%</span>
             </div>
-            <div class="flex justify-between text-slate-400">
+            <div className="flex justify-between text-slate-400">
               <span>API Requests/min</span>
               <span className="font-medium">1.2k</span>
             </div>

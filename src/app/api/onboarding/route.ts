@@ -3,7 +3,7 @@
  * Handles the complete user onboarding flow
  */
 
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@/lib/auth-middleware';
 import { ApiResponse, validateRequired, isValidEmail } from '@/utils/api-response';
 import { adminDb, adminAuth } from '@/lib/firebase-admin';
@@ -144,7 +144,7 @@ async function handleProfileStep(
   userRef: any,
   profileData: OnboardingData['profileData'],
   userId: string
-): Promise<Response> {
+): Promise<NextResponse> {
   if (!profileData) {
     return ApiResponse.badRequest('Profile data is required');
   }
@@ -220,7 +220,7 @@ async function handleOrganizationStep(
   organizationData: OnboardingData['organizationData'],
   userId: string,
   context: any
-): Promise<Response> {
+): Promise<NextResponse> {
   if (!organizationData) {
     return ApiResponse.badRequest('Organization data is required');
   }
@@ -256,7 +256,7 @@ async function handleOrganizationStep(
     name,
     domain,
     industry,
-    size,
+    size: size as "startup" | "small" | "medium" | "enterprise" | undefined,
     owner: userId,
   });
 
@@ -307,7 +307,7 @@ async function handleWorkspaceStep(
   workspaceData: OnboardingData['workspaceData'],
   userId: string,
   context: any
-): Promise<Response> {
+): Promise<NextResponse> {
   if (!workspaceData) {
     return ApiResponse.badRequest('Workspace data is required');
   }
@@ -330,7 +330,7 @@ async function handleWorkspaceStep(
     organizationId: context.organizationId,
     name,
     description: description || 'Default workspace for B2B sales activities',
-    type,
+    type: type as "sales" | "marketing" | "customer_success" | "general" | undefined,
     createdBy: userId,
     settings: {
       isDefault: true,
@@ -399,7 +399,7 @@ async function handleCompleteStep(
   inviteEmails: string[],
   userId: string,
   context: any
-): Promise<Response> {
+): Promise<NextResponse> {
   const batch = adminDb.batch();
 
   // Process team invitations if provided

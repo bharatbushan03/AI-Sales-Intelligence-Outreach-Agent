@@ -50,16 +50,15 @@ export const POST = withAuth(async (req: NextRequest, context: any) => {
       // 3. Trigger a background research workflow for the target company
       // In a full implementation, we'd wait for this to finish or use cached results
       // For MVP, we will invoke the workflow and use the resulting Research and CRM context.
-      const workflowResult = await manager.executeWorkflow({
-        userId: userId,
-        organizationId: 'default',
-        workspaceId: 'default',
-        goal: `Research company ${targetDomain} and generate a meeting brief for the upcoming call.`,
-      });
+      const workflowResult = await manager.orchestrate(
+        userId,
+        `Research company ${targetDomain} and generate a meeting brief for the upcoming call.`,
+        'default'
+      );
 
       // 4. Extract the synthesized brief from the CRM agent's output or generate a new text block
-      const researchData = workflowResult.sharedMemory?.research;
-      const opportunityData = workflowResult.sharedMemory?.opportunityAnalysis;
+      const researchData = workflowResult.results?.research as any;
+      const opportunityData = workflowResult.results?.opportunityAnalysis as any;
 
       const briefContent = `
 **Company**: ${researchData?.company?.name || targetDomain}

@@ -34,7 +34,7 @@ export const GET = withAuth(async (request, context) => {
       roles = roles.map(role => ({
         ...role,
         permissions: role.permissions.length, // Just return count
-      }));
+      })) as any;
     }
 
     logger.info('Roles retrieved', { 

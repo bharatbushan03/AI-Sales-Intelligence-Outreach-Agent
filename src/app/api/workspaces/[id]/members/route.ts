@@ -83,7 +83,7 @@ export async function GET(request: NextRequest, props: RouteParams) {
       logger.error(`Workspace members retrieval failed: ${errorMsg}`, error);
       return ApiResponse.error('Failed to retrieve workspace members', 'WORKSPACE_ERROR', 500);
     }
-  })(request, context);
+  })(request);
 }
 
 /**
@@ -209,7 +209,7 @@ export async function POST(request: NextRequest, props: RouteParams) {
         return ApiResponse.error('Failed to add member to workspace', 'WORKSPACE_ERROR', 500);
       }
     }
-  )(request, context);
+  )(request);
 }
 
 /**
@@ -321,7 +321,7 @@ export async function PUT(request: NextRequest, props: RouteParams) {
         return ApiResponse.error('Failed to update member role', 'WORKSPACE_ERROR', 500);
       }
     }
-  )(request, context);
+  )(request);
 }
 
 /**
@@ -431,5 +431,5 @@ export async function DELETE(request: NextRequest, props: RouteParams) {
         return ApiResponse.error('Failed to remove member from workspace', 'WORKSPACE_ERROR', 500);
       }
     }
-  )(request, context);
+  )(request);
 }

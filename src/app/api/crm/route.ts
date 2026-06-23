@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     logger.error('Failed to fetch CRM records', error);
-    return ApiResponse.error('Failed to fetch history', 'FETCH_ERROR', 500);
+    return ApiResponse.error('Failed to fetch history', 'INTERNAL_ERROR', 500);
   }
 }
 
@@ -98,6 +98,6 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     logger.error(`CRM API execution failed: ${errorMsg}`, error);
-    return ApiResponse.error(errorMsg, 'CRM_PIPELINE_ERROR', 500);
+    return ApiResponse.error(errorMsg, 'INTERNAL_ERROR', 500);
   }
 }

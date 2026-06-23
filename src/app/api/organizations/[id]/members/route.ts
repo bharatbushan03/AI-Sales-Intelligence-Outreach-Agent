@@ -108,7 +108,7 @@ export async function GET(request: NextRequest, props: RouteParams) {
       logger.error(`Member retrieval failed: ${errorMsg}`, error);
       return ApiResponse.error('Failed to retrieve members', 'ORGANIZATION_ERROR', 500);
     }
-  })(request, context);
+  })(request);
 }
 
 /**
@@ -233,7 +233,7 @@ export async function DELETE(request: NextRequest, props: RouteParams) {
         return ApiResponse.error('Failed to remove member', 'ORGANIZATION_ERROR', 500);
       }
     }
-  )(request, context);
+  )(request);
 }
 
 /**
@@ -354,5 +354,5 @@ export async function PUT(request: NextRequest, props: RouteParams) {
         return ApiResponse.error('Failed to update member', 'ORGANIZATION_ERROR', 500);
       }
     }
-  )(request, context);
+  )(request);
 }

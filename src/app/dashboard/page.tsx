@@ -124,7 +124,7 @@ function Widget({
   value,
   trend,
   trendType,
-  icon,
+  icon: Icon,
   description,
 }: {
   title: string;
@@ -144,7 +144,7 @@ function Widget({
     <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-800">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <icon className="h-5 w-5 text-indigo-400" />
+          <Icon className="h-5 w-5 text-indigo-400" />
           <h3 className="text-sm font-medium text-slate-100">{title}</h3>
         </div>
       </div>
@@ -180,8 +180,8 @@ function OpportunityFunnelChart() {
       <svg width="100%" height="100%" viewBox="0 0 100 40" className="text-indigo-400">
         <defs>
           <linearGradient id="funnelGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style="stop-color:rgb(99,102,241);stop-opacity:0.8" />
-            <stop offset="100%" style="stop-color:rgb(99,102,241);stop-opacity:0.2" />
+            <stop offset="0%" style={{ stopColor: 'rgb(99,102,241)', stopOpacity: 0.8 }} />
+            <stop offset="100%" style={{ stopColor: 'rgb(99,102,241)', stopOpacity: 0.2 }} />
           </linearGradient>
         </defs>
         <polygon points="30,10 70,10 80,30 20,30" fill="url(#funnelGrad)" />

@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { SrOnly } from './accessibility-utils';
 
-interface AccessibleInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface AccessibleInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'prefix'> {
   /** Label for the input */
   label?: string;
   /** Placeholder text */
@@ -102,13 +102,13 @@ export function AccessibleInput({
   };
 
   // Handle focus
-  const handleFocus = () => {
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(true);
     props.onFocus?.(e);
   };
 
   // Handle blur
-  const handleBlur = () => {
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(false);
     props.onBlur?.(e);
   };
@@ -151,7 +151,7 @@ export function AccessibleInput({
         <div className={`flex items-center pl-${px} pr-${px} py-${py} bg-${bg.slice(3)} ${border} rounded-md ${focus} ${hover} transition-all duration-200 ${
           isFocused ? 'focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20' : ''
         } ${
-          isDisabled := props.disabled || readOnly
+          (props.disabled || readOnly)
             ? 'bg-slate-100/50 cursor-not-allowed'
             : ''
         }`}
@@ -213,9 +213,17 @@ export function AccessibleInput({
   );
 }
 
-/**
- * Accessible textarea
- */
+interface AccessibleTextareaProps extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'size'> {
+  label?: string;
+  placeholder?: string;
+  helperText?: string;
+  error?: string;
+  success?: string;
+  size?: 'sm' | 'md' | 'lg';
+  required?: boolean;
+  className?: string;
+}
+
 export function AccessibleTextarea({
   label,
   placeholder = '',
@@ -225,18 +233,9 @@ export function AccessibleTextarea({
   size = 'md',
   required = false,
   className = '',
+  readOnly = false,
   ...props
-}: {
-  label?: string;
-  placeholder?: string;
-  helperText?: string;
-  error?: string;
-  success?: string;
-  size?: 'sm' | 'md' | 'lg';
-  required?: boolean;
-  className?: string;
-  [key: string]: any;
-}) {
+}: AccessibleTextareaProps) {
   const [value, setValue] = useState<string>('');
   const [isFocused, setIsFocused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -258,13 +257,13 @@ export function AccessibleTextarea({
   };
 
   // Handle focus
-  const handleFocus = () => {
+  const handleFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
     setIsFocused(true);
     props.onFocus?.(e);
   };
 
   // Handle blur
-  const handleBlur = () => {
+  const handleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
     setIsFocused(false);
     props.onBlur?.(e);
   };
@@ -307,7 +306,7 @@ export function AccessibleTextarea({
         <div className={`flex items-center pl-${px} pr-${px} py-${py} bg-white border border-slate-300 rounded-md focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 ${
           isFocused ? 'focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20' : ''
         } ${
-          isDisabled := props.disabled || readOnly
+          (props.disabled || readOnly)
             ? 'bg-slate-100/50 cursor-not-allowed'
             : ''
         }`}
