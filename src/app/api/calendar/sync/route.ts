@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { adminDb } from '../../../../lib/firebase-admin';
 import { fetchUpcomingSalesMeetings, updateEventWithMeetingBrief } from '../../../../lib/google-calendar';
 import { ManagerAgent } from '../../../../agents/manager-agent';
-import { verifyAuth } from '../../../../lib/auth-middleware';
+import { withAuth } from '../../../../lib/auth-middleware';
 
-export async function POST(req: NextRequest) {
+export const POST = withAuth(async (req: NextRequest, context: any) => {
   try {
-    const user = await verifyAuth(req);
+    const user = context.user;
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -95,4 +95,4 @@ ${(opportunityData?.analysis?.valuePropositions || ['No value propositions ident
     console.error('Calendar sync error:', error);
     return NextResponse.json({ error: error.message || 'Failed to sync calendar' }, { status: 500 });
   }
-}
+});

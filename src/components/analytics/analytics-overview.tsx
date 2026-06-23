@@ -75,7 +75,7 @@ export default function AnalyticsOverview() {
               <p className="text-xs text-red-400>-15% MoM</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-100>Employee Productivity</p>
+              <p className="text-xs font-medium text-slate-100">Employee Productivity</p>
               <p className="text-xs text-indigo-400">+22% MoM</p>
             </div>
           </div>

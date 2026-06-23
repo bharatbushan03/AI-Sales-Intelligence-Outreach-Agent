@@ -27,7 +27,7 @@ export default function PerformanceMetrics() {
               <div className="w-full bg-slate-800/50 h-2 rounded overflow-hidden">
                 <div className="bg-indigo-500 h-2 w-[85%] rounded" /> {/* Good: under 200ms */}
               </div>
-              <span className="text-xs">145ms (Target: <200ms)</span>
+              <span className="text-xs">145ms (Target: &lt;200ms)</span>
             </div>
             <div>
               <p className="text-xs font-medium text-slate-100">Database Query Time</p>

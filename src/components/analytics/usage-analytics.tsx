@@ -95,7 +95,7 @@ export default function UsageAnalytics() {
               <p className="text-xs font-medium text-slate-100">Memory Usage</p>
               <div className="w-full bg-slate-800/50 h-2 rounded overflow-hidden">
                 <div className="bg-indigo-500 h-2 w-[68%] rounded" />
-              </div
+              </div>
               <span className="text-xs">68% utilization</span>
             </div>
           </div>

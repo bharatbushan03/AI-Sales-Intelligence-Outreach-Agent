@@ -23,7 +23,7 @@ export default function PredictiveInsights() {
               <span className="text-xs">85% accuracy (±$150K)</span>
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-100>Workflow Volume</p>
+              <p className="text-xs font-medium text-slate-100">Workflow Volume</p>
               <div className="w-full bg-slate-800/50 h-2 rounded overflow-hidden">
                 <div className="bg-indigo-500 h-2 w-[78%] rounded" />
               </div>
