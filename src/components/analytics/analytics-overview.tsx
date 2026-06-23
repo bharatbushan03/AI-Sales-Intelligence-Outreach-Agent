@@ -76,13 +76,13 @@ export default function AnalyticsOverview() {
             </div>
             <div>
               <p className="text-xs font-medium text-slate-100>Employee Productivity</p>
-              <p className="text-xs text-indigo-400>+22% MoM</p>
+              <p className="text-xs text-indigo-400">+22% MoM</p>
             </div>
           </div>
         </div>
 
         {/* Top Performers */}
-        <div className="space-y-4>
+        <div className="space-y-4">
           <p className="text-sm font-medium text-slate-100 mb-2>Top Performing Areas</p>
           <div className="space-y-3>
             <div className="flex items-start gap-3 border-t border-slate-800 pt-3 first:border-t-0>

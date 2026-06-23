@@ -20,7 +20,7 @@ export default function PerformanceMetrics() {
               <div className="w-full bg-slate-800/50 h-2 rounded overflow-hidden">
                 <div className="bg-indigo-500 h-2 w-[75%] rounded" /> {/* Good: under 2s */}
               </div>
-              <span className="text-xs">1.8s (Target: <2s)</span>
+              <span className="text-xs">1.8s (Target: &lt;2s)</span>
             </div>
             <div>
               <p className="text-xs font-medium text-slate-100">API Response Time</p>

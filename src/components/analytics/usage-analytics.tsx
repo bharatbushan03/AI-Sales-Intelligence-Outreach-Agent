@@ -47,7 +47,7 @@ export default function UsageAnalytics() {
                 <p className="text-xs font-medium text-slate-100">CRM Module</p>
                 <div className="w-full bg-slate-800/50 h-2 rounded overflow-hidden">
                   <div className="bg-yellow-500 h-2 w-[10%] rounded" />
-                </div
+                </div>
                 <span className="text-xs">10% of total usage</span>
               </div>
             </div>

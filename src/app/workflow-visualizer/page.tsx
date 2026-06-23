@@ -1,5 +1,5 @@
 import WorkflowVisualization from '@/components/workflow-visualization';
-import { WorkflowDetailsPanel } from '@/components/workflow-details-panel';
+import WorkflowDetailsPanel from '@/components/workflow-details-panel';
 
 export default function WorkflowVisualizer() {
   return (

@@ -1,4 +1,4 @@
-import { Activity, Clock, Database, Memory, Target, TrendingUp } from 'lucide-react';
+import { Activity, Clock, Database, Cpu, Target, TrendingUp } from 'lucide-react';
 
 interface AgentCardProps {
   name: string;

@@ -1,12 +1,17 @@
 import { Activity, ArrowUpRight, Banknote, Bot, Clock, MessageCircle, Shield, TrendingUp, Users } from 'lucide-react';
 
+import { CalendarSyncButton } from '@/components/calendar-sync-button';
+
 export default function DashboardPage() {
   return (
     <div className="space-y-8 p-6">
       <div className="flex flex-col space-y-4">
-        <h1 className="text-2xl font-bold text-slate-100">
-          Executive Dashboard
-        </h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-slate-100">
+            Executive Dashboard
+          </h1>
+          <CalendarSyncButton />
+        </div>
         <div className="flex flex-col space-y-4 md:flex-row md:gap-4">
           {/* Widgets */}
           <div className="flex-1">
@@ -153,7 +158,7 @@ function Widget({
       </div>
       <p className="text-xs text-slate-400 mt-2">
         {description}
-      </div>
+      </p>
     </div>
   );
 }

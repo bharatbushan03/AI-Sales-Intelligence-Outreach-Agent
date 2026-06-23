@@ -1,5 +1,5 @@
 import { AgentCard } from '@/components/agent-card';
-import { WorkflowVisualization } from '@/components/workflow-visualization';
+import WorkflowVisualization from '@/components/workflow-visualization';
 
 export default function AgentCommandCenter() {
   return (

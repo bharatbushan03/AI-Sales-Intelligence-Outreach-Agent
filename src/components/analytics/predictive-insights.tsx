@@ -12,11 +12,11 @@ export default function PredictiveInsights() {
         </div>
 
         {/* Forecast Accuracy */}
-        <div className="space-y-4>
-          <p className="text-sm font-medium text-slate-100 mb-2>Forecast Accuracy (Last Quarter)</p>
-          <div className="grid gap-4 grid-cols-2>
+        <div className="space-y-4">
+          <p className="text-sm font-medium text-slate-100 mb-2">Forecast Accuracy (Last Quarter)</p>
+          <div className="grid gap-4 grid-cols-2">
             <div>
-              <p className="text-xs font-medium text-slate-100>Revenue Forecast</p>
+              <p className="text-xs font-medium text-slate-100">Revenue Forecast</p>
               <div className="w-full bg-slate-800/50 h-2 rounded overflow-hidden">
                 <div className="bg-indigo-500 h-2 w-[85%] rounded" />
               </div>
