@@ -92,7 +92,7 @@ export function AccessibleInput({
   const handleClear = () => {
     setValue('');
     inputRef.current?.focus();
-    props.onChange?.(new Event('input') as React.ChangeEvent<HTMLInputElement>);
+    props.onChange?.(new Event('input') as unknown as React.ChangeEvent<HTMLInputElement>);
   };
 
   // Handle input change
