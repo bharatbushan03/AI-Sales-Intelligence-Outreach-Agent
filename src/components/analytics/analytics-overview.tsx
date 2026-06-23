@@ -83,9 +83,9 @@ export default function AnalyticsOverview() {
 
         {/* Top Performers */}
         <div className="space-y-4">
-          <p className="text-sm font-medium text-slate-100 mb-2>Top Performing Areas</p>
-          <div className="space-y-3>
-            <div className="flex items-start gap-3 border-t border-slate-800 pt-3 first:border-t-0>
+          <p className="text-sm font-medium text-slate-100 mb-2">Top Performing Areas</p>
+          <div className="space-y-3">
+            <div className="flex items-start gap-3 border-t border-slate-800 pt-3 first:border-t-0">
               <div className="flex-shrink-0>
                 <div className="w-2 h-2 bg-indigo-500 rounded-full" />
               </div>

@@ -101,17 +101,17 @@ export default function UsageAnalytics() {
           </div>
         </div>
 
-        {/* User Activity */}
+        {/* Feature Usage Heatmap */}
         <div className="space-y-4">
-          <p className="text-sm font-medium text-slate-100 mb-2">User Activity (Last 7 Days)</p>
+          <p className="text-sm font-medium text-slate-100 mb-2">Feature Adoption Map</p>
           <div className="space-y-3">
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-3 border-t border-slate-800 pt-3 first:border-t-0">
               <div className="flex-shrink-0">
-                <div className="w-2 h-2 bg-indigo-500 rounded-full" />
+                <div className="w-2 h-2 bg-green-500 rounded-full" />
               </div>
               <div className="flex-1">
                 <p className="text-xs font-medium text-slate-100">Active Users</p>
-                <p className="text-lg font-bold text-indigo-400>124</p>
+                <p className="text-lg font-bold text-indigo-400">124</p>
               </div>
             </div>
             <div className="flex items-start gap-3">

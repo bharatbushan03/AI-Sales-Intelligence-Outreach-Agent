@@ -34,7 +34,7 @@ export default function PerformanceMetrics() {
               <div className="w-full bg-slate-800/50 h-2 rounded overflow-hidden">
                 <div className="bg-indigo-500 h-2 w-[60%] rounded" /> {/* Good: under 100ms */}
               </div>
-              <span className="text-xs">85ms (Target: <100ms)</span>
+              <span className="text-xs">85ms (Target: &lt;100ms)</span>
             </div>
             <div>
               <p className="text-xs font-medium text-slate-100">Cache Hit Ratio</p>
