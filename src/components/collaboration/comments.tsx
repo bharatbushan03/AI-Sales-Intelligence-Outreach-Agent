@@ -90,9 +90,10 @@ export default function Comments() {
       <div className="space-y-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-slate-100">
-            Comments & Discussion
-          </h2>
           <button className="text-sm text-indigo-400 hover:text-indigo-300">
+            <MessageCircle className="h-3 w-3" /> Add Comment
+          </button>
+          </div>
             <MessageCircle className="h-3 w-3" /> Add Comment
           </div>
         </div>

@@ -1,5 +1,7 @@
 import { useState, useRef } from 'react';
 import { SrOnly } from './accessibility-utils';
+import { X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface AccessibleInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'prefix'> {
   /** Label for the input */
