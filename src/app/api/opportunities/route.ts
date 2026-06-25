@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { ApiResponse } from '@/utils/api-response';
+import { withAuth } from '@/lib/auth-middleware';
 import { createAgentContext } from '@/agents/context';
 import { ResearchAgent } from '@/agents/specialists/research-agent';
 import { OpportunityAgent } from '@/agents/specialists/opportunity-agent';
@@ -16,34 +17,43 @@ import { OpportunityReport } from '@/agents/specialists/opportunity/types';
  * GET /api/opportunities
  * Lists historical opportunity reports.
  */
-export async function GET() {
+export const GET = withAuth(async (req, { user }) => {
   try {
-    const reports = await opportunityReportsRepository.list(
-      undefined,
-      'metadata.timestamp',
-      'desc',
-    );
-    return ApiResponse.success(reports);
+    const userId = user.uid;
+    // Note: userId is available but not used in GET as it returns all historical reports
+    // In a multi-tenant system, we might want to filter by user/tenant
+    
+    try {
+      const reports = await opportunityReportsRepository.list(
+        undefined,
+        'metadata.timestamp',
+        'desc',
+      );
+      return ApiResponse.success(reports);
+    } catch (dbError) {
+      logger.error('Failed to fetch opportunity reports history', dbError);
+      return ApiResponse.error('Failed to fetch history', 'FETCH_ERROR', 500);
+    }
   } catch (error) {
-    logger.error('Failed to fetch opportunity reports history', error);
-    return ApiResponse.error('Failed to fetch history', 'FETCH_ERROR', 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    return ApiResponse.error(errorMsg, 'AUTH_ERROR', 401);
   }
-}
+});
 
 /**
  * POST /api/opportunities
  * Runs Research and Opportunity Agents sequentially and stores output.
  */
-export async function POST(req: NextRequest) {
+export const POST = withAuth(async (req, { user }) => {
   try {
+    const userId = user.uid;
+    
     const body = await req.json();
     const query = body.query || '';
 
     if (!query || typeof query !== 'string' || query.trim().length === 0) {
       return ApiResponse.error('Query is required', 'VALIDATION_ERROR', 400);
     }
-
-    const userId = req.headers.get('x-user-id') || 'mock-user-123';
 
     // 1. Execute Research Agent first to collect profile, products, competitors, signals
     const researchAgent = new ResearchAgent();
@@ -112,4 +122,4 @@ export async function POST(req: NextRequest) {
     logger.error(`Opportunity pipeline execution failed: ${errorMsg}`, error);
     return ApiResponse.error(errorMsg, 'OPPORTUNITY_PIPELINE_ERROR', 500);
   }
-}
+});

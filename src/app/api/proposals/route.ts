@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { ApiResponse } from '@/utils/api-response';
+import { withAuth } from '@/lib/auth-middleware';
 import { createAgentContext } from '@/agents/context';
 import { ResearchAgent } from '@/agents/specialists/research-agent';
 import { OpportunityAgent } from '@/agents/specialists/opportunity-agent';
@@ -20,15 +21,22 @@ import { ProposalPackage } from '@/agents/specialists/proposal/types';
  * GET /api/proposals
  * Lists historical generated B2B proposals.
  */
-export async function GET() {
+export const GET = withAuth(async (req, { user }) => {
   try {
-    const list = await proposalsRepository.list(undefined, 'metadata.timestamp', 'desc');
-    return ApiResponse.success(list);
+    const userId = user.uid;
+    // Note: In a multi-tenant implementation, we might filter by user/tenant
+    try {
+      const list = await proposalsRepository.list(undefined, 'metadata.timestamp', 'desc');
+      return ApiResponse.success(list);
+    } catch (dbError) {
+      logger.error('Failed to fetch B2B proposals history', dbError);
+      return ApiResponse.error('Failed to fetch history', 'FETCH_ERROR', 500);
+    }
   } catch (error) {
-    logger.error('Failed to fetch B2B proposals history', error);
-    return ApiResponse.error('Failed to fetch history', 'FETCH_ERROR', 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    return ApiResponse.error(errorMsg, 'AUTH_ERROR', 401);
   }
-}
+});
 
 /**
  * POST /api/proposals
@@ -36,16 +44,16 @@ export async function GET() {
  * Research -> Opportunity -> Outreach -> CRM -> Proposal
  * and caches results in Firestore.
  */
-export async function POST(req: NextRequest) {
+export const POST = withAuth(async (req, { user }) => {
   try {
+    const userId = user.uid;
+    
     const body = await req.json();
     const query = body.query || '';
 
     if (!query || typeof query !== 'string' || query.trim().length === 0) {
       return ApiResponse.error('Query domain/company name is required', 'VALIDATION_ERROR', 400);
     }
-
-    const userId = req.headers.get('x-user-id') || 'mock-user-123';
     logger.info(`Proposal route triggering sequential pipeline for: "${query}"`);
 
     // 1. Run Research Agent
@@ -71,7 +79,7 @@ export async function POST(req: NextRequest) {
     const outreachAgent = new OutreachAgent();
     const outreachCtx = createAgentContext(userId, `Create outreach targets for "${query}"`);
     outreachCtx.sharedMemory.research = researchData;
-    outreachCtx.sharedMemory.opportunityAnalysis = opportunityData;
+    opportunityCtx.sharedMemory.opportunityAnalysis = opportunityData;
     const outreachResult = await outreachAgent.execute(outreachCtx, {
       research: researchData,
       opportunityAnalysis: opportunityData,
@@ -159,4 +167,4 @@ export async function POST(req: NextRequest) {
     logger.error(`Proposal pipeline execution failed: ${errorMsg}`, error);
     return ApiResponse.error(errorMsg, 'PROPOSAL_PIPELINE_ERROR', 500);
   }
-}
+});
