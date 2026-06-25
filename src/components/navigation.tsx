@@ -5,41 +5,29 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { TopBar } from '@/components/top-bar';
 import {
-  LayoutDashboard,
-  Users,
-  Search,
-  Mail,
-  Database,
-  FileText,
-  Settings as SettingsIcon,
-  Bot,
-  Menu,
-  X,
-  Lightbulb,
-  Brain,
-  Cpu,
-  ShieldCheck,
+  LayoutDashboard, Users, Search, Mail, Database, FileText, Settings as SettingsIcon,
+  Bot, Menu, X, Lightbulb, Brain, Cpu, ShieldCheck,
+  Zap, Target, BarChart3, Radio, History, Play, Network, Presentation,
 } from 'lucide-react';
 
 interface NavItem {
   label: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
+  badge?: string;
 }
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Agent Command Center', href: '/agent-command-center', icon: Bot },
-  { label: 'Leads', href: '/leads', icon: Users },
-  { label: 'Research', href: '/research', icon: Search },
-  { label: 'Opportunities', href: '/opportunities', icon: Lightbulb },
-  { label: 'Outreach', href: '/outreach', icon: Mail },
-  { label: 'CRM Sync', href: '/crm', icon: Database },
-  { label: 'Proposals', href: '/proposals', icon: FileText },
-  { label: 'Shared Memory', href: '/memory', icon: Brain },
-  { label: 'AI Intelligence', href: '/intelligence', icon: Cpu },
-  { label: 'Admin Console', href: '/admin/data', icon: ShieldCheck },
-  { label: 'Settings', href: '/settings', icon: SettingsIcon },
+  { label: 'Executive Command Center', href: '/dashboard', icon: LayoutDashboard, badge: 'NEW' },
+  { label: 'Sales War Room', href: '/war-room', icon: Zap, badge: 'WOW' },
+  { label: 'Executive AI Copilot', href: '/intelligence', icon: Brain, badge: 'AI' },
+  { label: 'One-Click Intelligence', href: '/research', icon: Target, badge: '1-CLICK' },
+  { label: 'AI Boardroom Mode', href: '/proposals', icon: Presentation, badge: 'DECK' },
+  { label: 'Knowledge Graph', href: '/memory', icon: Network, badge: '3D' },
+  { label: 'Predictive Revenue', href: '/analytics', icon: BarChart3, badge: 'AI' },
+  { label: 'Memory Time Machine', href: '/settings', icon: History, badge: 'HIST' },
+  { label: 'Agent Visualizer', href: '/workflow-visualizer', icon: Radio, badge: 'LIVE' },
+  { label: 'Live Demo Mode', href: '/opportunities', icon: Play, badge: 'DEMO' },
 ];
 
 export function NavigationShell({ children }: { children: React.ReactNode }) {
@@ -82,7 +70,19 @@ export function NavigationShell({ children }: { children: React.ReactNode }) {
                   }`}
                 >
                   <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                  {item.label}
+                  <span className="flex-1">{item.label}</span>
+                  {item.badge && (
+                    <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded ${
+                      item.badge === 'WOW' ? 'bg-yellow-500 text-yellow-950' :
+                      item.badge === 'NEW' ? 'bg-emerald-500 text-emerald-950' :
+                      item.badge === 'AI' ? 'bg-indigo-500 text-indigo-950' :
+                      item.badge === 'DEMO' ? 'bg-rose-500 text-rose-950' :
+                      item.badge === 'LIVE' ? 'bg-cyan-500 text-cyan-950' :
+                      'bg-slate-600 text-slate-200'
+                    }`}>
+                      {item.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -152,7 +152,19 @@ export function NavigationShell({ children }: { children: React.ReactNode }) {
                         }`}
                       >
                         <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                        {item.label}
+                        <span className="flex-1">{item.label}</span>
+                        {item.badge && (
+                          <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded ${
+                            item.badge === 'WOW' ? 'bg-yellow-500 text-yellow-950' :
+                            item.badge === 'NEW' ? 'bg-emerald-500 text-emerald-950' :
+                            item.badge === 'AI' ? 'bg-indigo-500 text-indigo-950' :
+                            item.badge === 'DEMO' ? 'bg-rose-500 text-rose-950' :
+                            item.badge === 'LIVE' ? 'bg-cyan-500 text-cyan-950' :
+                            'bg-slate-600 text-slate-200'
+                          }`}>
+                            {item.badge}
+                          </span>
+                        )}
                       </Link>
                     );
                   })}
