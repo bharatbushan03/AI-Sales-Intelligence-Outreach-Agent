@@ -76,7 +76,14 @@ export interface ConversationMemory {
 export interface KnowledgeNode {
   id: string;
   label: string;
-  type: 'company' | 'competitor' | 'industry' | 'pain-point' | 'opportunity' | 'campaign' | 'proposal';
+  type:
+    | 'company'
+    | 'competitor'
+    | 'industry'
+    | 'pain-point'
+    | 'opportunity'
+    | 'campaign'
+    | 'proposal';
 }
 
 export interface KnowledgeEdge {

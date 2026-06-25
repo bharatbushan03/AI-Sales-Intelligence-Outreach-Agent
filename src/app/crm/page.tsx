@@ -286,7 +286,8 @@ export default function CrmWorkspacePage() {
             CRM Integrity Workspace
           </h1>
           <p className="mt-2 text-sm text-slate-400">
-            Track lead progressions via Kanban, capture call summaries, analyze pipelines, and manage relationship health.
+            Track lead progressions via Kanban, capture call summaries, analyze pipelines, and
+            manage relationship health.
           </p>
         </div>
         <div className="flex gap-3">
@@ -351,7 +352,7 @@ export default function CrmWorkspacePage() {
         {/* Left Side Workspace content */}
         <div className="space-y-6 lg:col-span-3 print:col-span-1">
           {/* Tab Navigation */}
-          <div className="flex border-b border-slate-800 overflow-x-auto print:hidden">
+          <div className="flex overflow-x-auto border-b border-slate-800 print:hidden">
             {[
               { id: 'kanban', label: 'Kanban Board' },
               { id: 'leads', label: 'Leads Directory' },
@@ -376,7 +377,7 @@ export default function CrmWorkspacePage() {
 
           {/* Loading status */}
           {loading && (
-            <div className="flex flex-col items-center justify-center p-12 space-y-4 rounded-2xl border border-slate-800 bg-slate-900/10">
+            <div className="flex flex-col items-center justify-center space-y-4 rounded-2xl border border-slate-800 bg-slate-900/10 p-12">
               <Bot className="h-10 w-10 animate-bounce text-indigo-400" />
               <p className="text-sm text-slate-400">Loading CRM data ledger...</p>
             </div>
@@ -388,8 +389,8 @@ export default function CrmWorkspacePage() {
               {/* 1. Kanban Board */}
               {(activeTab === 'kanban' || typeof window === 'undefined') && (
                 <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-slate-350">Sales Pipeline Stages</h3>
-                  <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin">
+                  <h3 className="text-slate-350 text-sm font-semibold">Sales Pipeline Stages</h3>
+                  <div className="flex scrollbar-thin gap-4 overflow-x-auto pb-4">
                     {stages.map((stage) => {
                       const stageLeads = leads.filter((l) => l.status === stage);
                       return (
@@ -397,31 +398,39 @@ export default function CrmWorkspacePage() {
                           key={stage}
                           onDragOver={handleDragOver}
                           onDrop={(e) => handleDrop(e, stage)}
-                          className="flex flex-col rounded-xl border border-slate-850 bg-slate-950/20 w-64 shrink-0 p-4 min-h-[400px] space-y-3"
+                          className="border-slate-850 flex min-h-[400px] w-64 shrink-0 flex-col space-y-3 rounded-xl border bg-slate-950/20 p-4"
                         >
                           <div className="flex items-center justify-between border-b border-slate-900 pb-2">
-                            <span className="text-xs font-bold text-slate-300 truncate">{stage}</span>
-                            <span className="rounded bg-slate-900 text-slate-500 px-1.5 py-0.5 text-[10px] font-bold">
+                            <span className="truncate text-xs font-bold text-slate-300">
+                              {stage}
+                            </span>
+                            <span className="rounded bg-slate-900 px-1.5 py-0.5 text-[10px] font-bold text-slate-500">
                               {stageLeads.length}
                             </span>
                           </div>
 
-                          <div className="flex-1 space-y-2 overflow-y-auto max-h-[350px]">
+                          <div className="max-h-[350px] flex-1 space-y-2 overflow-y-auto">
                             {stageLeads.map((lead) => (
                               <div
                                 key={lead.leadId}
                                 draggable={true}
                                 onDragStart={(e) => handleDragStart(e, lead.leadId)}
-                                className="rounded-xl border border-slate-800 bg-slate-900/50 p-3 space-y-2 hover:border-slate-700 cursor-grab active:cursor-grabbing transition-all"
+                                className="cursor-grab space-y-2 rounded-xl border border-slate-800 bg-slate-900/50 p-3 transition-all hover:border-slate-700 active:cursor-grabbing"
                               >
                                 <div className="flex items-start justify-between gap-1">
-                                  <h4 className="text-xs font-bold text-white truncate">{lead.company}</h4>
-                                  <span className={`rounded border px-1.5 py-0.2 text-[8px] font-bold ${getScoreColor(lead.score)}`}>
+                                  <h4 className="truncate text-xs font-bold text-white">
+                                    {lead.company}
+                                  </h4>
+                                  <span
+                                    className={`py-0.2 rounded border px-1.5 text-[8px] font-bold ${getScoreColor(lead.score)}`}
+                                  >
                                     {lead.score} pts
                                   </span>
                                 </div>
                                 <div className="text-[10px] text-slate-400">
-                                  <div className="font-semibold text-slate-200">{lead.contact.name}</div>
+                                  <div className="font-semibold text-slate-200">
+                                    {lead.contact.name}
+                                  </div>
                                   <div className="truncate text-slate-500">{lead.contact.role}</div>
                                 </div>
                               </div>
@@ -444,7 +453,7 @@ export default function CrmWorkspacePage() {
                   <div className="overflow-x-auto rounded-xl border border-slate-800">
                     <table className="w-full border-collapse text-left text-xs">
                       <thead>
-                        <tr className="border-b border-slate-800 bg-slate-900/40 text-slate-400 font-semibold">
+                        <tr className="border-b border-slate-800 bg-slate-900/40 font-semibold text-slate-400">
                           <th className="p-3">Company</th>
                           <th className="p-3">Primary Contact</th>
                           <th className="p-3">Role</th>
@@ -453,19 +462,21 @@ export default function CrmWorkspacePage() {
                           <th className="p-3 text-right">Updated</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-850 bg-slate-900/10">
+                      <tbody className="divide-slate-850 divide-y bg-slate-900/10">
                         {leads.map((lead) => (
                           <tr key={lead.leadId} className="hover:bg-slate-900/30">
                             <td className="p-3 font-bold text-white">{lead.company}</td>
                             <td className="p-3">{lead.contact.name}</td>
                             <td className="p-3 text-slate-400">{lead.contact.role}</td>
                             <td className="p-3">
-                              <span className={`rounded border px-2 py-0.5 font-mono font-bold ${getScoreColor(lead.score)}`}>
+                              <span
+                                className={`rounded border px-2 py-0.5 font-mono font-bold ${getScoreColor(lead.score)}`}
+                              >
                                 {lead.score}
                               </span>
                             </td>
                             <td className="p-3">
-                              <span className="rounded-full bg-slate-850 px-2 py-0.5 font-medium text-slate-300">
+                              <span className="bg-slate-850 rounded-full px-2 py-0.5 font-medium text-slate-300">
                                 {lead.status}
                               </span>
                             </td>
@@ -483,29 +494,36 @@ export default function CrmWorkspacePage() {
               {/* 3. Client Accounts */}
               {activeTab === 'accounts' && (
                 <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-slate-300">Target Accounts Directory</h3>
+                  <h3 className="text-sm font-semibold text-slate-300">
+                    Target Accounts Directory
+                  </h3>
                   <div className="grid gap-4 md:grid-cols-2">
                     {accounts.map((acc) => (
-                      <div key={acc.accountId} className="rounded-xl border border-slate-800 bg-slate-950/40 p-5 space-y-3">
+                      <div
+                        key={acc.accountId}
+                        className="space-y-3 rounded-xl border border-slate-800 bg-slate-950/40 p-5"
+                      >
                         <div className="flex items-center justify-between border-b border-slate-900 pb-2">
                           <div>
                             <h4 className="text-sm font-bold text-white">{acc.companyName}</h4>
                             <span className="text-[10px] text-slate-500">{acc.domain}</span>
                           </div>
-                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                            acc.classification === 'Healthy'
-                              ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-900/50'
-                              : 'bg-rose-950/40 text-rose-400 border border-rose-900/50'
-                          }`}>
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                              acc.classification === 'Healthy'
+                                ? 'border border-emerald-900/50 bg-emerald-950/40 text-emerald-400'
+                                : 'border border-rose-900/50 bg-rose-950/40 text-rose-400'
+                            }`}
+                          >
                             {acc.classification} Health
                           </span>
                         </div>
-                        <p className="text-xs text-slate-400 leading-normal line-clamp-2">
+                        <p className="line-clamp-2 text-xs leading-normal text-slate-400">
                           {acc.profile.description}
                         </p>
-                        <div className="flex items-center justify-between text-xs pt-2 font-semibold">
+                        <div className="flex items-center justify-between pt-2 text-xs font-semibold">
                           <span className="text-slate-500">Overall Score:</span>
-                          <span className="text-indigo-400 font-mono">{acc.healthScore} pts</span>
+                          <span className="font-mono text-indigo-400">{acc.healthScore} pts</span>
                         </div>
                       </div>
                     ))}
@@ -520,7 +538,7 @@ export default function CrmWorkspacePage() {
                   <div className="overflow-x-auto rounded-xl border border-slate-800">
                     <table className="w-full border-collapse text-left text-xs">
                       <thead>
-                        <tr className="border-b border-slate-800 bg-slate-900/40 text-slate-400 font-semibold">
+                        <tr className="border-b border-slate-800 bg-slate-900/40 font-semibold text-slate-400">
                           <th className="p-3">Opportunity Name</th>
                           <th className="p-3">Stage</th>
                           <th className="p-3">Deal Value</th>
@@ -529,14 +547,18 @@ export default function CrmWorkspacePage() {
                           <th className="p-3 text-right">Close Date</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-850 bg-slate-900/10">
+                      <tbody className="divide-slate-850 divide-y bg-slate-900/10">
                         {opportunities.map((opp) => (
                           <tr key={opp.opportunityId} className="hover:bg-slate-900/30">
                             <td className="p-3 font-bold text-white">{opp.name}</td>
                             <td className="p-3 text-slate-300">{opp.stage}</td>
-                            <td className="p-3 font-semibold text-emerald-400">${opp.value.toLocaleString()}</td>
+                            <td className="p-3 font-semibold text-emerald-400">
+                              ${opp.value.toLocaleString()}
+                            </td>
                             <td className="p-3 font-mono">{opp.probability}%</td>
-                            <td className="p-3 text-slate-400 max-w-xs truncate">{opp.rationale}</td>
+                            <td className="max-w-xs truncate p-3 text-slate-400">
+                              {opp.rationale}
+                            </td>
                             <td className="p-3 text-right text-slate-500">{opp.closeDate}</td>
                           </tr>
                         ))}
@@ -550,11 +572,18 @@ export default function CrmWorkspacePage() {
               {activeTab === 'meetings' && (
                 <div className="space-y-6">
                   {/* Meeting Summarizer Form */}
-                  <form onSubmit={handleSummarizeMeeting} className="rounded-xl border border-slate-800 bg-slate-950/40 p-5 space-y-4">
-                    <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Analyze Call Transcript</h4>
+                  <form
+                    onSubmit={handleSummarizeMeeting}
+                    className="space-y-4 rounded-xl border border-slate-800 bg-slate-950/40 p-5"
+                  >
+                    <h4 className="text-xs font-bold tracking-wider text-indigo-400 uppercase">
+                      Analyze Call Transcript
+                    </h4>
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-1">
-                        <label className="text-[10px] text-slate-500 font-semibold uppercase">Meeting Title</label>
+                        <label className="text-[10px] font-semibold text-slate-500 uppercase">
+                          Meeting Title
+                        </label>
                         <input
                           type="text"
                           required
@@ -567,7 +596,9 @@ export default function CrmWorkspacePage() {
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[10px] text-slate-500 font-semibold uppercase">Transcript / Meeting Notes</label>
+                      <label className="text-[10px] font-semibold text-slate-500 uppercase">
+                        Transcript / Meeting Notes
+                      </label>
                       <textarea
                         required
                         rows={6}
@@ -583,36 +614,55 @@ export default function CrmWorkspacePage() {
                       disabled={processingMeeting}
                       className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
                     >
-                      {processingMeeting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                      {processingMeeting ? (
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Send className="h-4 w-4" />
+                      )}
                       Generate AI Call Brief
                     </button>
                   </form>
 
                   {/* Meetings List */}
                   <div className="space-y-4 border-t border-slate-800 pt-6">
-                    <h4 className="text-sm font-semibold text-slate-300">Summarized Meetings Briefs</h4>
+                    <h4 className="text-sm font-semibold text-slate-300">
+                      Summarized Meetings Briefs
+                    </h4>
                     {meetings.length === 0 ? (
                       <p className="text-xs text-slate-500 italic">No meetings cataloged.</p>
                     ) : (
                       <div className="space-y-4">
                         {meetings.map((meet) => (
-                          <div key={meet.meetingId} className="rounded-xl border border-slate-800 bg-slate-950/20 p-5 space-y-3">
+                          <div
+                            key={meet.meetingId}
+                            className="space-y-3 rounded-xl border border-slate-800 bg-slate-950/20 p-5"
+                          >
                             <div className="flex items-center justify-between border-b border-slate-900 pb-2">
                               <h5 className="text-xs font-bold text-white">{meet.title}</h5>
-                              <span className="text-[10px] text-slate-500">{new Date(meet.date).toLocaleDateString()}</span>
+                              <span className="text-[10px] text-slate-500">
+                                {new Date(meet.date).toLocaleDateString()}
+                              </span>
                             </div>
-                            <p className="text-xs text-slate-400 leading-normal">{meet.summary}</p>
-                            <div className="grid gap-3 md:grid-cols-2 pt-2 text-xs">
+                            <p className="text-xs leading-normal text-slate-400">{meet.summary}</p>
+                            <div className="grid gap-3 pt-2 text-xs md:grid-cols-2">
                               <div>
-                                <span className="font-semibold text-emerald-400">Action Items:</span>
-                                <ul className="list-disc pl-4 mt-1 space-y-0.5 text-slate-500">
-                                  {meet.actionItems.map((item, i) => <li key={i}>{item}</li>)}
+                                <span className="font-semibold text-emerald-400">
+                                  Action Items:
+                                </span>
+                                <ul className="mt-1 list-disc space-y-0.5 pl-4 text-slate-500">
+                                  {meet.actionItems.map((item, i) => (
+                                    <li key={i}>{item}</li>
+                                  ))}
                                 </ul>
                               </div>
                               <div>
-                                <span className="font-semibold text-rose-400">Identified Risks:</span>
-                                <ul className="list-disc pl-4 mt-1 space-y-0.5 text-slate-500">
-                                  {meet.risks.map((risk, i) => <li key={i}>{risk}</li>)}
+                                <span className="font-semibold text-rose-400">
+                                  Identified Risks:
+                                </span>
+                                <ul className="mt-1 list-disc space-y-0.5 pl-4 text-slate-500">
+                                  {meet.risks.map((risk, i) => (
+                                    <li key={i}>{risk}</li>
+                                  ))}
                                 </ul>
                               </div>
                             </div>
@@ -627,16 +677,23 @@ export default function CrmWorkspacePage() {
               {/* 6. Interaction Logs */}
               {activeTab === 'activities' && (
                 <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-slate-300">Communication Activity Logs</h3>
+                  <h3 className="text-sm font-semibold text-slate-300">
+                    Communication Activity Logs
+                  </h3>
                   <div className="space-y-3">
                     {activities.map((act) => (
-                      <div key={act.activityId} className="border-l-2 border-indigo-500 pl-4 py-1.5 space-y-1">
+                      <div
+                        key={act.activityId}
+                        className="space-y-1 border-l-2 border-indigo-500 py-1.5 pl-4"
+                      >
                         <div className="flex items-center gap-2 text-xs">
                           <span className="font-bold text-slate-300">{act.activityType}</span>
-                          <span className="text-[10px] text-slate-500">{new Date(act.timestamp).toLocaleString()}</span>
+                          <span className="text-[10px] text-slate-500">
+                            {new Date(act.timestamp).toLocaleString()}
+                          </span>
                           <span className="text-[10px] text-slate-600">by {act.actor}</span>
                         </div>
-                        <p className="text-xs text-slate-400 leading-relaxed">{act.description}</p>
+                        <p className="text-xs leading-relaxed text-slate-400">{act.description}</p>
                       </div>
                     ))}
                   </div>
@@ -649,13 +706,16 @@ export default function CrmWorkspacePage() {
         {/* Right Side AI Recommendations & Risks Panel */}
         <div className="space-y-6 lg:col-span-1 print:hidden">
           {/* AI Insights panel */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 space-y-4">
+          <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
             <h3 className="flex items-center gap-2 text-xs font-semibold tracking-wider text-slate-400 uppercase">
-              <Bot className="h-4.5 w-4.5 text-indigo-400 shrink-0" /> AI Insights Panel
+              <Bot className="h-4.5 w-4.5 shrink-0 text-indigo-400" /> AI Insights Panel
             </h3>
             <div className="space-y-3">
               {insights.map((ins, idx) => (
-                <div key={idx} className="flex gap-2 text-xs border-l border-indigo-500/50 pl-3 leading-relaxed text-slate-300">
+                <div
+                  key={idx}
+                  className="flex gap-2 border-l border-indigo-500/50 pl-3 text-xs leading-relaxed text-slate-300"
+                >
                   <p>{ins}</p>
                 </div>
               ))}
@@ -663,14 +723,17 @@ export default function CrmWorkspacePage() {
           </div>
 
           {/* Deal Risks Alerts */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/30 p-6 space-y-4">
+          <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/30 p-6">
             <h3 className="flex items-center gap-2 text-xs font-semibold tracking-wider text-slate-400 uppercase">
-              <ShieldAlert className="h-4.5 w-4.5 text-rose-400 shrink-0" /> Pipeline Deal Risks
+              <ShieldAlert className="h-4.5 w-4.5 shrink-0 text-rose-400" /> Pipeline Deal Risks
             </h3>
             <div className="space-y-3">
               {risks.map((risk, idx) => (
-                <div key={idx} className="flex items-start gap-2 text-xs leading-normal text-slate-400">
-                  <AlertCircle className="h-4 w-4 text-rose-500 shrink-0 mt-0.5" />
+                <div
+                  key={idx}
+                  className="flex items-start gap-2 text-xs leading-normal text-slate-400"
+                >
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-500" />
                   <p>{risk}</p>
                 </div>
               ))}
@@ -678,21 +741,26 @@ export default function CrmWorkspacePage() {
           </div>
 
           {/* Next Action Tasks */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/30 p-6 space-y-4">
+          <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/30 p-6">
             <h3 className="flex items-center gap-2 text-xs font-semibold tracking-wider text-slate-400 uppercase">
-              <ClipboardList className="h-4.5 w-4.5 text-amber-400 shrink-0" /> Follow-Up Queue
+              <ClipboardList className="h-4.5 w-4.5 shrink-0 text-amber-400" /> Follow-Up Queue
             </h3>
             <div className="space-y-3.5">
               {followups.map((task) => (
-                <div key={task.taskId} className="rounded-xl border border-slate-850 bg-slate-950/40 p-3 space-y-2">
+                <div
+                  key={task.taskId}
+                  className="border-slate-850 space-y-2 rounded-xl border bg-slate-950/40 p-3"
+                >
                   <div className="flex items-center justify-between gap-1">
-                    <span className="text-[10px] font-bold text-slate-500">Due: {task.dueDate}</span>
-                    <span className="rounded bg-slate-900 border border-slate-800 text-slate-400 px-1.5 py-0.2 text-[8px] font-bold uppercase">
+                    <span className="text-[10px] font-bold text-slate-500">
+                      Due: {task.dueDate}
+                    </span>
+                    <span className="py-0.2 rounded border border-slate-800 bg-slate-900 px-1.5 text-[8px] font-bold text-slate-400 uppercase">
                       {task.priority}
                     </span>
                   </div>
-                  <h4 className="text-xs font-bold text-white leading-snug">{task.taskName}</h4>
-                  <p className="text-[10px] text-slate-400 leading-relaxed">{task.rationale}</p>
+                  <h4 className="text-xs leading-snug font-bold text-white">{task.taskName}</h4>
+                  <p className="text-[10px] leading-relaxed text-slate-400">{task.rationale}</p>
                 </div>
               ))}
             </div>
@@ -703,13 +771,16 @@ export default function CrmWorkspacePage() {
       {/* Manual Add Lead Modal */}
       {showLeadModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <form onSubmit={handleCreateLead} className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-950 p-6 space-y-4 shadow-2xl">
+          <form
+            onSubmit={handleCreateLead}
+            className="w-full max-w-md space-y-4 rounded-2xl border border-slate-800 bg-slate-950 p-6 shadow-2xl"
+          >
             <div className="flex items-center justify-between border-b border-slate-900 pb-3">
               <h3 className="text-sm font-bold text-white">Create CRM Lead Record</h3>
               <button
                 type="button"
                 onClick={() => setShowLeadModal(false)}
-                className="text-slate-500 hover:text-slate-300 text-xs"
+                className="text-xs text-slate-500 hover:text-slate-300"
               >
                 Close
               </button>
@@ -717,7 +788,7 @@ export default function CrmWorkspacePage() {
 
             <div className="space-y-3 text-xs">
               <div className="space-y-1">
-                <label className="text-slate-500 font-semibold uppercase">Company Name</label>
+                <label className="font-semibold text-slate-500 uppercase">Company Name</label>
                 <input
                   type="text"
                   required
@@ -729,7 +800,7 @@ export default function CrmWorkspacePage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-500 font-semibold uppercase">Contact Name</label>
+                <label className="font-semibold text-slate-500 uppercase">Contact Name</label>
                 <input
                   type="text"
                   required
@@ -741,7 +812,7 @@ export default function CrmWorkspacePage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-500 font-semibold uppercase">Contact Email</label>
+                <label className="font-semibold text-slate-500 uppercase">Contact Email</label>
                 <input
                   type="email"
                   required
@@ -753,7 +824,7 @@ export default function CrmWorkspacePage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-slate-500 font-semibold uppercase">Contact Role</label>
+                <label className="font-semibold text-slate-500 uppercase">Contact Role</label>
                 <input
                   type="text"
                   required
@@ -767,7 +838,7 @@ export default function CrmWorkspacePage() {
 
             <button
               type="submit"
-              className="flex w-full justify-center items-center gap-2 rounded-xl bg-indigo-600 py-2.5 text-xs font-semibold text-white hover:bg-indigo-500"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 py-2.5 text-xs font-semibold text-white hover:bg-indigo-500"
             >
               <Send className="h-4 w-4" /> Save Record
             </button>

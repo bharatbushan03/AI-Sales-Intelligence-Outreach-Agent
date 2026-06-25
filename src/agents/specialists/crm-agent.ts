@@ -41,7 +41,7 @@ export class CrmAgent implements IAgent {
 
   constructor() {
     const key = env.GEMINI_API_KEY;
-    this.genAI = key && key !== 'mock-gemini-key' ? new AIPlatformGenerativeAI(key) as any : null;
+    this.genAI = key && key !== 'mock-gemini-key' ? (new AIPlatformGenerativeAI(key) as any) : null;
 
     this.leadManager = new LeadManager();
     this.opportunityManager = new OpportunityManager();
@@ -69,7 +69,13 @@ export class CrmAgent implements IAgent {
         const contactRole = (options?.contactRole as string) || 'Decision Maker';
         const score = (options?.score as number) || 70;
 
-        const lead = await this.leadManager.createLead(company, contactName, contactEmail, contactRole, score);
+        const lead = await this.leadManager.createLead(
+          company,
+          contactName,
+          contactEmail,
+          contactRole,
+          score,
+        );
         await leadsRepository.add(lead);
 
         return {
@@ -107,7 +113,9 @@ export class CrmAgent implements IAgent {
       // Default: LOG_WORKFLOW_RUN
       // Synthesize full CRM mapping from pipeline memory
       const researchData = context.sharedMemory.research as ResearchReport | undefined;
-      const opportunityData = context.sharedMemory.opportunityAnalysis as OpportunityReport | undefined;
+      const opportunityData = context.sharedMemory.opportunityAnalysis as
+        | OpportunityReport
+        | undefined;
 
       const companyName =
         researchData?.company?.name ||
@@ -162,11 +170,19 @@ export class CrmAgent implements IAgent {
       }
 
       // 6. Relationship scores
-      const relScore = await this.relationshipScorer.scoreRelationship(companyName, activities, accountId);
+      const relScore = await this.relationshipScorer.scoreRelationship(
+        companyName,
+        activities,
+        accountId,
+      );
       await relationshipScoresRepository.add(relScore);
 
       // 7. Follow-ups
-      const followups = await this.followUpEngine.generateTasks(companyName, activities, leads[0]?.leadId || 'lead_generic_001');
+      const followups = await this.followUpEngine.generateTasks(
+        companyName,
+        activities,
+        leads[0]?.leadId || 'lead_generic_001',
+      );
       for (const fup of followups) {
         await followupsRepository.add(fup);
       }

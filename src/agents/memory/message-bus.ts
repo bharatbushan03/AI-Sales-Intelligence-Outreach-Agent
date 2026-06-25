@@ -87,7 +87,9 @@ export class AgentMessagingBus {
    */
   public async getHistory(topic?: string, limitCount = 50): Promise<AgentMessage[]> {
     try {
-      const filters = topic ? [{ field: 'topic', operator: '==' as const, value: topic }] : undefined;
+      const filters = topic
+        ? [{ field: 'topic', operator: '==' as const, value: topic }]
+        : undefined;
       return await agentMessagesRepository.list(filters, 'timestamp', 'desc', limitCount);
     } catch (err) {
       logger.error('Failed to retrieve agent messages history', err);

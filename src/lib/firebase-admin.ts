@@ -36,7 +36,12 @@ try {
 
   const db: Record<string, Record<string, any>> = {};
 
-  const makeQuery = (collectionName: string, filters: any[] = [], order: any = null, limitVal: number | null = null) => {
+  const makeQuery = (
+    collectionName: string,
+    filters: any[] = [],
+    order: any = null,
+    limitVal: number | null = null,
+  ) => {
     const getDocs = async () => {
       const col = db[collectionName] || {};
       let list = Object.entries(col).map(([id, data]) => ({
@@ -46,7 +51,7 @@ try {
             if (db[collectionName]) {
               delete db[collectionName][id];
             }
-          }
+          },
         },
         exists: true,
         data: () => data,
@@ -153,9 +158,9 @@ try {
           for (const op of ops) {
             await op();
           }
-        }
+        },
       };
-    }
+    },
   } as unknown as Firestore;
 
   adminAuth = {} as unknown as Auth;

@@ -1,0 +1,25 @@
+{
+  "projects": {
+    "default": "sales-intelligence-dev",
+    "development": "sales-intelligence-dev",
+    "staging": "sales-intelligence-staging",
+    "production": "sales-intelligence-prod"
+  },
+  "targets": {
+    "sales-intelligence-dev": {
+      "hosting": {
+        "app": ["sales-intelligence-dev"]
+      }
+    },
+    "sales-intelligence-staging": {
+      "hosting": {
+        "app": ["sales-intelligence-staging"]
+      }
+    },
+    "sales-intelligence-prod": {
+      "hosting": {
+        "app": ["sales-intelligence-prod"]
+      }
+    }
+  }
+}

@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     // 1. Use Firebase Admin SDK to verify the refresh token
     // 2. Generate a new custom token if needed
     // 3. Return the new ID token
-    
+
     // For now, we'll validate the token and return session info
     if (!decodedToken && idToken) {
       try {
@@ -56,21 +56,21 @@ export async function POST(req: NextRequest) {
     // Get user record to ensure account is still active
     try {
       const userRecord = await adminAuth.getUser(userId);
-      
+
       if (userRecord.disabled) {
         return ApiResponse.error('Account has been disabled', 'FORBIDDEN', 403);
       }
 
       // Generate custom claims if needed
       const customClaims: Record<string, any> = {};
-      
+
       // You can add custom claims here based on user data
       // For example, organization ID, role, etc.
-      
-      logger.info('Token refresh successful', { 
+
+      logger.info('Token refresh successful', {
         userId,
         email: userRecord.email,
-        emailVerified: userRecord.emailVerified
+        emailVerified: userRecord.emailVerified,
       });
 
       return ApiResponse.success({
@@ -83,12 +83,14 @@ export async function POST(req: NextRequest) {
           disabled: userRecord.disabled,
           customClaims: userRecord.customClaims || {},
         },
-        tokenInfo: decodedToken ? {
-          exp: decodedToken.exp,
-          iat: decodedToken.iat,
-          iss: decodedToken.iss,
-          aud: decodedToken.aud,
-        } : null,
+        tokenInfo: decodedToken
+          ? {
+              exp: decodedToken.exp,
+              iat: decodedToken.iat,
+              iss: decodedToken.iss,
+              aud: decodedToken.aud,
+            }
+          : null,
         refreshedAt: new Date().toISOString(),
       });
     } catch (error) {
@@ -114,10 +116,10 @@ export async function GET(req: NextRequest) {
     }
 
     const idToken = authHeader.split('Bearer ')[1];
-    
+
     try {
       const decodedToken = await adminAuth.verifyIdToken(idToken, false); // Don't check expiry
-      
+
       const now = Math.floor(Date.now() / 1000);
       const timeToExpiry = decodedToken.exp - now;
       const isExpired = timeToExpiry <= 0;
@@ -137,10 +139,12 @@ export async function GET(req: NextRequest) {
           isExpired,
           isExpiringSoon,
           timeToExpiry,
-          customClaims: decodedToken.firebase?.sign_in_provider ? {
-            signInProvider: decodedToken.firebase.sign_in_provider,
-            identities: decodedToken.firebase.identities,
-          } : {},
+          customClaims: decodedToken.firebase?.sign_in_provider
+            ? {
+                signInProvider: decodedToken.firebase.sign_in_provider,
+                identities: decodedToken.firebase.identities,
+              }
+            : {},
         },
         refreshRecommended: isExpired || isExpiringSoon,
       });

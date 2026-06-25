@@ -19,7 +19,11 @@ import {
   CheckCircle,
   MessageSquare,
 } from 'lucide-react';
-import { OutreachPackage, ColdEmailVariant, FollowUpStep } from '@/agents/specialists/outreach/types';
+import {
+  OutreachPackage,
+  ColdEmailVariant,
+  FollowUpStep,
+} from '@/agents/specialists/outreach/types';
 
 type ActiveTabName = 'emails' | 'campaigns' | 'personas' | 'callPrep' | 'objections' | 'summary';
 
@@ -189,7 +193,8 @@ export default function OutreachPage() {
             Outreach Workspace
           </h1>
           <p className="mt-2 text-sm text-slate-400">
-            Build multi-channel outbound sequences, personalize email variants, prepare discovery meetings, and handle objections.
+            Build multi-channel outbound sequences, personalize email variants, prepare discovery
+            meetings, and handle objections.
           </p>
         </div>
         {report && (
@@ -291,7 +296,8 @@ export default function OutreachPage() {
                   Executing Outbound Sequence Agent
                 </h3>
                 <p className="mx-auto max-w-sm text-sm text-slate-400">
-                  Synthesizing persona maps, writing contextual email sequences, and generating multi-channel timelines.
+                  Synthesizing persona maps, writing contextual email sequences, and generating
+                  multi-channel timelines.
                 </p>
               </div>
 
@@ -344,11 +350,10 @@ export default function OutreachPage() {
             <div className="flex flex-col items-center justify-center space-y-4 rounded-2xl border border-dashed border-slate-800 bg-slate-900/10 p-20 text-center print:hidden">
               <Mail className="h-10 w-10 text-slate-600" />
               <div>
-                <h3 className="text-md font-semibold text-slate-300">
-                  Outreach Workspace Empty
-                </h3>
+                <h3 className="text-md font-semibold text-slate-300">Outreach Workspace Empty</h3>
                 <p className="mx-auto mt-1 max-w-xs text-xs text-slate-500">
-                  Provide a domain or brand name to trigger high-impact customized copy, touchpoint calendars, and handling models.
+                  Provide a domain or brand name to trigger high-impact customized copy, touchpoint
+                  calendars, and handling models.
                 </p>
               </div>
             </div>
@@ -364,7 +369,9 @@ export default function OutreachPage() {
                     <Award className="h-4 w-4 text-indigo-400" /> Quality Score
                   </div>
                   <div className="flex items-baseline gap-2">
-                    <span className={`text-3xl font-extrabold print:text-black ${getScoreColor(report.outreachScore)}`}>
+                    <span
+                      className={`text-3xl font-extrabold print:text-black ${getScoreColor(report.outreachScore)}`}
+                    >
                       {report.outreachScore}%
                     </span>
                   </div>
@@ -405,7 +412,7 @@ export default function OutreachPage() {
               </div>
 
               {/* Tab Navigation */}
-              <div className="flex border-b border-slate-800 overflow-x-auto print:hidden">
+              <div className="flex overflow-x-auto border-b border-slate-800 print:hidden">
                 {[
                   { id: 'emails', label: 'Email Generator' },
                   { id: 'campaigns', label: 'Campaign Builder' },
@@ -456,7 +463,7 @@ export default function OutreachPage() {
                       </div>
 
                       {localEmails[selectedEmailIdx] && (
-                        <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-5 space-y-4">
+                        <div className="space-y-4 rounded-xl border border-slate-800 bg-slate-950/60 p-5">
                           <div className="space-y-2">
                             <label className="text-[10px] font-bold tracking-wider text-slate-500 uppercase">
                               Subject Line
@@ -464,7 +471,9 @@ export default function OutreachPage() {
                             <input
                               type="text"
                               value={localEmails[selectedEmailIdx].subject}
-                              onChange={(e) => handleEmailSubjectChange(selectedEmailIdx, e.target.value)}
+                              onChange={(e) =>
+                                handleEmailSubjectChange(selectedEmailIdx, e.target.value)
+                              }
                               className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-slate-200 focus:border-indigo-500 focus:outline-none"
                             />
                           </div>
@@ -476,7 +485,9 @@ export default function OutreachPage() {
                             <textarea
                               rows={10}
                               value={localEmails[selectedEmailIdx].fullBody}
-                              onChange={(e) => handleEmailBodyChange(selectedEmailIdx, e.target.value)}
+                              onChange={(e) =>
+                                handleEmailBodyChange(selectedEmailIdx, e.target.value)
+                              }
                               className="w-full rounded-lg border border-slate-800 bg-slate-900 p-3 font-sans text-xs leading-relaxed text-slate-200 focus:border-indigo-500 focus:outline-none"
                             />
                           </div>
@@ -486,7 +497,7 @@ export default function OutreachPage() {
                               onClick={() =>
                                 copyToClipboard(
                                   `Subject: ${localEmails[selectedEmailIdx].subject}\n\n${localEmails[selectedEmailIdx].fullBody}`,
-                                  `email_${selectedEmailIdx}`
+                                  `email_${selectedEmailIdx}`,
                                 )
                               }
                               className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-slate-200 transition-colors hover:bg-slate-700"
@@ -502,7 +513,9 @@ export default function OutreachPage() {
                               )}
                             </button>
                             <button
-                              onClick={() => handleCrmSync('Cold Email Template', `email_${selectedEmailIdx}`)}
+                              onClick={() =>
+                                handleCrmSync('Cold Email Template', `email_${selectedEmailIdx}`)
+                              }
                               disabled={syncingCrm === `email_${selectedEmailIdx}`}
                               className="flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-semibold text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
                             >
@@ -519,46 +532,50 @@ export default function OutreachPage() {
                     </div>
 
                     {/* Print Display for Cold Emails */}
-                    <div className="hidden print:block space-y-6">
+                    <div className="hidden space-y-6 print:block">
                       {localEmails.map((email, idx) => (
                         <div key={idx} className="space-y-2 border-b pb-4">
-                          <h4 className="font-bold text-sm">{email.variantName}</h4>
-                          <p className="text-xs"><strong>Subject:</strong> {email.subject}</p>
-                          <p className="text-xs whitespace-pre-wrap mt-2">{email.fullBody}</p>
+                          <h4 className="text-sm font-bold">{email.variantName}</h4>
+                          <p className="text-xs">
+                            <strong>Subject:</strong> {email.subject}
+                          </p>
+                          <p className="mt-2 text-xs whitespace-pre-wrap">{email.fullBody}</p>
                         </div>
                       ))}
                     </div>
 
                     {/* Follow-Up Sequence */}
                     <div className="space-y-4">
-                      <h4 className="text-md font-bold text-slate-200">5-Touch Follow-Up Sequence</h4>
+                      <h4 className="text-md font-bold text-slate-200">
+                        5-Touch Follow-Up Sequence
+                      </h4>
                       <div className="grid gap-4 md:grid-cols-5 print:grid-cols-1">
                         {localFollowUps.map((step, idx) => (
                           <div
                             key={idx}
-                            className="flex flex-col justify-between rounded-xl border border-slate-850 bg-slate-950/40 p-4 space-y-3"
+                            className="border-slate-850 flex flex-col justify-between space-y-3 rounded-xl border bg-slate-950/40 p-4"
                           >
                             <div>
                               <div className="flex items-center justify-between">
-                                <span className="rounded-full bg-slate-900 border border-slate-800 px-2 py-0.5 text-[10px] font-bold text-slate-400">
+                                <span className="rounded-full border border-slate-800 bg-slate-900 px-2 py-0.5 text-[10px] font-bold text-slate-400">
                                   Day {step.day}
                                 </span>
                               </div>
-                              <div className="mt-2 text-[10px] font-bold text-indigo-400 leading-tight">
+                              <div className="mt-2 text-[10px] leading-tight font-bold text-indigo-400">
                                 {step.objective}
                               </div>
                               <textarea
                                 value={step.message}
                                 onChange={(e) => handleFollowUpChange(idx, e.target.value)}
                                 rows={6}
-                                className="mt-2.5 w-full bg-transparent text-[11px] leading-relaxed text-slate-400 border-none resize-none focus:outline-none focus:ring-0"
+                                className="mt-2.5 w-full resize-none border-none bg-transparent text-[11px] leading-relaxed text-slate-400 focus:ring-0 focus:outline-none"
                               />
                             </div>
-                            <div className="border-t border-slate-900 pt-2.5 flex items-center justify-between text-[10px] text-slate-500">
+                            <div className="flex items-center justify-between border-t border-slate-900 pt-2.5 text-[10px] text-slate-500">
                               <span>CTA: &quot;{step.cta}&quot;</span>
                               <button
                                 onClick={() => copyToClipboard(step.message, `fup_${idx}`)}
-                                className="p-1 hover:text-slate-250 transition-colors"
+                                className="hover:text-slate-250 p-1 transition-colors"
                               >
                                 {copiedText === `fup_${idx}` ? (
                                   <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
@@ -594,16 +611,22 @@ export default function OutreachPage() {
                         return (
                           <div
                             key={idx}
-                            className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-xl border border-slate-800 bg-slate-950/40 p-5 print:border-none print:p-0"
+                            className="flex flex-col justify-between gap-4 rounded-xl border border-slate-800 bg-slate-950/40 p-5 md:flex-row md:items-center print:border-none print:p-0"
                           >
                             <div className="flex items-start gap-4">
-                              <div className="flex flex-col items-center justify-center rounded-lg border border-slate-800 bg-slate-900 p-2.5 w-16 shrink-0 print:border-none print:p-0">
-                                <span className="text-[10px] font-bold text-slate-500 uppercase">Touch</span>
-                                <span className="text-sm font-bold text-white print:text-black">{step.timeline}</span>
+                              <div className="flex w-16 shrink-0 flex-col items-center justify-center rounded-lg border border-slate-800 bg-slate-900 p-2.5 print:border-none print:p-0">
+                                <span className="text-[10px] font-bold text-slate-500 uppercase">
+                                  Touch
+                                </span>
+                                <span className="text-sm font-bold text-white print:text-black">
+                                  {step.timeline}
+                                </span>
                               </div>
                               <div className="space-y-1">
                                 <div className="flex items-center gap-2">
-                                  <span className={`rounded border px-2 py-0.5 text-[9px] font-bold uppercase ${channelColor}`}>
+                                  <span
+                                    className={`rounded border px-2 py-0.5 text-[9px] font-bold uppercase ${channelColor}`}
+                                  >
                                     {step.channel}
                                   </span>
                                   <h4 className="text-xs font-semibold text-slate-400 uppercase">
@@ -615,11 +638,11 @@ export default function OutreachPage() {
                                 </p>
                               </div>
                             </div>
-                            <div className="border-t border-slate-900 md:border-t-0 pt-3 md:pt-0 text-left md:text-right shrink-0">
+                            <div className="shrink-0 border-t border-slate-900 pt-3 text-left md:border-t-0 md:pt-0 md:text-right">
                               <span className="text-[10px] font-bold tracking-wider text-slate-500 uppercase">
                                 Target CTA Action
                               </span>
-                              <p className="text-xs text-indigo-400 font-medium mt-0.5 print:text-slate-700">
+                              <p className="mt-0.5 text-xs font-medium text-indigo-400 print:text-slate-700">
                                 {step.cta}
                               </p>
                             </div>
@@ -629,18 +652,22 @@ export default function OutreachPage() {
                     </div>
 
                     {/* LinkedIn Message Panel */}
-                    <div className="mt-8 border-t border-slate-800 pt-6 space-y-4">
-                      <h4 className="text-md font-bold text-slate-250 flex items-center gap-2">
-                        <MessageSquare className="h-4.5 w-4.5 text-sky-400" /> LinkedIn Outreach Scripts
+                    <div className="mt-8 space-y-4 border-t border-slate-800 pt-6">
+                      <h4 className="text-md text-slate-250 flex items-center gap-2 font-bold">
+                        <MessageSquare className="h-4.5 w-4.5 text-sky-400" /> LinkedIn Outreach
+                        Scripts
                       </h4>
                       <div className="grid gap-4 md:grid-cols-2 print:grid-cols-1">
                         {report.linkedInMessages?.map((msg, idx) => (
-                          <div key={idx} className="rounded-xl border border-slate-900 bg-slate-950/60 p-4 space-y-2">
+                          <div
+                            key={idx}
+                            className="space-y-2 rounded-xl border border-slate-900 bg-slate-950/60 p-4"
+                          >
                             <div className="flex items-center justify-between border-b border-slate-900 pb-2">
                               <span className="text-xs font-bold text-sky-400">{msg.type}</span>
                               <button
                                 onClick={() => copyToClipboard(msg.message, `ln_${idx}`)}
-                                className="text-slate-500 hover:text-slate-350"
+                                className="hover:text-slate-350 text-slate-500"
                               >
                                 {copiedText === `ln_${idx}` ? (
                                   <CheckCircle className="h-4 w-4 text-emerald-400" />
@@ -649,7 +676,7 @@ export default function OutreachPage() {
                                 )}
                               </button>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed print:text-slate-700">
+                            <p className="text-xs leading-relaxed text-slate-400 print:text-slate-700">
                               {msg.message}
                             </p>
                           </div>
@@ -677,35 +704,47 @@ export default function OutreachPage() {
                         return (
                           <div
                             key={idx}
-                            className="rounded-xl border border-slate-800 bg-slate-955/40 p-5 space-y-4 print:border-none print:p-0"
+                            className="bg-slate-955/40 space-y-4 rounded-xl border border-slate-800 p-5 print:border-none print:p-0"
                           >
                             <div className="flex items-center justify-between border-b border-slate-900 pb-3">
                               <h4 className="text-sm font-bold text-white print:text-black">
                                 {persona.role}
                               </h4>
-                              <span className={`rounded border px-2.5 py-0.5 text-[9px] font-bold uppercase ${influenceColor}`}>
+                              <span
+                                className={`rounded border px-2.5 py-0.5 text-[9px] font-bold uppercase ${influenceColor}`}
+                              >
                                 {persona.decisionInfluence} Influence
                               </span>
                             </div>
 
                             <div className="space-y-3 text-xs">
                               <div>
-                                <span className="font-semibold text-slate-500">Business Priorities:</span>
-                                <ul className="list-disc pl-4 mt-1 space-y-1 text-slate-400">
-                                  {persona.priorities?.map((p, i) => <li key={i}>{p}</li>)}
+                                <span className="font-semibold text-slate-500">
+                                  Business Priorities:
+                                </span>
+                                <ul className="mt-1 list-disc space-y-1 pl-4 text-slate-400">
+                                  {persona.priorities?.map((p, i) => (
+                                    <li key={i}>{p}</li>
+                                  ))}
                                 </ul>
                               </div>
 
                               <div>
-                                <span className="font-semibold text-slate-500">Key Challenges:</span>
-                                <ul className="list-disc pl-4 mt-1 space-y-1 text-slate-400">
-                                  {persona.likelyChallenges?.map((c, i) => <li key={i}>{c}</li>)}
+                                <span className="font-semibold text-slate-500">
+                                  Key Challenges:
+                                </span>
+                                <ul className="mt-1 list-disc space-y-1 pl-4 text-slate-400">
+                                  {persona.likelyChallenges?.map((c, i) => (
+                                    <li key={i}>{c}</li>
+                                  ))}
                                 </ul>
                               </div>
 
                               <div className="border-t border-slate-900 pt-3">
-                                <span className="font-semibold text-indigo-400">Preferred Messaging Theme:</span>
-                                <p className="mt-1 text-slate-400 leading-relaxed italic">
+                                <span className="font-semibold text-indigo-400">
+                                  Preferred Messaging Theme:
+                                </span>
+                                <p className="mt-1 leading-relaxed text-slate-400 italic">
                                   &quot;{persona.preferredMessaging}&quot;
                                 </p>
                               </div>
@@ -726,56 +765,64 @@ export default function OutreachPage() {
 
                     {report.discoveryCallPlan && (
                       <div className="space-y-6">
-                        <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-5 space-y-2">
-                          <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider">
+                        <div className="space-y-2 rounded-xl border border-slate-800 bg-slate-950/40 p-5">
+                          <h4 className="text-xs font-bold tracking-wider text-indigo-400 uppercase">
                             Call Objective
                           </h4>
-                          <p className="text-sm font-bold text-white leading-normal print:text-black">
+                          <p className="text-sm leading-normal font-bold text-white print:text-black">
                             {report.discoveryCallPlan.callObjective}
                           </p>
                         </div>
 
                         <div className="grid gap-6 md:grid-cols-2">
-                          <div className="rounded-xl border border-slate-900 bg-slate-950/60 p-4 space-y-2">
+                          <div className="space-y-2 rounded-xl border border-slate-900 bg-slate-950/60 p-4">
                             <span className="text-[10px] font-bold tracking-wider text-slate-500 uppercase">
                               Agenda Steps
                             </span>
-                            <ul className="list-decimal pl-4 text-xs text-slate-400 space-y-2">
-                              {report.discoveryCallPlan.agenda?.map((step, idx) => <li key={idx}>{step}</li>)}
+                            <ul className="list-decimal space-y-2 pl-4 text-xs text-slate-400">
+                              {report.discoveryCallPlan.agenda?.map((step, idx) => (
+                                <li key={idx}>{step}</li>
+                              ))}
                             </ul>
                           </div>
 
-                          <div className="rounded-xl border border-slate-900 bg-slate-950/60 p-4 space-y-2">
+                          <div className="space-y-2 rounded-xl border border-slate-900 bg-slate-950/60 p-4">
                             <span className="text-[10px] font-bold tracking-wider text-slate-500 uppercase">
                               Qualification Questions
                             </span>
-                            <ul className="list-disc pl-4 text-xs text-slate-400 space-y-2">
+                            <ul className="list-disc space-y-2 pl-4 text-xs text-slate-400">
                               {report.discoveryCallPlan.qualificationQuestions?.map((q, idx) => (
-                                <li key={idx} className="leading-relaxed">{q}</li>
+                                <li key={idx} className="leading-relaxed">
+                                  {q}
+                                </li>
                               ))}
                             </ul>
                           </div>
                         </div>
 
                         <div className="grid gap-6 md:grid-cols-2">
-                          <div className="rounded-xl border border-slate-900 bg-slate-950/60 p-4 space-y-2">
+                          <div className="space-y-2 rounded-xl border border-slate-900 bg-slate-950/60 p-4">
                             <span className="text-[10px] font-bold tracking-wider text-slate-500 uppercase">
                               Discovery Questions
                             </span>
-                            <ul className="list-disc pl-4 text-xs text-slate-400 space-y-2">
+                            <ul className="list-disc space-y-2 pl-4 text-xs text-slate-400">
                               {report.discoveryCallPlan.discoveryQuestions?.map((q, idx) => (
-                                <li key={idx} className="leading-relaxed">{q}</li>
+                                <li key={idx} className="leading-relaxed">
+                                  {q}
+                                </li>
                               ))}
                             </ul>
                           </div>
 
-                          <div className="rounded-xl border border-slate-900 bg-slate-950/60 p-4 space-y-2">
+                          <div className="space-y-2 rounded-xl border border-slate-900 bg-slate-950/60 p-4">
                             <span className="text-[10px] font-bold tracking-wider text-slate-500 uppercase">
                               Deep Pain Exploration
                             </span>
-                            <ul className="list-disc pl-4 text-xs text-slate-400 space-y-2">
+                            <ul className="list-disc space-y-2 pl-4 text-xs text-slate-400">
                               {report.discoveryCallPlan.painPointQuestions?.map((q, idx) => (
-                                <li key={idx} className="leading-relaxed">{q}</li>
+                                <li key={idx} className="leading-relaxed">
+                                  {q}
+                                </li>
                               ))}
                             </ul>
                           </div>
@@ -795,22 +842,24 @@ export default function OutreachPage() {
                       {report.objections?.map((obj, idx) => (
                         <div
                           key={idx}
-                          className="rounded-xl border border-slate-800 bg-slate-950/40 p-5 space-y-3 print:border-none print:p-0"
+                          className="space-y-3 rounded-xl border border-slate-800 bg-slate-950/40 p-5 print:border-none print:p-0"
                         >
                           <div className="flex items-center gap-2 border-b border-slate-900 pb-2">
-                            <ShieldAlert className="h-4 w-4 text-rose-400 shrink-0" />
+                            <ShieldAlert className="h-4 w-4 shrink-0 text-rose-400" />
                             <h4 className="text-sm font-bold text-slate-200 print:text-black">
                               Objection: &quot;{obj.objection}&quot;
                             </h4>
                           </div>
 
                           <div className="space-y-2 text-xs">
-                            <div className="bg-slate-900/60 rounded-lg p-3 border-l-2 border-emerald-500 text-slate-350 leading-relaxed print:bg-transparent print:border-none print:p-0">
-                              <span className="font-bold text-emerald-400 block mb-1">Recommended Response:</span>
+                            <div className="text-slate-350 rounded-lg border-l-2 border-emerald-500 bg-slate-900/60 p-3 leading-relaxed print:border-none print:bg-transparent print:p-0">
+                              <span className="mb-1 block font-bold text-emerald-400">
+                                Recommended Response:
+                              </span>
                               <p className="italic">&quot;{obj.recommendedResponse}&quot;</p>
                             </div>
-                            <p className="text-[10px] text-slate-500 leading-normal">
-                              <span className="font-bold uppercase tracking-wider">Rationale:</span>{' '}
+                            <p className="text-[10px] leading-normal text-slate-500">
+                              <span className="font-bold tracking-wider uppercase">Rationale:</span>{' '}
                               {obj.rationale}
                             </p>
                           </div>
@@ -844,7 +893,7 @@ export default function OutreachPage() {
                           {report.messagingStrategy?.map((theme, idx) => (
                             <div
                               key={idx}
-                              className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 space-y-2 print:border-none print:p-0"
+                              className="space-y-2 rounded-xl border border-slate-800 bg-slate-950/40 p-4 print:border-none print:p-0"
                             >
                               <div className="flex items-center justify-between">
                                 <strong className="text-sm text-indigo-300 print:text-black">
@@ -852,15 +901,21 @@ export default function OutreachPage() {
                                 </strong>
                               </div>
                               <div className="text-xs text-slate-400">
-                                <span className="font-semibold text-slate-500">Target Segment:</span>{' '}
+                                <span className="font-semibold text-slate-500">
+                                  Target Segment:
+                                </span>{' '}
                                 {theme.audience}
                               </div>
                               <div className="text-xs text-slate-400">
-                                <span className="font-semibold text-slate-500">Business Value:</span>{' '}
+                                <span className="font-semibold text-slate-500">
+                                  Business Value:
+                                </span>{' '}
                                 {theme.businessValue}
                               </div>
                               <div className="border-t border-slate-900 pt-2 text-xs text-slate-400 italic">
-                                <span className="font-semibold text-indigo-400">Call To Action:</span>{' '}
+                                <span className="font-semibold text-indigo-400">
+                                  Call To Action:
+                                </span>{' '}
                                 {theme.callToAction}
                               </div>
                             </div>

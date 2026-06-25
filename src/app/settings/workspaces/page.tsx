@@ -3,11 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { workspacesRepository } from '@/lib/repositories';
-import { Layers, Plus, CheckCircle, RefreshCw, FolderPlus, ArrowRight, Settings } from 'lucide-react';
+import {
+  Layers,
+  Plus,
+  CheckCircle,
+  RefreshCw,
+  FolderPlus,
+  ArrowRight,
+  Settings,
+} from 'lucide-react';
 
 export default function WorkspacesSettingsPage() {
   const { profile, activeWorkspaceId, setActiveWorkspaceId } = useAuth();
-  
+
   const [loading, setLoading] = useState(true);
   const [workspaces, setWorkspaces] = useState<any[]>([]);
   const [newWsName, setNewWsName] = useState('');
@@ -34,10 +42,10 @@ export default function WorkspacesSettingsPage() {
           organizationId: orgId,
           createdAt: new Date().toISOString(),
         }));
-        
+
         // Ensure unique mock workspace array
         const unique = Array.from(new Map(filtered.map((w: any) => [w.id, w])).values()) as any[];
-        
+
         // Add a default General workspace if empty
         if (unique.length === 0) {
           unique.push({
@@ -85,7 +93,7 @@ export default function WorkspacesSettingsPage() {
       // Mock create local state
       setWorkspaces([...workspaces, newWs]);
       setActiveWorkspaceId(generatedId);
-      
+
       setSuccessMsg(`Workspace "${newWsName}" successfully provisioned.`);
       setNewWsName('');
       setNewWsDesc('');
@@ -106,7 +114,7 @@ export default function WorkspacesSettingsPage() {
   };
 
   return (
-    <div className="space-y-8 text-slate-100 pb-16">
+    <div className="space-y-8 pb-16 text-slate-100">
       {/* Toast Alert */}
       {successMessage && (
         <div className="fixed top-6 right-6 z-50 rounded-xl border border-emerald-900 bg-emerald-950/90 p-4 text-emerald-300 shadow-2xl backdrop-blur">
@@ -121,25 +129,26 @@ export default function WorkspacesSettingsPage() {
 
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl flex items-center gap-3">
+        <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-white md:text-4xl">
           <Layers className="h-9 w-9 text-indigo-500" />
           Workspaces Partition Manager
         </h1>
         <p className="mt-2 text-sm text-slate-400">
-          Partition workflows, reports, proposals, and CRM activities into secure organizational workspaces.
+          Partition workflows, reports, proposals, and CRM activities into secure organizational
+          workspaces.
         </p>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Workspaces List Grid */}
-        <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-2">
+        <div className="space-y-4 lg:col-span-2">
+          <h2 className="mb-2 flex items-center gap-2 text-lg font-bold text-white">
             <Settings className="h-5 w-5 text-indigo-400" />
             Active Workspaces Directory
           </h2>
 
           {loading ? (
-            <div className="flex h-48 flex-col items-center justify-center gap-2 rounded-2xl border border-slate-850 bg-slate-900/10">
+            <div className="border-slate-850 flex h-48 flex-col items-center justify-center gap-2 rounded-2xl border bg-slate-900/10">
               <RefreshCw className="h-6 w-6 animate-spin text-indigo-500" />
               <span className="text-xs text-slate-500">Querying workspaces...</span>
             </div>
@@ -154,9 +163,9 @@ export default function WorkspacesSettingsPage() {
                       setActiveWorkspaceId(ws.id);
                       setSuccessMsg(`Switched workspace context to: ${ws.name}`);
                     }}
-                    className={`rounded-2xl border p-6 flex flex-col justify-between cursor-pointer transition-all duration-200 ${
+                    className={`flex cursor-pointer flex-col justify-between rounded-2xl border p-6 transition-all duration-200 ${
                       isActive
-                        ? 'border-indigo-500/80 bg-indigo-950/20 shadow-md shadow-indigo-650/5'
+                        ? 'shadow-indigo-650/5 border-indigo-500/80 bg-indigo-950/20 shadow-md'
                         : 'border-slate-800 bg-slate-900/30 hover:border-slate-700 hover:bg-slate-800/40'
                     }`}
                   >
@@ -164,14 +173,16 @@ export default function WorkspacesSettingsPage() {
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-bold text-white">{ws.name}</span>
                         {isActive && (
-                          <span className="rounded-full bg-indigo-900 text-indigo-300 border border-indigo-750/50 px-2.5 py-0.5 text-2xs font-extrabold uppercase">
+                          <span className="border-indigo-750/50 text-2xs rounded-full border bg-indigo-900 px-2.5 py-0.5 font-extrabold text-indigo-300 uppercase">
                             Active
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-slate-400 mt-2 leading-relaxed">{ws.description}</p>
+                      <p className="mt-2 text-xs leading-relaxed text-slate-400">
+                        {ws.description}
+                      </p>
                     </div>
-                    <div className="mt-5 border-t border-slate-850 pt-4 flex items-center justify-between text-2xs font-bold uppercase tracking-wider text-slate-500">
+                    <div className="border-slate-850 text-2xs mt-5 flex items-center justify-between border-t pt-4 font-bold tracking-wider text-slate-500 uppercase">
                       <span className="font-mono text-slate-500">{ws.id}</span>
                       <span className="flex items-center gap-1 text-indigo-400 hover:text-indigo-300">
                         Select <ArrowRight className="h-3 w-3" />
@@ -185,37 +196,37 @@ export default function WorkspacesSettingsPage() {
         </div>
 
         {/* Create Workspace Panel */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 space-y-4">
-          <h2 className="text-md font-bold text-white flex items-center gap-2">
+        <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
+          <h2 className="text-md flex items-center gap-2 font-bold text-white">
             <FolderPlus className="h-5 w-5 text-indigo-400" />
             Provision Workspace
           </h2>
           <form onSubmit={handleCreateWorkspace} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs text-slate-450 font-bold uppercase">Workspace Name</label>
+              <label className="text-slate-450 text-xs font-bold uppercase">Workspace Name</label>
               <input
                 type="text"
                 value={newWsName}
                 onChange={(e) => setNewWsName(e.target.value)}
                 placeholder="e.g. APAC Marketing"
-                className="w-full rounded-xl border border-slate-750 bg-slate-950 px-3.5 py-2 text-sm text-slate-200 focus:outline-none"
+                className="border-slate-750 w-full rounded-xl border bg-slate-950 px-3.5 py-2 text-sm text-slate-200 focus:outline-none"
                 required
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs text-slate-450 font-bold uppercase">Description</label>
+              <label className="text-slate-450 text-xs font-bold uppercase">Description</label>
               <textarea
                 value={newWsDesc}
                 onChange={(e) => setNewWsDesc(e.target.value)}
                 placeholder="Brief summary describing workspace target actions..."
                 rows={4}
-                className="w-full rounded-xl border border-slate-750 bg-slate-950 px-3.5 py-2 text-sm text-slate-200 focus:outline-none"
+                className="border-slate-750 w-full rounded-xl border bg-slate-950 px-3.5 py-2 text-sm text-slate-200 focus:outline-none"
               />
             </div>
             <button
               type="submit"
               disabled={creating}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-indigo-650 hover:bg-indigo-700 text-white font-bold py-2.5 text-sm transition"
+              className="bg-indigo-650 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-bold text-white transition hover:bg-indigo-700"
             >
               {creating && <RefreshCw className="h-4 w-4 animate-spin" />}
               Create Workspace

@@ -5,9 +5,9 @@
 
 import { NextResponse } from 'next/server';
 
-export type ApiErrorCode = 
+export type ApiErrorCode =
   | 'BAD_REQUEST'
-  | 'UNAUTHORIZED' 
+  | 'UNAUTHORIZED'
   | 'FORBIDDEN'
   | 'NOT_FOUND'
   | 'CONFLICT'
@@ -65,11 +65,7 @@ export class ApiResponse {
   /**
    * Create a successful API response
    */
-  static success<T>(
-    data: T, 
-    statusCode: number = 200, 
-    requestId?: string
-  ): NextResponse {
+  static success<T>(data: T, statusCode: number = 200, requestId?: string): NextResponse {
     const response: ApiSuccessResponse<T> = {
       success: true,
       data,
@@ -89,10 +85,10 @@ export class ApiResponse {
     pageSize: number,
     total: number,
     statusCode: number = 200,
-    requestId?: string
+    requestId?: string,
   ): NextResponse {
     const totalPages = Math.ceil(total / pageSize);
-    
+
     const data: PaginatedResponse<T> = {
       items,
       pagination: {
@@ -116,7 +112,7 @@ export class ApiResponse {
     code: ApiErrorCode,
     statusCode: number,
     details?: any,
-    requestId?: string
+    requestId?: string,
   ): NextResponse {
     const response: ApiErrorResponse = {
       success: false,
@@ -213,11 +209,14 @@ export function getRequestId(request: Request): string | undefined {
 /**
  * Helper function to validate required fields
  */
-export function validateRequired(data: Record<string, any>, fields: string[]): { 
-  isValid: boolean; 
-  missing: string[]; 
+export function validateRequired(
+  data: Record<string, any>,
+  fields: string[],
+): {
+  isValid: boolean;
+  missing: string[];
 } {
-  const missing = fields.filter(field => {
+  const missing = fields.filter((field) => {
     const value = data[field];
     return value === undefined || value === null || value === '';
   });
@@ -243,7 +242,7 @@ export function sanitizeError(error: any): string {
   if (typeof error === 'string') {
     return error;
   }
-  
+
   if (error instanceof Error) {
     // Don't expose internal error details in production
     if (process.env.NODE_ENV === 'production') {
@@ -251,22 +250,20 @@ export function sanitizeError(error: any): string {
     }
     return error.message;
   }
-  
+
   return 'An unexpected error occurred';
 }
 
 /**
  * Middleware helper for consistent error handling
  */
-export function withErrorHandling<T extends any[]>(
-  handler: (...args: T) => Promise<NextResponse>
-) {
+export function withErrorHandling<T extends any[]>(handler: (...args: T) => Promise<NextResponse>) {
   return async (...args: T): Promise<NextResponse> => {
     try {
       return await handler(...args);
     } catch (error) {
       console.error('API Error:', error);
-      
+
       const message = sanitizeError(error);
       return ApiResponse.internalError(message);
     }
@@ -276,21 +273,13 @@ export function withErrorHandling<T extends any[]>(
 /**
  * Type guards for API responses
  */
-export function isApiSuccessResponse<T>(
-  response: any
-): response is ApiSuccessResponse<T> {
+export function isApiSuccessResponse<T>(response: any): response is ApiSuccessResponse<T> {
   return response && response.success === true && 'data' in response;
 }
 
-export function isApiErrorResponse(
-  response: any
-): response is ApiErrorResponse {
+export function isApiErrorResponse(response: any): response is ApiErrorResponse {
   return response && response.success === false && 'error' in response;
 }
 
 // Export types for use in other modules
-export type { 
-  ApiSuccessResponse, 
-  ApiErrorResponse, 
-  PaginatedResponse 
-};
+export type { ApiSuccessResponse, ApiErrorResponse, PaginatedResponse };

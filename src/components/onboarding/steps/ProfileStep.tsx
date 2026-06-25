@@ -58,20 +58,20 @@ const TEAM_SIZES = [
 export function ProfileStep({ onNext }: ProfileStepProps) {
   const { user } = useAuth();
   const { validateProfile } = useProfileValidation();
-  
+
   const [formData, setFormData] = useState({
     name: user?.displayName || '',
     role: '',
     industry: '',
     teamSize: '',
   });
-  
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const validation = validateProfile(formData);
     if (!validation.isValid) {
       setErrors(validation.errors);
@@ -83,7 +83,7 @@ export function ProfileStep({ onNext }: ProfileStepProps) {
 
     try {
       const result = await onNext(formData);
-      
+
       if (!result.success) {
         setErrors({ submit: result.error || 'Failed to save profile' });
       }
@@ -95,7 +95,7 @@ export function ProfileStep({ onNext }: ProfileStepProps) {
   };
 
   return (
-    <div className="rounded-2xl bg-slate-900/50 p-8 shadow-xl backdrop-blur-sm border border-slate-800/50">
+    <div className="rounded-2xl border border-slate-800/50 bg-slate-900/50 p-8 shadow-xl backdrop-blur-sm">
       <div className="mb-8 text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-600">
           <User className="h-8 w-8 text-white" />
@@ -109,7 +109,7 @@ export function ProfileStep({ onNext }: ProfileStepProps) {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Name */}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-slate-200 mb-2">
+          <label htmlFor="name" className="mb-2 block text-sm font-medium text-slate-200">
             Full Name *
           </label>
           <input
@@ -117,7 +117,7 @@ export function ProfileStep({ onNext }: ProfileStepProps) {
             id="name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className={`block w-full rounded-lg border bg-slate-800/50 px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 ${
+            className={`block w-full rounded-lg border bg-slate-800/50 px-4 py-3 text-white placeholder-slate-400 focus:ring-2 focus:outline-none ${
               errors.name
                 ? 'border-red-500 focus:ring-red-500'
                 : 'border-slate-600 focus:ring-indigo-500'
@@ -129,7 +129,7 @@ export function ProfileStep({ onNext }: ProfileStepProps) {
 
         {/* Role */}
         <div>
-          <label htmlFor="role" className="block text-sm font-medium text-slate-200 mb-2">
+          <label htmlFor="role" className="mb-2 block text-sm font-medium text-slate-200">
             Your Role *
           </label>
           <div className="relative">
@@ -137,7 +137,7 @@ export function ProfileStep({ onNext }: ProfileStepProps) {
               id="role"
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              className={`block w-full rounded-lg border bg-slate-800/50 px-4 py-3 text-white focus:outline-none focus:ring-2 appearance-none ${
+              className={`block w-full appearance-none rounded-lg border bg-slate-800/50 px-4 py-3 text-white focus:ring-2 focus:outline-none ${
                 errors.role
                   ? 'border-red-500 focus:ring-red-500'
                   : 'border-slate-600 focus:ring-indigo-500'
@@ -150,14 +150,14 @@ export function ProfileStep({ onNext }: ProfileStepProps) {
                 </option>
               ))}
             </select>
-            <Briefcase className="absolute right-3 top-3.5 h-5 w-5 text-slate-400 pointer-events-none" />
+            <Briefcase className="pointer-events-none absolute top-3.5 right-3 h-5 w-5 text-slate-400" />
           </div>
           {errors.role && <p className="mt-1 text-sm text-red-400">{errors.role}</p>}
         </div>
 
         {/* Industry */}
         <div>
-          <label htmlFor="industry" className="block text-sm font-medium text-slate-200 mb-2">
+          <label htmlFor="industry" className="mb-2 block text-sm font-medium text-slate-200">
             Industry
           </label>
           <div className="relative">
@@ -165,7 +165,7 @@ export function ProfileStep({ onNext }: ProfileStepProps) {
               id="industry"
               value={formData.industry}
               onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
-              className="block w-full rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none"
+              className="block w-full appearance-none rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             >
               <option value="">Select your industry (optional)</option>
               {INDUSTRIES.map((industry) => (
@@ -174,13 +174,13 @@ export function ProfileStep({ onNext }: ProfileStepProps) {
                 </option>
               ))}
             </select>
-            <Building className="absolute right-3 top-3.5 h-5 w-5 text-slate-400 pointer-events-none" />
+            <Building className="pointer-events-none absolute top-3.5 right-3 h-5 w-5 text-slate-400" />
           </div>
         </div>
 
         {/* Team Size */}
         <div>
-          <label htmlFor="teamSize" className="block text-sm font-medium text-slate-200 mb-2">
+          <label htmlFor="teamSize" className="mb-2 block text-sm font-medium text-slate-200">
             Team Size
           </label>
           <div className="relative">
@@ -188,7 +188,7 @@ export function ProfileStep({ onNext }: ProfileStepProps) {
               id="teamSize"
               value={formData.teamSize}
               onChange={(e) => setFormData({ ...formData, teamSize: e.target.value })}
-              className="block w-full rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none"
+              className="block w-full appearance-none rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             >
               <option value="">Select team size (optional)</option>
               {TEAM_SIZES.map((size) => (
@@ -197,13 +197,13 @@ export function ProfileStep({ onNext }: ProfileStepProps) {
                 </option>
               ))}
             </select>
-            <Users className="absolute right-3 top-3.5 h-5 w-5 text-slate-400 pointer-events-none" />
+            <Users className="pointer-events-none absolute top-3.5 right-3 h-5 w-5 text-slate-400" />
           </div>
         </div>
 
         {/* Submit Error */}
         {errors.submit && (
-          <div className="rounded-lg bg-red-900/50 border border-red-500/50 p-4">
+          <div className="rounded-lg border border-red-500/50 bg-red-900/50 p-4">
             <p className="text-sm text-red-400">{errors.submit}</p>
           </div>
         )}
@@ -212,7 +212,7 @@ export function ProfileStep({ onNext }: ProfileStepProps) {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 py-3 px-4 text-white font-medium hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+          className="w-full rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-3 font-medium text-white transition-all duration-200 hover:from-indigo-600 hover:to-purple-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isLoading ? 'Saving...' : 'Continue'}
         </button>
@@ -221,8 +221,8 @@ export function ProfileStep({ onNext }: ProfileStepProps) {
       {/* Help Text */}
       <div className="mt-6 rounded-lg bg-slate-800/50 p-4">
         <p className="text-xs text-slate-400">
-          <strong>Why we ask:</strong> This information helps us customize your dashboard, 
-          suggest relevant features, and connect you with the right tools for your role.
+          <strong>Why we ask:</strong> This information helps us customize your dashboard, suggest
+          relevant features, and connect you with the right tools for your role.
         </p>
       </div>
     </div>

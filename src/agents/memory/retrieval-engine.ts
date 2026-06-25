@@ -65,12 +65,15 @@ export class MemoryRetrievalEngine {
    * Evaluates keyword matches to estimate baseline similarity.
    */
   private calculateHeuristicScore(userGoal: string, memory: unknown): number {
-    const goalWords = userGoal.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+    const goalWords = userGoal
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((w) => w.length > 3);
     if (goalWords.length === 0) return 0.5;
 
     const memoryString = JSON.stringify(memory).toLowerCase();
     let matches = 0;
-    
+
     goalWords.forEach((word) => {
       if (memoryString.includes(word)) {
         matches++;
@@ -91,9 +94,9 @@ export class MemoryRetrievalEngine {
     try {
       const diffMs = Date.now() - new Date(dateStr).getTime();
       const diffDays = diffMs / (1000 * 60 * 60 * 24);
-      
+
       if (diffDays <= 1) return 0.15;
-      if (diffDays <= 7) return 0.10;
+      if (diffDays <= 7) return 0.1;
       if (diffDays <= 30) return 0.05;
     } catch {
       // Ignore parse errors

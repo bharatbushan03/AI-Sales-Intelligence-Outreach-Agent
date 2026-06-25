@@ -2,11 +2,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Bell, CheckCircle, RefreshCw, Eye, AlertTriangle, ShieldCheck, Mail, Calendar } from 'lucide-react';
+import {
+  Bell,
+  CheckCircle,
+  RefreshCw,
+  Eye,
+  AlertTriangle,
+  ShieldCheck,
+  Mail,
+  Calendar,
+} from 'lucide-react';
 
 export default function NotificationsPage() {
   const { profile } = useAuth();
-  
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -25,7 +34,8 @@ export default function NotificationsPage() {
           {
             id: 'notif_onboard',
             title: 'Welcome to your SaaS Agent Platform!',
-            message: 'You have registered successfully. Explore leads, opportunities, outreach campaigns, and proposals.',
+            message:
+              'You have registered successfully. Explore leads, opportunities, outreach campaigns, and proposals.',
             type: 'system',
             read: false,
             createdAt: new Date(Date.now() - 3600000).toISOString(),
@@ -37,9 +47,9 @@ export default function NotificationsPage() {
             type: 'invite',
             read: false,
             createdAt: new Date().toISOString(),
-          }
+          },
         ];
-        
+
         // If workflows have run, simulate notification completion
         if (res.data.workflows?.length > 0) {
           list.push({
@@ -51,7 +61,7 @@ export default function NotificationsPage() {
             createdAt: res.data.workflows[0].createdAt,
           });
         }
-        
+
         setNotifications(list.sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
       }
     } catch (err) {
@@ -67,9 +77,7 @@ export default function NotificationsPage() {
   }, [orgId]);
 
   const handleMarkAsRead = (id: string) => {
-    setNotifications(
-      notifications.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+    setNotifications(notifications.map((n) => (n.id === id ? { ...n, read: true } : n)));
   };
 
   const handleMarkAllRead = () => {
@@ -81,18 +89,18 @@ export default function NotificationsPage() {
       case 'workflow':
         return <CheckCircle className="h-5 w-5 text-indigo-400" />;
       case 'invite':
-        return <Mail className="h-5 w-5 text-violet-455 text-violet-400" />;
+        return <Mail className="text-violet-455 h-5 w-5 text-violet-400" />;
       default:
-        return <Bell className="h-5 w-5 text-emerald-450 text-emerald-400" />;
+        return <Bell className="text-emerald-450 h-5 w-5 text-emerald-400" />;
     }
   };
 
   return (
-    <div className="space-y-8 text-slate-100 pb-16">
+    <div className="space-y-8 pb-16 text-slate-100">
       {/* Header */}
-      <div className="flex justify-between items-center border-b border-slate-800 pb-5">
+      <div className="flex items-center justify-between border-b border-slate-800 pb-5">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl flex items-center gap-3">
+          <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-white md:text-4xl">
             <Bell className="h-9 w-9 text-indigo-500" />
             In-App Notifications
           </h1>
@@ -104,7 +112,7 @@ export default function NotificationsPage() {
           <button
             onClick={handleMarkAllRead}
             disabled={notifications.every((n) => n.read)}
-            className="rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-2 text-xs font-bold hover:bg-slate-700 transition disabled:opacity-50"
+            className="rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-2 text-xs font-bold transition hover:bg-slate-700 disabled:opacity-50"
           >
             Mark All Read
           </button>
@@ -120,44 +128,46 @@ export default function NotificationsPage() {
       </div>
 
       {loading ? (
-        <div className="flex h-64 flex-col items-center justify-center gap-2 rounded-2xl border border-slate-850 bg-slate-900/10">
+        <div className="border-slate-850 flex h-64 flex-col items-center justify-center gap-2 rounded-2xl border bg-slate-900/10">
           <RefreshCw className="h-7 w-7 animate-spin text-indigo-500" />
           <span className="text-xs text-slate-500">Querying inbox...</span>
         </div>
       ) : (
         <div className="max-w-3xl space-y-4">
           {notifications.length === 0 ? (
-            <div className="text-center py-12 rounded-2xl border border-slate-800 bg-slate-900/10 text-slate-500 text-sm">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/10 py-12 text-center text-sm text-slate-500">
               Your inbox is completely clear.
             </div>
           ) : (
             notifications.map((notif) => (
               <div
                 key={notif.id}
-                className={`rounded-2xl border p-5 flex gap-4 transition-all duration-150 ${
+                className={`flex gap-4 rounded-2xl border p-5 transition-all duration-150 ${
                   notif.read
                     ? 'border-slate-850 bg-slate-900/10 opacity-70'
-                    : 'border-indigo-900/30 bg-indigo-950/10 border-l-4 border-l-indigo-500'
+                    : 'border-l-4 border-indigo-900/30 border-l-indigo-500 bg-indigo-950/10'
                 }`}
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 border border-slate-850">
+                <div className="border-slate-850 flex h-9 w-9 items-center justify-center rounded-xl border bg-slate-950">
                   {getNotifIcon(notif.type)}
                 </div>
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center justify-between gap-4">
-                    <h3 className="text-sm font-bold text-slate-250 text-slate-200">{notif.title}</h3>
-                    <span className="text-3xs font-bold text-slate-500 flex items-center gap-1">
+                    <h3 className="text-slate-250 text-sm font-bold text-slate-200">
+                      {notif.title}
+                    </h3>
+                    <span className="text-3xs flex items-center gap-1 font-bold text-slate-500">
                       <Calendar className="h-3 w-3" />
                       {new Date(notif.createdAt).toLocaleDateString()}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 leading-relaxed">{notif.message}</p>
-                  
+                  <p className="text-xs leading-relaxed text-slate-400">{notif.message}</p>
+
                   {!notif.read && (
-                    <div className="pt-2 flex justify-end">
+                    <div className="flex justify-end pt-2">
                       <button
                         onClick={() => handleMarkAsRead(notif.id)}
-                        className="text-xs text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-1.5"
+                        className="flex items-center gap-1.5 text-xs font-bold text-indigo-400 hover:text-indigo-300"
                       >
                         <Eye className="h-3.5 w-3.5" /> Mark as Read
                       </button>

@@ -1,4 +1,5 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { withAuth } from '@/lib/auth-middleware';
 import { ApiResponse } from '@/utils/api-response';
 import { createAgentContext } from '@/agents/context';
 import { ResearchAgent } from '@/agents/specialists/research-agent';
@@ -18,34 +19,43 @@ import { OutreachPackage } from '@/agents/specialists/outreach/types';
  * GET /api/outreach
  * Lists historical outreach packages.
  */
-export async function GET() {
+export const GET = withAuth(async (req, { user }) => {
   try {
-    const packages = await outreachCampaignsRepository.list(
-      undefined,
-      'metadata.timestamp',
-      'desc',
-    );
-    return ApiResponse.success(packages);
+    const userId = user.uid;
+    // Note: In a multi-tenant system, we might want to filter by user/tenant
+    // For now, returning all historical records (could be adjusted based on requirements)
+    
+    try {
+      const packages = await outreachCampaignsRepository.list(
+        undefined,
+        'metadata.timestamp',
+        'desc',
+      );
+      return ApiResponse.success(packages);
+    } catch (dbError) {
+      logger.error('Failed to fetch outreach packages history', dbError);
+      return ApiResponse.error('Failed to fetch history', 'FETCH_ERROR', 500);
+    }
   } catch (error) {
-    logger.error('Failed to fetch outreach packages history', error);
-    return ApiResponse.error('Failed to fetch history', 'FETCH_ERROR', 500);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    return ApiResponse.error(errorMsg, 'AUTH_ERROR', 401);
   }
-}
+});
 
 /**
  * POST /api/outreach
  * Runs Research, Opportunity, and Outreach Agents sequentially and stores output.
  */
-export async function POST(req: NextRequest) {
+export const POST = withAuth(async (req, { user }) => {
   try {
+    const userId = user.uid;
+    
     const body = await req.json();
     const query = body.query || '';
 
     if (!query || typeof query !== 'string' || query.trim().length === 0) {
       return ApiResponse.error('Query/Domain name is required', 'VALIDATION_ERROR', 400);
     }
-
-    const userId = req.headers.get('x-user-id') || 'mock-user-123';
 
     // 1. Run Research Agent
     logger.info(`Outreach route triggering research for: "${query}"`);
@@ -69,7 +79,9 @@ export async function POST(req: NextRequest) {
     const opportunityResult = await opportunityAgent.execute(opportunityCtx, { researchData });
 
     if (!opportunityResult.success || !opportunityResult.output) {
-      throw new Error(opportunityResult.error || 'Failed to calculate opportunity analysis metrics.');
+      throw new Error(
+        opportunityResult.error || 'Failed to calculate opportunity analysis metrics.',
+      );
     }
     const opportunityData = opportunityResult.output;
 
@@ -131,11 +143,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    logger.info(`Successfully generated and cached outreach package ${savedPackage.id} for "${query}"`);
+    logger.info(
+      `Successfully generated and cached outreach package ${savedPackage.id} for "${query}"`,
+    );
     return ApiResponse.success(savedPackage, 201);
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     logger.error(`Outreach pipeline execution failed: ${errorMsg}`, error);
     return ApiResponse.error(errorMsg, 'OUTREACH_PIPELINE_ERROR', 500);
   }
-}
+});

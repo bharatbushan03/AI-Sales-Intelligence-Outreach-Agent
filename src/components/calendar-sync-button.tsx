@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
 import { Calendar, RefreshCw, Check, AlertCircle } from 'lucide-react';
@@ -19,9 +19,9 @@ export function CalendarSyncButton() {
         },
         body: JSON.stringify({ userDomain: 'acmecorp.com' }), // Example domain
       });
-      
+
       const data = await res.json();
-      
+
       if (data.success) {
         setStatus('success');
         setMessage(data.message || 'Synced successfully');
@@ -34,7 +34,7 @@ export function CalendarSyncButton() {
       setMessage('Network error during sync');
     } finally {
       setSyncing(false);
-      
+
       // Reset status after a few seconds
       setTimeout(() => {
         if (status !== 'error') {
@@ -50,14 +50,14 @@ export function CalendarSyncButton() {
       <button
         onClick={handleSync}
         disabled={syncing}
-        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+        className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
           syncing
-            ? 'bg-indigo-500/50 text-indigo-200 cursor-not-allowed'
+            ? 'cursor-not-allowed bg-indigo-500/50 text-indigo-200'
             : status === 'success'
-            ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30'
-            : status === 'error'
-            ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
-            : 'bg-indigo-500 text-white hover:bg-indigo-600'
+              ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30'
+              : status === 'error'
+                ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+                : 'bg-indigo-500 text-white hover:bg-indigo-600'
         }`}
       >
         {syncing ? (
@@ -72,14 +72,16 @@ export function CalendarSyncButton() {
         {syncing
           ? 'Syncing...'
           : status === 'success'
-          ? 'Synced'
-          : status === 'error'
-          ? 'Sync Failed'
-          : 'Sync Calendar'}
+            ? 'Synced'
+            : status === 'error'
+              ? 'Sync Failed'
+              : 'Sync Calendar'}
       </button>
-      
+
       {message && status !== 'idle' && (
-        <span className={`text-xs mt-2 ${status === 'error' ? 'text-red-400' : 'text-emerald-400'}`}>
+        <span
+          className={`mt-2 text-xs ${status === 'error' ? 'text-red-400' : 'text-emerald-400'}`}
+        >
           {message}
         </span>
       )}

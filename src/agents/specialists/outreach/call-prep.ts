@@ -45,7 +45,8 @@ export class CallPreparationEngine {
 
     if (name.includes('stripe')) {
       return {
-        callObjective: 'Identify transaction drop-off patterns in European merchant accounts and determine developer bandwidth for API optimization.',
+        callObjective:
+          'Identify transaction drop-off patterns in European merchant accounts and determine developer bandwidth for API optimization.',
         agenda: [
           'Introductions & alignment on European expansion goals',
           'Review of current checkout payment decline benchmarks in EU',
@@ -69,7 +70,8 @@ export class CallPreparationEngine {
 
     if (name.includes('hubspot')) {
       return {
-        callObjective: 'Understand custom object schema scaling bottlenecks and identify onboarding friction points in the agency partner portal.',
+        callObjective:
+          'Understand custom object schema scaling bottlenecks and identify onboarding friction points in the agency partner portal.',
         agenda: [
           'Introductions & overview of enterprise upmarket expansion targets',
           'Review of CRM custom object limitation challenges',
@@ -93,7 +95,8 @@ export class CallPreparationEngine {
 
     // Generic fallback
     return {
-      callObjective: 'Understand current sales operations bottlenecks and identify opportunities to automate prospect research and personalization.',
+      callObjective:
+        'Understand current sales operations bottlenecks and identify opportunities to automate prospect research and personalization.',
       agenda: [
         'Introductions & alignment on outbound sales pipeline targets',
         'Review of current account research and email customization workflows',
@@ -110,7 +113,7 @@ export class CallPreparationEngine {
       ],
       painPointQuestions: [
         'Are generic outbound outreach campaigns leading to lower reply rates or domain reputation risks?',
-        'How does manual research overhead affect your reps\' daily target call and email volumes?',
+        "How does manual research overhead affect your reps' daily target call and email volumes?",
       ],
     };
   }

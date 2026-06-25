@@ -9,7 +9,7 @@ import { Bot, User, Building, Sliders, CheckCircle, RefreshCw } from 'lucide-rea
 
 export default function RegisterPage() {
   const router = useRouter();
-  
+
   // Onboarding Stepper: 1: Account info, 2: Organization setup, 3: SaaS Preferences
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
@@ -82,20 +82,24 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 px-4 text-slate-100 pb-16">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 px-4 pb-16 text-slate-100">
       <div className="w-full max-w-md space-y-8 rounded-3xl border border-slate-800/80 bg-slate-900/30 p-8 backdrop-blur-xl">
         {/* Step Indicator Header */}
-        <div className="flex justify-between items-center pb-5 border-b border-slate-800">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-5">
           <div className="flex items-center gap-2">
             <Bot className="h-6 w-6 text-indigo-400" />
-            <span className="text-sm font-bold text-white tracking-wide uppercase">Onboarding</span>
+            <span className="text-sm font-bold tracking-wide text-white uppercase">Onboarding</span>
           </div>
           <div className="flex gap-1.5">
             {[1, 2, 3].map((s) => (
               <div
                 key={s}
                 className={`h-2.5 w-2.5 rounded-full ${
-                  s === step ? 'bg-indigo-500 scale-110' : s < step ? 'bg-emerald-500' : 'bg-slate-800'
+                  s === step
+                    ? 'scale-110 bg-indigo-500'
+                    : s < step
+                      ? 'bg-emerald-500'
+                      : 'bg-slate-800'
                 } transition-all duration-200`}
               />
             ))}
@@ -103,7 +107,7 @@ export default function RegisterPage() {
         </div>
 
         {errorMsg && (
-          <div className="rounded-xl border border-rose-900/50 bg-rose-950/40 p-4 text-xs font-semibold text-rose-300 text-center">
+          <div className="rounded-xl border border-rose-900/50 bg-rose-950/40 p-4 text-center text-xs font-semibold text-rose-300">
             {errorMsg}
           </div>
         )}
@@ -116,41 +120,41 @@ export default function RegisterPage() {
               <h3 className="text-md font-bold text-slate-200">Account Credentials</h3>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase text-slate-400">Full Name</label>
+              <label className="text-xs font-bold text-slate-400 uppercase">Full Name</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="John Doe"
-                className="w-full rounded-xl border border-slate-850 bg-slate-950 px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
+                className="border-slate-850 w-full rounded-xl border bg-slate-950 px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
                 required
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase text-slate-400">Email Address</label>
+              <label className="text-xs font-bold text-slate-400 uppercase">Email Address</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@company.com"
-                className="w-full rounded-xl border border-slate-850 bg-slate-950 px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
+                className="border-slate-850 w-full rounded-xl border bg-slate-950 px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
                 required
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase text-slate-400">Password</label>
+              <label className="text-xs font-bold text-slate-400 uppercase">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Min 6 characters"
-                className="w-full rounded-xl border border-slate-850 bg-slate-950 px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
+                className="border-slate-850 w-full rounded-xl border bg-slate-950 px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
                 required
               />
             </div>
             <button
               type="submit"
-              className="w-full rounded-xl bg-indigo-650 hover:bg-indigo-700 text-white font-bold py-3 text-sm transition-colors mt-2"
+              className="bg-indigo-650 mt-2 w-full rounded-xl py-3 text-sm font-bold text-white transition-colors hover:bg-indigo-700"
             >
               Continue to Organization Setup
             </button>
@@ -165,22 +169,22 @@ export default function RegisterPage() {
               <h3 className="text-md font-bold text-slate-200">Organization Info</h3>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase text-slate-400">Company Name</label>
+              <label className="text-xs font-bold text-slate-400 uppercase">Company Name</label>
               <input
                 type="text"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
                 placeholder="Stripe Inc."
-                className="w-full rounded-xl border border-slate-850 bg-slate-950 px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
+                className="border-slate-850 w-full rounded-xl border bg-slate-950 px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
                 required
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase text-slate-400">Your Title Role</label>
+              <label className="text-xs font-bold text-slate-400 uppercase">Your Title Role</label>
               <select
                 value={roleTitle}
                 onChange={(e) => setRoleTitle(e.target.value)}
-                className="w-full rounded-xl border border-slate-850 bg-slate-950 px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
+                className="border-slate-850 w-full rounded-xl border bg-slate-950 px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
               >
                 <option value="Sales Representative">Sales Representative</option>
                 <option value="Sales Manager">Sales Manager</option>
@@ -193,13 +197,13 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="w-1/3 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 py-3 text-sm font-semibold"
+                className="w-1/3 rounded-xl border border-slate-700 bg-slate-800 py-3 text-sm font-semibold hover:bg-slate-700"
               >
                 Back
               </button>
               <button
                 type="submit"
-                className="w-2/3 rounded-xl bg-indigo-650 hover:bg-indigo-700 text-white font-bold py-3 text-sm transition-colors"
+                className="bg-indigo-650 w-2/3 rounded-xl py-3 text-sm font-bold text-white transition-colors hover:bg-indigo-700"
               >
                 Continue
               </button>
@@ -215,11 +219,13 @@ export default function RegisterPage() {
               <h3 className="text-md font-bold text-slate-200">System Preferences</h3>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase text-slate-400">Target Customer Industry</label>
+              <label className="text-xs font-bold text-slate-400 uppercase">
+                Target Customer Industry
+              </label>
               <select
                 value={industry}
                 onChange={(e) => setIndustry(e.target.value)}
-                className="w-full rounded-xl border border-slate-850 bg-slate-950 px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
+                className="border-slate-850 w-full rounded-xl border bg-slate-950 px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
               >
                 <option value="Technology">Technology</option>
                 <option value="Financial Services">Financial Services</option>
@@ -229,11 +235,13 @@ export default function RegisterPage() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase text-slate-400">Outreach Team Size</label>
+              <label className="text-xs font-bold text-slate-400 uppercase">
+                Outreach Team Size
+              </label>
               <select
                 value={teamSize}
                 onChange={(e) => setTeamSize(e.target.value)}
-                className="w-full rounded-xl border border-slate-850 bg-slate-950 px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
+                className="border-slate-850 w-full rounded-xl border bg-slate-950 px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
               >
                 <option value="1-10">1-10 Employees</option>
                 <option value="11-50">11-50 Employees</option>
@@ -246,14 +254,14 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setStep(2)}
-                className="w-1/3 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 py-3 text-sm font-semibold"
+                className="w-1/3 rounded-xl border border-slate-700 bg-slate-800 py-3 text-sm font-semibold hover:bg-slate-700"
               >
                 Back
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-2/3 rounded-xl bg-indigo-650 hover:bg-indigo-700 text-white font-bold py-3 text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                className="bg-indigo-650 flex w-2/3 items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
               >
                 {submitting && <RefreshCw className="h-4 w-4 animate-spin" />}
                 {submitting ? 'Setting up...' : 'Provision Platform'}
@@ -262,9 +270,9 @@ export default function RegisterPage() {
           </form>
         )}
 
-        <div className="flex justify-center border-t border-slate-850 pt-4 text-xs text-slate-400">
+        <div className="border-slate-850 flex justify-center border-t pt-4 text-xs text-slate-400">
           Already have an account?{' '}
-          <Link href="/login" className="font-semibold text-indigo-400 hover:text-indigo-300 ml-1">
+          <Link href="/login" className="ml-1 font-semibold text-indigo-400 hover:text-indigo-300">
             Sign In here
           </Link>
         </div>

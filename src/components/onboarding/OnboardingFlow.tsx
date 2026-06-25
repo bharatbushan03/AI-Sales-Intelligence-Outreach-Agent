@@ -25,10 +25,10 @@ interface OnboardingFlowProps {
 export function OnboardingFlow({ onComplete, redirectTo = '/dashboard' }: OnboardingFlowProps) {
   const router = useRouter();
   const { user } = useAuth();
-  const { 
-    currentStep, 
-    completed, 
-    loading, 
+  const {
+    currentStep,
+    completed,
+    loading,
     error,
     submitProfile,
     submitOrganization,
@@ -69,9 +69,19 @@ export function OnboardingFlow({ onComplete, redirectTo = '/dashboard' }: Onboar
       <OnboardingLayout>
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="text-red-400 mb-4">
-              <svg className="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L5.732 18.5c-.77.833.192 2.5 1.732 2.5z" />
+            <div className="mb-4 text-red-400">
+              <svg
+                className="mx-auto h-12 w-12"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L5.732 18.5c-.77.833.192 2.5 1.732 2.5z"
+                />
               </svg>
             </div>
             <h3 className="text-lg font-medium text-white">Onboarding Error</h3>
@@ -107,9 +117,7 @@ export function OnboardingFlow({ onComplete, redirectTo = '/dashboard' }: Onboar
     <OnboardingLayout>
       <div className="mx-auto max-w-2xl">
         <OnboardingProgress progress={progress} currentStep={currentStep} />
-        <div className="mt-8">
-          {renderCurrentStep()}
-        </div>
+        <div className="mt-8">{renderCurrentStep()}</div>
       </div>
     </OnboardingLayout>
   );

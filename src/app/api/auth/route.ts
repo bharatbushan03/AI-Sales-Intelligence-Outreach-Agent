@@ -81,11 +81,14 @@ export async function POST(req: NextRequest) {
       timestamp: new Date().toISOString(),
     });
 
-    return ApiResponse.success({
-      success: true,
-      organizationId: orgId,
-      workspaceId: wsId,
-    }, 201);
+    return ApiResponse.success(
+      {
+        success: true,
+        organizationId: orgId,
+        workspaceId: wsId,
+      },
+      201,
+    );
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     logger.error(`Onboarding creation failed: ${errorMsg}`, error);

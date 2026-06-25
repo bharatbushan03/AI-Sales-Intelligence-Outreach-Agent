@@ -1,61 +1,65 @@
-import { FileText, Edit, Users, Clock, MessageCircle, Mail, Link, TrendingUp, Search } from 'lucide-react';
+import {
+  FileText,
+  Edit,
+  Users,
+  Clock,
+  MessageCircle,
+  Mail,
+  Link,
+  TrendingUp,
+  Search,
+} from 'lucide-react';
 
 export default function ProposalBuilder() {
   return (
-    <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-800">
+    <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-4">
       <div className="space-y-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-slate-100">
-            Proposal Builder
-          </h2>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-slate-100">Proposal Builder</h2>
           <button className="text-sm text-indigo-400 hover:text-indigo-300">
             <FileText className="h-3 w-3" /> New Proposal
-          </div>
+          </button>
         </div>
 
         {/* Proposal Form */}
         <form className="space-y-4">
           {/* Basic Info */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-slate-100 mb-2">Basic Information</h3>
-            <div className="grid gap-4 grid-cols-2">
+            <h3 className="mb-2 text-sm font-medium text-slate-100">Basic Information</h3>
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-100 mb-1">
+                <label className="mb-1 block text-xs font-medium text-slate-100">
                   Proposal Title
                 </label>
                 <input
                   type="text"
                   placeholder="Enter proposal title..."
-                  className="w-full pl-3 py-2 text-sm text-slate-900 bg-slate-50 border border-slate-200 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-600"
+                  className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pl-3 text-sm text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-100 mb-1">
-                  Client Name
-                </label>
+                <label className="mb-1 block text-xs font-medium text-slate-100">Client Name</label>
                 <input
                   type="text"
                   placeholder="Enter client name..."
-                  className="w-full pl-3 py-2 text-sm text-slate-900 bg-slate-50 border border-slate-200 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-600"
+                  className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pl-3 text-sm text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-100 mb-1">
+                <label className="mb-1 block text-xs font-medium text-slate-100">
                   Proposal Value
                 </label>
                 <input
                   type="number"
                   placeholder="0"
-                  className="w-full pl-3 py-2 text-sm text-slate-900 bg-slate-50 border border-slate-200 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-600"
+                  className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pl-3 text-sm text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-100 mb-1">
-                  Valid Until
-                </label>
+                <label className="mb-1 block text-xs font-medium text-slate-100">Valid Until</label>
                 <input
                   type="date"
-                  className="w-full pl-3 py-2 text-sm text-slate-900 bg-slate-50 border border-slate-200 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-600"
+                  className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pl-3 text-sm text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 />
               </div>
             </div>
@@ -63,29 +67,33 @@ export default function ProposalBuilder() {
 
           {/* Sections */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-slate-100 mb-2">Proposal Sections</h3>
+            <h3 className="mb-2 text-sm font-medium text-slate-100">Proposal Sections</h3>
             <div className="space-y-3">
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0">
-                  <div className="w-2 h-2 bg-indigo-500 rounded-full" />
+                  <div className="h-2 w-2 rounded-full bg-indigo-500" />
                 </div>
                 <div className="flex-1 space-y-0.5">
                   <p className="text-xs font-medium text-slate-100">Executive Summary</p>
-                  <p className="text-xs text-slate-400">High-level overview of solution and benefits</p>
+                  <p className="text-xs text-slate-400">
+                    High-level overview of solution and benefits
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0">
-                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  <div className="h-2 w-2 rounded-full bg-green-500" />
                 </div>
                 <div className="flex-1 space-y-0.5">
                   <p className="text-xs font-medium text-slate-100">Technical Approach</p>
-                  <p className="text-xs text-slate-400">Detailed methodology and implementation plan</p>
+                  <p className="text-xs text-slate-400">
+                    Detailed methodology and implementation plan
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0">
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full" />
+                  <div className="h-2 w-2 rounded-full bg-yellow-500" />
                 </div>
                 <div className="flex-1 space-y-0.5">
                   <p className="text-xs font-medium text-slate-100">Pricing & Timeline</p>
@@ -94,7 +102,7 @@ export default function ProposalBuilder() {
               </div>
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                  <div className="h-2 w-2 rounded-full bg-blue-500" />
                 </div>
                 <div className="flex-1 space-y-0.5">
                   <p className="text-xs font-medium text-slate-100">Terms & Conditions</p>
@@ -106,19 +114,21 @@ export default function ProposalBuilder() {
 
           {/* Collaboration */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-slate-100 mb-2">Collaboration</h3>
+            <h3 className="mb-2 text-sm font-medium text-slate-100">Collaboration</h3>
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0">
-                <div className="w-2 h-2 bg-indigo-500 rounded-full" />
+                <div className="h-2 w-2 rounded-full bg-indigo-500" />
               </div>
               <div className="flex-1 space-y-0.5">
                 <p className="text-xs font-medium text-slate-100">Team Members</p>
-                <p className="text-xs text-slate-400">John Doe (Owner), Sarah Chen, Mike Rodriguez</p>
+                <p className="text-xs text-slate-400">
+                  John Doe (Owner), Sarah Chen, Mike Rodriguez
+                </p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0">
-                <div className="w-2 h-2 bg-green-500 rounded-full" />
+                <div className="h-2 w-2 rounded-full bg-green-500" />
               </div>
               <div className="flex-1 space-y-0.5">
                 <p className="text-xs font-medium text-slate-100">Review Status</p>
@@ -127,7 +137,7 @@ export default function ProposalBuilder() {
             </div>
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full" />
+                <div className="h-2 w-2 rounded-full bg-yellow-500" />
               </div>
               <div className="flex-1 space-y-0.5">
                 <p className="text-xs font-medium text-slate-100">Last Updated</p>
@@ -137,23 +147,23 @@ export default function ProposalBuilder() {
           </div>
 
           {/* Action Buttons */}
-          <div className="mt-4 pt-3 border-t border-slate-800">
+          <div className="mt-4 border-t border-slate-800 pt-3">
             <div className="flex flex-wrap gap-2">
               <button
                 type="submit"
-                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 text-white text-xs font-medium rounded hover:bg-indigo-700 transition-colors"
+                className="flex flex-1 items-center justify-center gap-2 rounded bg-indigo-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-indigo-700"
               >
                 <Link className="h-3 w-3" /> Generate Preview
               </button>
               <button
                 type="button"
-                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600/20 text-indigo-300 text-xs font-medium rounded hover:bg-indigo-600/30 transition-colors"
+                className="flex flex-1 items-center justify-center gap-2 rounded bg-indigo-600/20 px-3 py-2 text-xs font-medium text-indigo-300 transition-colors hover:bg-indigo-600/30"
               >
                 <Edit className="h-3 w-3" /> Save as Draft
               </button>
               <button
                 type="button"
-                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-slate-800/20 text-slate-300 text-xs font-medium rounded hover:bg-slate-800/30 transition-colors"
+                className="flex flex-1 items-center justify-center gap-2 rounded bg-slate-800/20 px-3 py-2 text-xs font-medium text-slate-300 transition-colors hover:bg-slate-800/30"
               >
                 <Mail className="h-3 w-3" /> Send for Review
               </button>

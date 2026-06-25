@@ -1,0 +1,26 @@
+name: Production Validation
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/30 * * * *'
+
+jobs:
+  monitor:
+    name: Smoke and Monitoring Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Smoke Test Production
+        run: bash scripts/smoke-test.sh
+        env:
+          SERVICE_URL: ${{ vars.PRODUCTION_SERVICE_URL }}
+
+      - name: Load Test Health Endpoint
+        run: node scripts/load-test.mjs
+        env:
+          LOAD_TEST_URL: ${{ vars.PRODUCTION_SERVICE_URL }}/api/health
+          LOAD_TEST_CONCURRENCY: 25
+          LOAD_TEST_REQUESTS: 250

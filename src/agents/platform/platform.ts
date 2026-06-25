@@ -79,7 +79,9 @@ export class AIPlatform {
     const cacheKey = this.cache.hashRequest(promptId, variables);
     const cachedEntry = await this.cache.get(cacheKey);
     if (cachedEntry) {
-      logger.info(`AIPlatform Cache HIT for promptId: "${promptId}" (Key: ${cacheKey.substring(0, 8)})`);
+      logger.info(
+        `AIPlatform Cache HIT for promptId: "${promptId}" (Key: ${cacheKey.substring(0, 8)})`,
+      );
       return cachedEntry.text;
     }
 
@@ -105,7 +107,7 @@ export class AIPlatform {
     while (attempts < maxAttempts && !isValid) {
       attempts++;
       const systemInstruction = promptDef.systemInstruction;
-      
+
       const res = await this.provider.generateText(promptText, systemInstruction, options);
       text = res.text;
       promptTokensSum += res.promptTokens;
@@ -117,30 +119,45 @@ export class AIPlatform {
         isValid = true;
       } else {
         lastErrors = validation.errors;
-        logger.warn(`AIPlatform: Validation failed on attempt ${attempts}/${maxAttempts}. Errors: ${validation.errors.join(', ')}`);
-        
+        logger.warn(
+          `AIPlatform: Validation failed on attempt ${attempts}/${maxAttempts}. Errors: ${validation.errors.join(', ')}`,
+        );
+
         // Improve prompt by feeding critique error payload back to generator
         promptText += `\n\n[Critique Attempt ${attempts}] Malformed output returned: ${validation.errors.join(', ')}. Please return corrected JSON conforming exactly to the schema.`;
       }
     }
 
     if (!isValid) {
-      throw new Error(`AIPlatform: Guardrails rejected output structure after ${maxAttempts} attempts: ${lastErrors.join('; ')}`);
+      throw new Error(
+        `AIPlatform: Guardrails rejected output structure after ${maxAttempts} attempts: ${lastErrors.join('; ')}`,
+      );
     }
 
     const duration = Date.now() - startTimestamp;
 
     // 4. Calculate cost metrics (Gemini 1.5 Flash cost model)
     const costInput = (promptTokensSum / 1000000) * 0.075;
-    const costOutput = (responseTokensSum / 1000000) * 0.30;
+    const costOutput = (responseTokensSum / 1000000) * 0.3;
     const estimatedCost = costInput + costOutput;
 
     // 5. Save generation outputs in cache
     await this.cache.set(cacheKey, text);
 
     // 6. Trigger Evaluations and Hallucinations detection asynchronously
-    this.runBackgroundAnalytics(promptId, agentName, workflowId, text, variables, promptTokensSum, responseTokensSum, estimatedCost, duration)
-      .catch((err) => logger.error('Failed to execute AIPlatform background evaluation metrics:', err));
+    this.runBackgroundAnalytics(
+      promptId,
+      agentName,
+      workflowId,
+      text,
+      variables,
+      promptTokensSum,
+      responseTokensSum,
+      estimatedCost,
+      duration,
+    ).catch((err) =>
+      logger.error('Failed to execute AIPlatform background evaluation metrics:', err),
+    );
 
     return text;
   }

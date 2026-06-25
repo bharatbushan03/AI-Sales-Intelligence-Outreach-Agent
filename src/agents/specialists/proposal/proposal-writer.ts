@@ -54,7 +54,11 @@ export class ProposalWriter {
         subtitle: `Custom Implementation of ${solution.solutionName} to Drive Scalable Efficiencies`,
         preparedFor: companyName,
         preparedBy: 'Autonomous Sales Outreach Agent',
-        date: new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }),
+        date: new Date().toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }),
       },
       executiveSummary: `This proposal outlines our strategic partnership to deploy ${solution.solutionName} inside ${companyName}'s system operations. Our primary goal is to address identified operational bottlenecks, automate key integration steps, and capture lost transaction opportunities. By optimizing these workloads, we model a projected ROI of ${roi.roiPercentage}% with a payback period of approximately ${roi.paybackPeriod}.`,
       companyUnderstanding: `${companyName} is an industry leader recognized for delivering state-of-the-art SaaS and operational platforms. However, fast scaling has created localized bottlenecks in data synchronization, customer onboarding, and transaction verification, which limit overall upmarket expansion potential.`,

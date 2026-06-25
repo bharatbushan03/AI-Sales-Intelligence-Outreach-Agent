@@ -1,0 +1,80 @@
+# Cloud Build pipeline for Sales Intelligence Platform
+# Trigger: push to main (production) or develop (staging)
+
+substitutions:
+  _REGION: us-central1
+  _REPOSITORY: sales-intelligence
+  _SERVICE: sales-intelligence-api
+  _ENVIRONMENT: staging
+
+steps:
+  # Run quality gates before building
+  - name: 'node:20-alpine'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        npm ci
+        npm run lint
+        npx tsc --noEmit
+        npx vitest run
+    env:
+      - 'SKIP_ENV_VALIDATION=true'
+      - 'NODE_ENV=test'
+
+  # Build container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/app:${SHORT_SHA}'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/app:${_ENVIRONMENT}'
+      - '.'
+
+  # Push to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '--all-tags'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/app'
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE}'
+      - '--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/app:${SHORT_SHA}'
+      - '--region=${_REGION}'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--set-secrets=GEMINI_API_KEY=gemini-api-key-${_ENVIRONMENT}:latest,FIREBASE_PRIVATE_KEY=firebase-private-key-${_ENVIRONMENT}:latest,FIREBASE_CLIENT_EMAIL=firebase-client-email-${_ENVIRONMENT}:latest'
+      - '--set-env-vars=NODE_ENV=production,NEXT_PUBLIC_FIREBASE_API_KEY=$$NEXT_PUBLIC_FIREBASE_API_KEY,NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=$$NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,NEXT_PUBLIC_FIREBASE_PROJECT_ID=$$NEXT_PUBLIC_FIREBASE_PROJECT_ID,NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=$$NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=$$NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,NEXT_PUBLIC_FIREBASE_APP_ID=$$NEXT_PUBLIC_FIREBASE_APP_ID'
+      - '--min-instances=${_MIN_INSTANCES}'
+      - '--max-instances=${_MAX_INSTANCES}'
+      - '--memory=${_MEMORY}'
+      - '--cpu=${_CPU}'
+      - '--concurrency=100'
+      - '--timeout=300'
+      - '--startup-probe=httpGet.path=/api/health,httpGet.port=8080,initialDelaySeconds=5,periodSeconds=5,failureThreshold=12'
+      - '--liveness-probe=httpGet.path=/api/health,httpGet.port=8080,periodSeconds=30,failureThreshold=3'
+
+  # Smoke test deployed service
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - 'scripts/smoke-test.sh'
+    env:
+      - 'SERVICE_URL=https://${_SERVICE}-$PROJECT_ID.a.run.app'
+
+images:
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/app:${SHORT_SHA}'
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/app:${_ENVIRONMENT}'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'
+
+timeout: '1800s'

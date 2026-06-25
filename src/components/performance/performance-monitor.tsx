@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 
 /**
  * Performance monitoring hook
@@ -10,7 +10,7 @@ export function usePerformanceMonitor() {
     lastTime: 0,
     renderCount: 0,
     loadTime: 0,
-    interactionCount: 0
+    interactionCount: 0,
   });
 
   // Track FPS
@@ -27,10 +27,10 @@ export function usePerformanceMonitor() {
       lastTimestamp = timestamp;
       frameCount++;
 
-      setMetrics(prev => ({
+      setMetrics((prev) => ({
         ...prev,
         fps,
-        frameCount
+        frameCount,
       }));
 
       requestAnimationFrame(animate);
@@ -47,13 +47,13 @@ export function usePerformanceMonitor() {
   const [renderCount, setRenderCount] = useState(0);
 
   useEffect(() => {
-    setRenderCount(prev => prev + 1);
+    setRenderCount((prev) => prev + 1);
   }, []); // This will run on every render
 
   useEffect(() => {
-    setMetrics(prev => ({
+    setMetrics((prev) => ({
       ...prev,
-      renderCount
+      renderCount,
     }));
   }, [renderCount]);
 
@@ -63,9 +63,9 @@ export function usePerformanceMonitor() {
 
     return () => {
       const endTime = performance.now();
-      setMetrics(prev => ({
+      setMetrics((prev) => ({
         ...prev,
-        loadTime: endTime - startTime
+        loadTime: endTime - startTime,
       }));
     };
   }, []);
@@ -74,24 +74,25 @@ export function usePerformanceMonitor() {
   const [interactionCount, setInteractionCount] = useState(0);
 
   const trackInteraction = useCallback(() => {
-    setInteractionCount(prev => prev + 1);
-    setMetrics(prev => ({
+    setInteractionCount((prev) => prev + 1);
+    setMetrics((prev) => ({
       ...prev,
-      interactionCount: prev.interactionCount + 1
+      interactionCount: prev.interactionCount + 1,
     }));
   }, []);
 
   return {
     metrics,
     trackInteraction,
-    reset: () => setMetrics({
-      fps: 0,
-      frameCount: 0,
-      lastTime: 0,
-      renderCount: 0,
-      loadTime: 0,
-      interactionCount: 0
-    })
+    reset: () =>
+      setMetrics({
+        fps: 0,
+        frameCount: 0,
+        lastTime: 0,
+        renderCount: 0,
+        loadTime: 0,
+        interactionCount: 0,
+      }),
   };
 }
 
@@ -127,7 +128,7 @@ export function LazyImage({
       <img
         src={src}
         alt={alt}
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out ${className} ${isLoaded ? 'opacity-100' : 'opacity-0'} ${hasError ? 'hidden' : ''}`}
+        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ease-in-out ${className} ${isLoaded ? 'opacity-100' : 'opacity-0'} ${hasError ? 'hidden' : ''}`}
         width={width}
         height={height}
         onLoad={() => setIsLoaded(true)}
@@ -151,7 +152,7 @@ export function LazyImage({
  * Lazy load component
  */
 interface LazyComponentProps {
-  children: React.ReactNode;
+  children: ReactNode;
   threshold?: number;
   rootMargin?: string;
   className?: string;
@@ -171,12 +172,15 @@ export function LazyComponent({
     const element = ref.current;
     if (!element) return;
 
-    const observer = new IntersectionObserver(([entry]) => {
-      setIsVisible(entry.isIntersecting);
-    }, {
-      threshold,
-      rootMargin
-    });
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      {
+        threshold,
+        rootMargin,
+      },
+    );
 
     observer.observe(element);
 
@@ -187,8 +191,10 @@ export function LazyComponent({
 
   return (
     <div ref={ref} className={`${className} overflow-hidden`}>
-      {isVisible ? children : (
-        <div className="min-h-[100px] flex items-center justify-center bg-slate-900/50">
+      {isVisible ? (
+        children
+      ) : (
+        <div className="flex min-h-[100px] items-center justify-center bg-slate-900/50">
           <SkeletonLoader width="100%" height="100%" />
         </div>
       )}
@@ -202,14 +208,16 @@ export function LazyComponent({
 function SkeletonLoader({
   width = '100%',
   height = '100%',
-  className = ''
+  className = '',
 }: {
   width?: string | number;
   height?: string | number;
   className?: string;
 }) {
   return (
-    <div className={`${className} w-[${typeof width === 'number' ? width : width.replace('rem', '').replace('px', '')}] h-[${typeof height === 'number' ? height : height.replace('rem', '').replace('px', '')}] bg-slate-800/50 rounded animate-pulse`} />
+    <div
+      className={`${className} w-[${typeof width === 'number' ? width : width.replace('rem', '').replace('px', '')}] h-[${typeof height === 'number' ? height : height.replace('rem', '').replace('px', '')}] animate-pulse rounded bg-slate-800/50`}
+    />
   );
 }
 
@@ -220,11 +228,11 @@ export function VirtualizedList({
   items,
   itemHeight,
   renderItem,
-  className = ''
+  className = '',
 }: {
-  items: any[];
+  items: Array<{ id?: string | number }>;
   itemHeight: number;
-  renderItem: (item: any, index: number) => React.ReactNode;
+  renderItem: (item: { id?: string | number }, index: number) => ReactNode;
   className?: string;
 }) {
   const [scrollOffset, setScrollOffset] = useState(0);
@@ -243,7 +251,7 @@ export function VirtualizedList({
     const updateViewportSize = () => {
       setViewportSize({
         height: element.clientHeight,
-        width: element.clientWidth
+        width: element.clientWidth,
       });
     };
 
@@ -274,7 +282,7 @@ export function VirtualizedList({
       <div
         style={{
           height: `${startIndex * itemHeight}px`,
-          width: '100%'
+          width: '100%',
         }}
       />
 
@@ -285,7 +293,7 @@ export function VirtualizedList({
             key={`${item.id || index}-${startIndex + index}`}
             style={{
               height: `${itemHeight}px`,
-              width: '100%'
+              width: '100%',
             }}
           >
             {renderItem(item, startIndex + index)}
@@ -297,7 +305,7 @@ export function VirtualizedList({
       <div
         style={{
           height: `${(items.length - endIndex) * itemHeight}px`,
-          width: '100%'
+          width: '100%',
         }}
       />
     </div>
@@ -309,8 +317,8 @@ export function VirtualizedList({
  */
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
-  wait: number
-): (...args: Parameters<T>) => ReturnType<T> {
+  wait: number,
+): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null;
 
   return function executedFunction(...args: Parameters<T>) {
@@ -329,17 +337,13 @@ export function debounce<T extends (...args: any[]) => any>(
  */
 export function throttle<T extends (...args: any[]) => any>(
   func: T,
-  limit: number
-): (...args: Parameters<T>) => ReturnType<T> {
+  limit: number,
+): (...args: Parameters<T>) => void {
   let inThrottle: boolean = false;
-  let lastCall: number = 0;
 
   return function executedFunction(...args: Parameters<T>) {
-    const now = Date.now();
-
     if (!inThrottle) {
       func(...args);
-      lastCall = now;
       inThrottle = true;
 
       setTimeout(() => {
@@ -348,12 +352,3 @@ export function throttle<T extends (...args: any[]) => any>(
     }
   };
 }
-
-export {
-  usePerformanceMonitor,
-  LazyImage,
-  LazyComponent,
-  VirtualizedList,
-  debounce,
-  throttle
-};

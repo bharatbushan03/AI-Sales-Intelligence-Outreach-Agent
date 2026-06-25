@@ -38,10 +38,7 @@ export class AuditTrailService {
   /**
    * Retrieves audit logs for a specific organization sorted by timestamp descending.
    */
-  public static async listForOrg(
-    organizationId: string,
-    limit = 100,
-  ): Promise<AuditEvent[]> {
+  public static async listForOrg(organizationId: string, limit = 100): Promise<AuditEvent[]> {
     try {
       const snapshot = await this.collection
         .where('organizationId', '==', organizationId)

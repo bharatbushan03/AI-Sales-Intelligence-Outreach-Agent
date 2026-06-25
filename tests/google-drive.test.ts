@@ -1,22 +1,25 @@
 import { exportProposalToDrive } from '../src/lib/google-drive';
+import { describe, expect, it, vi } from 'vitest';
 
 // Mock the googleapis module
-jest.mock('googleapis', () => ({
+vi.mock('googleapis', () => ({
   google: {
     auth: {
-      OAuth2: jest.fn().mockImplementation(() => ({
-        setCredentials: jest.fn(),
-        on: jest.fn(),
-      })),
+      OAuth2: vi.fn().mockImplementation(function OAuth2() {
+        return {
+        setCredentials: vi.fn(),
+        on: vi.fn(),
+        };
+      }),
     },
-    drive: jest.fn().mockReturnValue({
+    drive: vi.fn().mockReturnValue({
       files: {
-        list: jest.fn().mockResolvedValue({
+        list: vi.fn().mockResolvedValue({
           data: {
             files: [{ id: 'mock_folder_id', name: 'Sales Proposals' }]
           }
         }),
-        create: jest.fn().mockResolvedValue({
+        create: vi.fn().mockResolvedValue({
           data: {
             id: 'mock_file_id',
             webViewLink: 'https://docs.google.com/document/d/mock_file_id/edit',
@@ -25,18 +28,18 @@ jest.mock('googleapis', () => ({
         })
       },
       permissions: {
-        create: jest.fn().mockResolvedValue({ data: {} })
+        create: vi.fn().mockResolvedValue({ data: {} })
       }
     })
   }
 }));
 
 // Mock firebase-admin
-jest.mock('../src/lib/firebase-admin', () => ({
+vi.mock('../src/lib/firebase-admin', () => ({
   adminDb: {
-    collection: jest.fn().mockReturnThis(),
-    doc: jest.fn().mockReturnThis(),
-    get: jest.fn().mockResolvedValue({
+    collection: vi.fn().mockReturnThis(),
+    doc: vi.fn().mockReturnThis(),
+    get: vi.fn().mockResolvedValue({
       exists: true,
       data: () => ({
         googleOAuthToken: {
@@ -46,7 +49,7 @@ jest.mock('../src/lib/firebase-admin', () => ({
         }
       })
     }),
-    update: jest.fn().mockResolvedValue({})
+    update: vi.fn().mockResolvedValue({})
   }
 }));
 

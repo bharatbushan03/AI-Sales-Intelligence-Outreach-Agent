@@ -5,21 +5,16 @@
 
 import { useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { 
-  Role, 
-  WorkspaceRole, 
-  Permission, 
-  Plan 
-} from '../types/auth';
-import { 
-  hasPermission, 
-  hasWorkspacePermission, 
+import { Role, WorkspaceRole, Permission, Plan } from '../types/auth';
+import {
+  hasPermission,
+  hasWorkspacePermission,
   canManageRole,
   getUserPermissions,
   canAccessOrganization,
   canAccessWorkspace,
   checkPlanLimits,
-  PLAN_FEATURES
+  PLAN_FEATURES,
 } from '../lib/rbac';
 
 /**
@@ -31,12 +26,13 @@ export function usePermissions() {
   // Get all user permissions (org + workspace combined)
   const permissions = useMemo(() => {
     if (!profile) return [];
-    
-    const workspaceRoles = profile.workspaceIds?.map(wsId => ({
-      workspaceId: wsId,
-      role: 'Member' as WorkspaceRole, // Default, should come from workspace membership
-    })) || [];
-    
+
+    const workspaceRoles =
+      profile.workspaceIds?.map((wsId) => ({
+        workspaceId: wsId,
+        role: 'Member' as WorkspaceRole, // Default, should come from workspace membership
+      })) || [];
+
     return getUserPermissions(profile.role, workspaceRoles);
   }, [profile]);
 
@@ -46,24 +42,27 @@ export function usePermissions() {
     return hasPermission(profile.role, permission);
   };
 
-  const checkWorkspacePermission = (workspaceRole: WorkspaceRole, permission: Permission): boolean => {
+  const checkWorkspacePermission = (
+    workspaceRole: WorkspaceRole,
+    permission: Permission,
+  ): boolean => {
     return hasWorkspacePermission(workspaceRole, permission);
   };
 
   const checkRole = (requiredRole: Role): boolean => {
     if (!profile) return false;
-    
+
     const roleHierarchy = {
-      'Owner': 5,
-      'Admin': 4,
-      'Manager': 3,
+      Owner: 5,
+      Admin: 4,
+      Manager: 3,
       'Sales Rep': 2,
-      'Viewer': 1,
+      Viewer: 1,
     };
-    
+
     const userLevel = roleHierarchy[profile.role] || 0;
     const requiredLevel = roleHierarchy[requiredRole] || 0;
-    
+
     return userLevel >= requiredLevel;
   };
 
@@ -83,7 +82,7 @@ export function usePermissions() {
       profile.organizationId,
       profile.workspaceIds || [],
       workspaceId,
-      organizationId
+      organizationId,
     );
   };
 
@@ -92,25 +91,25 @@ export function usePermissions() {
     user: profile,
     isAuthenticated: !!user,
     isEmailVerified: user?.emailVerified || false,
-    
+
     // Role checks
     isOwner: profile?.role === 'Owner',
     isAdmin: profile?.role === 'Admin' || profile?.role === 'Owner',
     isManager: checkRole('Manager'),
     isSalesRep: checkRole('Sales Rep'),
     isViewer: profile?.role === 'Viewer',
-    
+
     // Permission checks
     permissions,
     hasPermission: checkPermission,
     hasWorkspacePermission: checkWorkspacePermission,
     hasRole: checkRole,
     canManageRole: canManageUser,
-    
+
     // Access control
     canAccessOrganization: canAccessOrg,
     canAccessWorkspace: canAccessWs,
-    
+
     // Specific permission shortcuts
     canCreateUsers: checkPermission('users.create'),
     canManageUsers: checkPermission('users.manage_roles'),
@@ -151,7 +150,7 @@ export function usePlanFeatures() {
 
   const canPerformAction = (
     action: 'add_user' | 'add_workspace' | 'run_workflow' | 'add_storage',
-    currentUsage: { users: number; workspaces: number; workflowRuns: number; storageGB: number }
+    currentUsage: { users: number; workspaces: number; workflowRuns: number; storageGB: number },
   ): boolean => {
     return checkPlanLimits(currentPlan, currentUsage, action);
   };
@@ -161,7 +160,7 @@ export function usePlanFeatures() {
     planFeatures,
     hasFeature,
     canPerformAction,
-    
+
     // Feature shortcuts
     hasAI: hasFeature('aiEnabled'),
     hasAdvancedReporting: hasFeature('advancedReporting'),
@@ -169,7 +168,7 @@ export function usePlanFeatures() {
     hasSSO: hasFeature('ssoEnabled'),
     hasPrioritySupport: hasFeature('prioritySupport'),
     hasCustomBranding: hasFeature('customBranding'),
-    
+
     // Limits
     maxUsers: planFeatures.maxUsers,
     maxWorkspaces: planFeatures.maxWorkspaces,
@@ -188,17 +187,17 @@ export function useWorkspacePermissions(workspaceId?: string) {
   // Get user's role in the specific workspace
   const workspaceRole = useMemo(() => {
     if (!profile || !targetWorkspaceId) return null;
-    
+
     // TODO: Get actual workspace role from workspace membership data
     // For now, map org role to workspace role
     const roleMapping: Record<Role, WorkspaceRole> = {
-      'Owner': 'Owner',
-      'Admin': 'Admin',
-      'Manager': 'Manager',
+      Owner: 'Owner',
+      Admin: 'Admin',
+      Manager: 'Manager',
       'Sales Rep': 'Member',
-      'Viewer': 'Viewer',
+      Viewer: 'Viewer',
     };
-    
+
     return roleMapping[profile.role];
   }, [profile, targetWorkspaceId]);
 
@@ -211,7 +210,7 @@ export function useWorkspacePermissions(workspaceId?: string) {
     workspaceId: targetWorkspaceId,
     workspaceRole,
     hasWorkspacePermission: checkWorkspacePermission,
-    
+
     // Workspace-specific permission shortcuts
     canUpdateWorkspace: checkWorkspacePermission('workspaces.update'),
     canManageWorkspaceMembers: checkWorkspacePermission('workspaces.manage_members'),
@@ -258,7 +257,7 @@ export function useConditionalRender() {
   const renderIf = (
     condition: boolean | (() => boolean),
     component: React.ReactNode,
-    fallback: React.ReactNode = null
+    fallback: React.ReactNode = null,
   ) => {
     const shouldRender = typeof condition === 'function' ? condition() : condition;
     return shouldRender ? component : fallback;
@@ -267,20 +266,20 @@ export function useConditionalRender() {
   const renderForRole = (
     role: Role | Role[],
     component: React.ReactNode,
-    fallback: React.ReactNode = null
+    fallback: React.ReactNode = null,
   ) => {
     const roles = Array.isArray(role) ? role : [role];
-    const hasRole = roles.some(r => permissions.hasRole(r));
+    const hasRole = roles.some((r) => permissions.hasRole(r));
     return hasRole ? component : fallback;
   };
 
   const renderForPermission = (
     permission: Permission | Permission[],
     component: React.ReactNode,
-    fallback: React.ReactNode = null
+    fallback: React.ReactNode = null,
   ) => {
     const perms = Array.isArray(permission) ? permission : [permission];
-    const hasPermission = perms.some(p => permissions.hasPermission(p));
+    const hasPermission = perms.some((p) => permissions.hasPermission(p));
     return hasPermission ? component : fallback;
   };
 
@@ -311,7 +310,7 @@ export function useNavigationAccess() {
       intelligence: permissions.hasRole('Manager'),
       admin: permissions.isAdmin,
       settings: true, // Everyone can access their settings
-      
+
       // Organization management
       organizationSettings: permissions.canUpdateOrganization,
       teamMembers: permissions.canManageUsers,
@@ -334,7 +333,7 @@ export function useDataAccess() {
     dataType: 'workflow' | 'report' | 'proposal' | 'lead' | 'account',
     action: 'create' | 'read' | 'update' | 'delete' | 'export',
     ownerId?: string,
-    organizationId?: string
+    organizationId?: string,
   ): boolean => {
     // Check organization access first
     if (organizationId && !permissions.canAccessOrganization(organizationId)) {

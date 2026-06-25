@@ -1,0 +1,85 @@
+name: Deploy to Google Cloud
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to deploy
+        required: true
+        default: staging
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+  push:
+    branches:
+      - develop
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || (github.ref_name == 'main' && 'production' || 'staging') }}
+
+    env:
+      REGION: us-central1
+      REPOSITORY: sales-intelligence
+      SERVICE: sales-intelligence-api
+      ENVIRONMENT: ${{ github.event.inputs.environment || (github.ref_name == 'main' && 'production' || 'staging') }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SERVICE_ACCOUNT }}
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker Auth
+        run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+
+      - name: Build Container
+        run: |
+          docker build \
+            --tag "${REGION}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${REPOSITORY}/app:${GITHUB_SHA}" \
+            --tag "${REGION}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${REPOSITORY}/app:${ENVIRONMENT}" \
+            .
+
+      - name: Push Container
+        run: |
+          docker push "${REGION}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${REPOSITORY}/app:${GITHUB_SHA}"
+          docker push "${REGION}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${REPOSITORY}/app:${ENVIRONMENT}"
+
+      - name: Deploy Cloud Run
+        run: |
+          gcloud run deploy "${SERVICE}" \
+            --project="${{ secrets.GCP_PROJECT_ID }}" \
+            --region="${REGION}" \
+            --image="${REGION}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${REPOSITORY}/app:${GITHUB_SHA}" \
+            --platform=managed \
+            --allow-unauthenticated \
+            --service-account="sales-intelligence-${ENVIRONMENT}@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com" \
+            --set-secrets="GEMINI_API_KEY=gemini-api-key-${ENVIRONMENT}:latest,FIREBASE_PRIVATE_KEY=firebase-private-key-${ENVIRONMENT}:latest,FIREBASE_CLIENT_EMAIL=firebase-client-email-${ENVIRONMENT}:latest" \
+            --set-env-vars="NODE_ENV=production,CLOUD_RUN_URL=${{ vars.CLOUD_RUN_URL }},NEXT_PUBLIC_FIREBASE_API_KEY=${{ vars.NEXT_PUBLIC_FIREBASE_API_KEY }},NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ vars.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }},NEXT_PUBLIC_FIREBASE_PROJECT_ID=${{ vars.NEXT_PUBLIC_FIREBASE_PROJECT_ID }},NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ vars.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }},NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ vars.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }},NEXT_PUBLIC_FIREBASE_APP_ID=${{ vars.NEXT_PUBLIC_FIREBASE_APP_ID }}" \
+            --min-instances="${{ vars.CLOUD_RUN_MIN_INSTANCES || '1' }}" \
+            --max-instances="${{ vars.CLOUD_RUN_MAX_INSTANCES || '20' }}" \
+            --memory="${{ vars.CLOUD_RUN_MEMORY || '1Gi' }}" \
+            --cpu="${{ vars.CLOUD_RUN_CPU || '2' }}" \
+            --concurrency=100 \
+            --timeout=300
+
+      - name: Smoke Test
+        run: bash scripts/smoke-test.sh
+        env:
+          SERVICE_URL: ${{ vars.CLOUD_RUN_URL }}

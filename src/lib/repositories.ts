@@ -62,8 +62,13 @@ const prodOpts = {
   enableEventSourcing: true,
 };
 
-export const reportsRepository = new FirestoreRepository<ResearchReport>('research_reports', prodOpts);
-export const jobsRepository = new FirestoreRepository<ResearchJob>('research_jobs', { enableMultiTenancy: true });
+export const reportsRepository = new FirestoreRepository<ResearchReport>(
+  'research_reports',
+  prodOpts,
+);
+export const jobsRepository = new FirestoreRepository<ResearchJob>('research_jobs', {
+  enableMultiTenancy: true,
+});
 
 export const companyProfilesRepository = new FirestoreRepository<
   CompanyProfile & {
@@ -135,14 +140,36 @@ export const generatedMessagesRepository = new FirestoreRepository<
 
 // CRM Agent Repositories
 export const leadsRepository = new FirestoreRepository<LeadRecord>('leads', prodOpts);
-export const accountsRepository = new FirestoreRepository<AccountRecord>('accounts', { enableMultiTenancy: true, enableSoftDelete: true });
-export const contactsRepository = new FirestoreRepository<ContactRecord>('contacts', { enableMultiTenancy: true, enableSoftDelete: true });
-export const activitiesRepository = new FirestoreRepository<ActivityRecord>('activities', { enableMultiTenancy: true });
-export const meetingsRepository = new FirestoreRepository<MeetingRecord>('meetings', { enableMultiTenancy: true, enableSoftDelete: true });
-export const opportunitiesRepository = new FirestoreRepository<OpportunityRecord>('opportunities', { enableMultiTenancy: true, enableSoftDelete: true });
-export const followupsRepository = new FirestoreRepository<FollowUpTask>('followups', { enableMultiTenancy: true });
-export const pipelineReportsRepository = new FirestoreRepository<PipelineReport>('pipeline_reports', { enableMultiTenancy: true });
-export const relationshipScoresRepository = new FirestoreRepository<RelationshipScore>('relationship_scores', { enableMultiTenancy: true });
+export const accountsRepository = new FirestoreRepository<AccountRecord>('accounts', {
+  enableMultiTenancy: true,
+  enableSoftDelete: true,
+});
+export const contactsRepository = new FirestoreRepository<ContactRecord>('contacts', {
+  enableMultiTenancy: true,
+  enableSoftDelete: true,
+});
+export const activitiesRepository = new FirestoreRepository<ActivityRecord>('activities', {
+  enableMultiTenancy: true,
+});
+export const meetingsRepository = new FirestoreRepository<MeetingRecord>('meetings', {
+  enableMultiTenancy: true,
+  enableSoftDelete: true,
+});
+export const opportunitiesRepository = new FirestoreRepository<OpportunityRecord>('opportunities', {
+  enableMultiTenancy: true,
+  enableSoftDelete: true,
+});
+export const followupsRepository = new FirestoreRepository<FollowUpTask>('followups', {
+  enableMultiTenancy: true,
+});
+export const pipelineReportsRepository = new FirestoreRepository<PipelineReport>(
+  'pipeline_reports',
+  { enableMultiTenancy: true },
+);
+export const relationshipScoresRepository = new FirestoreRepository<RelationshipScore>(
+  'relationship_scores',
+  { enableMultiTenancy: true },
+);
 
 // Proposal Agent Repositories
 export const proposalsRepository = new FirestoreRepository<ProposalPackage>('proposals', prodOpts);
@@ -160,10 +187,17 @@ export const presentationsRepository = new FirestoreRepository<
 >('presentations', { enableMultiTenancy: true });
 
 // Memory Layer Repositories
-export const workflowMemoryRepository = new FirestoreRepository<WorkflowMemory>('workflow_memory', { enableMultiTenancy: true, enableSoftDelete: true });
+export const workflowMemoryRepository = new FirestoreRepository<WorkflowMemory>('workflow_memory', {
+  enableMultiTenancy: true,
+  enableSoftDelete: true,
+});
 export const agentMemoryRepository = new FirestoreRepository<AgentMemory>('agent_memory');
-export const companyMemoryRepository = new FirestoreRepository<CompanyMemory>('company_memory', { enableMultiTenancy: true });
-export const userMemoryRepository = new FirestoreRepository<UserMemory>('user_memory', { enableMultiTenancy: true });
+export const companyMemoryRepository = new FirestoreRepository<CompanyMemory>('company_memory', {
+  enableMultiTenancy: true,
+});
+export const userMemoryRepository = new FirestoreRepository<UserMemory>('user_memory', {
+  enableMultiTenancy: true,
+});
 export const knowledgeGraphRepository = new FirestoreRepository<KnowledgeGraph>('knowledge_graph');
 export const agentMessagesRepository = new FirestoreRepository<AgentMessage>('agent_messages');
 
@@ -233,4 +267,3 @@ export const commentsRepository = new FirestoreRepository<any>('comments', {
   enableMultiTenancy: true,
   enableSoftDelete: true,
 });
-

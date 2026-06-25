@@ -20,7 +20,8 @@ export class ActivityTracker {
   public getMockActivities(companyName: string): ActivityRecord[] {
     const name = companyName.toLowerCase();
     const now = new Date();
-    const dateOffset = (days: number) => new Date(now.getTime() - days * 24 * 60 * 60 * 1000).toISOString();
+    const dateOffset = (days: number) =>
+      new Date(now.getTime() - days * 24 * 60 * 60 * 1000).toISOString();
 
     if (name.includes('stripe')) {
       return [
@@ -28,7 +29,8 @@ export class ActivityTracker {
           activityId: 'act_stripe_001',
           timestamp: dateOffset(1),
           activityType: 'Email',
-          description: 'Sent personalized cold email (Executive Version) targeting EU routing leaks.',
+          description:
+            'Sent personalized cold email (Executive Version) targeting EU routing leaks.',
           actor: 'mock-user-123',
           referenceId: 'lead_stripe_001',
         },
@@ -49,7 +51,8 @@ export class ActivityTracker {
           activityId: 'act_hubspot_001',
           timestamp: dateOffset(2),
           activityType: 'Meeting',
-          description: 'Discovery call held. Discussed database schema bottlenecks and custom objects caps.',
+          description:
+            'Discovery call held. Discussed database schema bottlenecks and custom objects caps.',
           actor: 'mock-user-123',
           referenceId: 'lead_hubspot_001',
         },

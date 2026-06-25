@@ -68,10 +68,10 @@ export function ProtectedRoute({
 
     // Check permission requirements
     if (requiredPermissions.length > 0) {
-      const hasAllPermissions = requiredPermissions.every(permission =>
-        permissions.hasPermission(permission)
+      const hasAllPermissions = requiredPermissions.every((permission) =>
+        permissions.hasPermission(permission),
       );
-      
+
       if (!hasAllPermissions) {
         setHasCheckedAccess(true);
         return;
@@ -116,12 +116,14 @@ export function ProtectedRoute({
 
   // Check permission access
   if (requiredPermissions.length > 0) {
-    const missingPermissions = requiredPermissions.filter(permission =>
-      !permissions.hasPermission(permission)
+    const missingPermissions = requiredPermissions.filter(
+      (permission) => !permissions.hasPermission(permission),
     );
-    
+
     if (missingPermissions.length > 0) {
-      return unauthorizedComponent || <UnauthorizedAccess missingPermissions={missingPermissions} />;
+      return (
+        unauthorizedComponent || <UnauthorizedAccess missingPermissions={missingPermissions} />
+      );
     }
   }
 
@@ -273,20 +275,22 @@ function UnauthorizedAccess({
         <div className="text-center">
           <Lock className="mx-auto h-12 w-12 text-red-400" />
           <h1 className="mt-4 text-2xl font-bold text-white">Access Denied</h1>
-          
+
           {requiredRole && (
             <p className="mt-2 text-sm text-slate-400">
-              This page requires <span className="font-medium text-white">{requiredRole}</span> access or higher.
+              This page requires <span className="font-medium text-white">{requiredRole}</span>{' '}
+              access or higher.
               <br />
-              Your current role: <span className="font-medium text-indigo-400">{permissions.user?.role}</span>
+              Your current role:{' '}
+              <span className="font-medium text-indigo-400">{permissions.user?.role}</span>
             </p>
           )}
-          
+
           {missingPermissions && missingPermissions.length > 0 && (
             <div className="mt-4">
               <p className="text-sm text-slate-400">Missing required permissions:</p>
               <ul className="mt-2 space-y-1">
-                {missingPermissions.map(permission => (
+                {missingPermissions.map((permission) => (
                   <li key={permission} className="text-sm font-medium text-red-400">
                     {permission}
                   </li>
@@ -303,7 +307,7 @@ function UnauthorizedAccess({
           >
             Go Back
           </button>
-          
+
           <button
             onClick={() => router.push('/dashboard')}
             className="w-full rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
@@ -333,7 +337,7 @@ function UnauthorizedAccess({
  */
 export function withProtection<P extends object>(
   Component: React.ComponentType<P>,
-  protectionConfig: Omit<ProtectedRouteProps, 'children'>
+  protectionConfig: Omit<ProtectedRouteProps, 'children'>,
 ) {
   return function ProtectedComponent(props: P) {
     return (
@@ -354,14 +358,14 @@ export function useAccessControl() {
   const checkAccess = (
     requiredRole?: Role,
     requiredPermissions?: Permission[],
-    redirectPath = '/dashboard'
+    redirectPath = '/dashboard',
   ): boolean => {
     if (requiredRole && !permissions.hasRole(requiredRole)) {
       router.push(redirectPath);
       return false;
     }
 
-    if (requiredPermissions?.some(permission => !permissions.hasPermission(permission))) {
+    if (requiredPermissions?.some((permission) => !permissions.hasPermission(permission))) {
       router.push(redirectPath);
       return false;
     }

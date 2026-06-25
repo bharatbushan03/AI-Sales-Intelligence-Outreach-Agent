@@ -10,8 +10,8 @@ import { CheckCircle, Mail, Plus, X, Users } from 'lucide-react';
 import { isValidEmail } from '@/utils/api-response';
 
 interface CompleteStepProps {
-  onComplete: (inviteEmails?: string[]) => Promise<{ 
-    success: boolean; 
+  onComplete: (inviteEmails?: string[]) => Promise<{
+    success: boolean;
     error?: string;
     invitations?: any[];
   }>;
@@ -39,20 +39,22 @@ export function CompleteStep({ onComplete }: CompleteStepProps) {
   };
 
   const validateEmails = () => {
-    const validEmails = inviteEmails.filter(email => email.trim() && isValidEmail(email.trim()));
-    const invalidEmails = inviteEmails.filter(email => email.trim() && !isValidEmail(email.trim()));
-    
+    const validEmails = inviteEmails.filter((email) => email.trim() && isValidEmail(email.trim()));
+    const invalidEmails = inviteEmails.filter(
+      (email) => email.trim() && !isValidEmail(email.trim()),
+    );
+
     if (invalidEmails.length > 0) {
       setErrors({ emails: `Invalid email addresses: ${invalidEmails.join(', ')}` });
       return false;
     }
-    
+
     return true;
   };
 
   const handleSubmit = async (skipInvites = false) => {
-    const emailsToSend = skipInvites ? [] : inviteEmails.filter(email => email.trim());
-    
+    const emailsToSend = skipInvites ? [] : inviteEmails.filter((email) => email.trim());
+
     if (!skipInvites && emailsToSend.length > 0 && !validateEmails()) {
       return;
     }
@@ -61,8 +63,8 @@ export function CompleteStep({ onComplete }: CompleteStepProps) {
     setErrors({});
 
     try {
-      const result = await onComplete(emailsToSend.map(email => email.trim()));
-      
+      const result = await onComplete(emailsToSend.map((email) => email.trim()));
+
       if (result.success) {
         setCompletionData(result);
       } else {
@@ -79,32 +81,35 @@ export function CompleteStep({ onComplete }: CompleteStepProps) {
     return (
       <div className="text-center">
         {/* Success State */}
-        <div className="rounded-2xl bg-slate-900/50 p-8 shadow-xl backdrop-blur-sm border border-slate-800/50">
+        <div className="rounded-2xl border border-slate-800/50 bg-slate-900/50 p-8 shadow-xl backdrop-blur-sm">
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-green-500 to-emerald-600">
             <CheckCircle className="h-10 w-10 text-white" />
           </div>
-          
-          <h2 className="text-3xl font-bold text-white mb-4">Welcome to B2B Sales Intelligence!</h2>
-          <p className="text-lg text-slate-300 mb-8">
+
+          <h2 className="mb-4 text-3xl font-bold text-white">Welcome to B2B Sales Intelligence!</h2>
+          <p className="mb-8 text-lg text-slate-300">
             Your account is ready. Let's start boosting your sales performance.
           </p>
 
           {/* Invitation Summary */}
           {completionData.invitations && completionData.invitations.length > 0 && (
-            <div className="mb-8 rounded-lg bg-indigo-900/20 border border-indigo-500/20 p-6">
-              <div className="flex items-center justify-center space-x-2 mb-4">
+            <div className="mb-8 rounded-lg border border-indigo-500/20 bg-indigo-900/20 p-6">
+              <div className="mb-4 flex items-center justify-center space-x-2">
                 <Mail className="h-5 w-5 text-indigo-400" />
                 <h3 className="text-lg font-medium text-indigo-400">Team Invitations Sent</h3>
               </div>
-              <p className="text-slate-300 mb-4">
+              <p className="mb-4 text-slate-300">
                 We've sent invitations to {completionData.invitations.length} team member
                 {completionData.invitations.length > 1 ? 's' : ''}:
               </p>
               <div className="space-y-2">
                 {completionData.invitations.map((invitation: any, index: number) => (
-                  <div key={index} className="flex items-center justify-between bg-slate-800/50 rounded-lg p-3">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between rounded-lg bg-slate-800/50 p-3"
+                  >
                     <span className="text-sm text-slate-200">{invitation.email}</span>
-                    <span className="text-xs text-indigo-400 bg-indigo-900/50 px-2 py-1 rounded">
+                    <span className="rounded bg-indigo-900/50 px-2 py-1 text-xs text-indigo-400">
                       {invitation.status}
                     </span>
                   </div>
@@ -114,29 +119,29 @@ export function CompleteStep({ onComplete }: CompleteStepProps) {
           )}
 
           {/* Next Steps */}
-          <div className="text-left mb-8">
-            <h3 className="text-lg font-medium text-white mb-4">What's next?</h3>
+          <div className="mb-8 text-left">
+            <h3 className="mb-4 text-lg font-medium text-white">What's next?</h3>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-lg bg-slate-800/50 p-4 border border-slate-700">
-                <h4 className="text-sm font-medium text-slate-200 mb-2">Explore Your Dashboard</h4>
+              <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
+                <h4 className="mb-2 text-sm font-medium text-slate-200">Explore Your Dashboard</h4>
                 <p className="text-xs text-slate-400">
                   Get familiar with your new workspace and available tools
                 </p>
               </div>
-              <div className="rounded-lg bg-slate-800/50 p-4 border border-slate-700">
-                <h4 className="text-sm font-medium text-slate-200 mb-2">Run Your First Workflow</h4>
+              <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
+                <h4 className="mb-2 text-sm font-medium text-slate-200">Run Your First Workflow</h4>
                 <p className="text-xs text-slate-400">
                   Start with lead research or proposal generation
                 </p>
               </div>
-              <div className="rounded-lg bg-slate-800/50 p-4 border border-slate-700">
-                <h4 className="text-sm font-medium text-slate-200 mb-2">Connect Your CRM</h4>
+              <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
+                <h4 className="mb-2 text-sm font-medium text-slate-200">Connect Your CRM</h4>
                 <p className="text-xs text-slate-400">
                   Integrate with Salesforce, HubSpot, or other CRM systems
                 </p>
               </div>
-              <div className="rounded-lg bg-slate-800/50 p-4 border border-slate-700">
-                <h4 className="text-sm font-medium text-slate-200 mb-2">Customize Settings</h4>
+              <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
+                <h4 className="mb-2 text-sm font-medium text-slate-200">Customize Settings</h4>
                 <p className="text-xs text-slate-400">
                   Set up preferences, notifications, and team permissions
                 </p>
@@ -146,8 +151,8 @@ export function CompleteStep({ onComplete }: CompleteStepProps) {
 
           {/* Get Started Button */}
           <button
-            onClick={() => window.location.href = '/dashboard'}
-            className="w-full rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 py-3 px-6 text-white font-medium hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200"
+            onClick={() => (window.location.href = '/dashboard')}
+            className="w-full rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-3 font-medium text-white transition-all duration-200 hover:from-indigo-600 hover:to-purple-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
           >
             Get Started
           </button>
@@ -157,7 +162,7 @@ export function CompleteStep({ onComplete }: CompleteStepProps) {
   }
 
   return (
-    <div className="rounded-2xl bg-slate-900/50 p-8 shadow-xl backdrop-blur-sm border border-slate-800/50">
+    <div className="rounded-2xl border border-slate-800/50 bg-slate-900/50 p-8 shadow-xl backdrop-blur-sm">
       <div className="mb-8 text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-600">
           <Users className="h-8 w-8 text-white" />
@@ -173,7 +178,7 @@ export function CompleteStep({ onComplete }: CompleteStepProps) {
         <div className="flex items-center justify-center space-x-4">
           <button
             onClick={() => setShowInvites(false)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
               !showInvites
                 ? 'bg-indigo-600 text-white'
                 : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
@@ -183,7 +188,7 @@ export function CompleteStep({ onComplete }: CompleteStepProps) {
           </button>
           <button
             onClick={() => setShowInvites(true)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
               showInvites
                 ? 'bg-indigo-600 text-white'
                 : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
@@ -196,33 +201,33 @@ export function CompleteStep({ onComplete }: CompleteStepProps) {
         {showInvites && (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-200 mb-3">
+              <label className="mb-3 block text-sm font-medium text-slate-200">
                 Team Member Email Addresses
               </label>
-              
+
               {inviteEmails.map((email, index) => (
-                <div key={index} className="flex items-center space-x-2 mb-2">
+                <div key={index} className="mb-2 flex items-center space-x-2">
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => handleEmailChange(index, e.target.value)}
-                    className="flex-1 rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="flex-1 rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-3 text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     placeholder="colleague@company.com"
                   />
                   {inviteEmails.length > 1 && (
                     <button
                       onClick={() => handleRemoveEmail(index)}
-                      className="p-2 text-slate-400 hover:text-red-400 transition-colors"
+                      className="p-2 text-slate-400 transition-colors hover:text-red-400"
                     >
                       <X className="h-5 w-5" />
                     </button>
                   )}
                 </div>
               ))}
-              
+
               <button
                 onClick={handleAddEmail}
-                className="flex items-center space-x-2 text-indigo-400 hover:text-indigo-300 text-sm"
+                className="flex items-center space-x-2 text-sm text-indigo-400 hover:text-indigo-300"
               >
                 <Plus className="h-4 w-4" />
                 <span>Add another email</span>
@@ -230,14 +235,14 @@ export function CompleteStep({ onComplete }: CompleteStepProps) {
             </div>
 
             {errors.emails && (
-              <div className="rounded-lg bg-red-900/50 border border-red-500/50 p-4">
+              <div className="rounded-lg border border-red-500/50 bg-red-900/50 p-4">
                 <p className="text-sm text-red-400">{errors.emails}</p>
               </div>
             )}
 
             {/* Team Member Benefits */}
-            <div className="rounded-lg bg-slate-800/50 p-4 border border-slate-700">
-              <h4 className="text-sm font-medium text-slate-200 mb-3">
+            <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
+              <h4 className="mb-3 text-sm font-medium text-slate-200">
                 What your team members will get:
               </h4>
               <ul className="space-y-2">
@@ -259,7 +264,7 @@ export function CompleteStep({ onComplete }: CompleteStepProps) {
 
         {/* Submit Error */}
         {errors.submit && (
-          <div className="rounded-lg bg-red-900/50 border border-red-500/50 p-4">
+          <div className="rounded-lg border border-red-500/50 bg-red-900/50 p-4">
             <p className="text-sm text-red-400">{errors.submit}</p>
           </div>
         )}
@@ -271,14 +276,14 @@ export function CompleteStep({ onComplete }: CompleteStepProps) {
               <button
                 onClick={() => handleSubmit(false)}
                 disabled={isLoading}
-                className="w-full rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 py-3 px-4 text-white font-medium hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                className="w-full rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-3 font-medium text-white transition-all duration-200 hover:from-indigo-600 hover:to-purple-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isLoading ? 'Sending Invitations...' : 'Send Invitations & Complete Setup'}
               </button>
               <button
                 onClick={() => handleSubmit(true)}
                 disabled={isLoading}
-                className="w-full rounded-lg bg-slate-700 py-3 px-4 text-slate-200 font-medium hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                className="w-full rounded-lg bg-slate-700 px-4 py-3 font-medium text-slate-200 transition-all duration-200 hover:bg-slate-600 focus:ring-2 focus:ring-slate-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Skip Invitations & Complete Setup
               </button>
@@ -287,7 +292,7 @@ export function CompleteStep({ onComplete }: CompleteStepProps) {
             <button
               onClick={() => handleSubmit(true)}
               disabled={isLoading}
-              className="w-full rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 py-3 px-4 text-white font-medium hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              className="w-full rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-3 font-medium text-white transition-all duration-200 hover:from-indigo-600 hover:to-purple-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? 'Completing Setup...' : 'Complete Setup'}
             </button>

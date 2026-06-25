@@ -1,8 +1,5 @@
 import { PromptDefinition, PromptVersion } from './types';
-import {
-  promptRegistryRepository,
-  promptVersionsRepository,
-} from '../../lib/repositories';
+import { promptRegistryRepository, promptVersionsRepository } from '../../lib/repositories';
 import { logger } from '../../utils/logger';
 
 // Default prompt templates for seeding
@@ -10,13 +7,13 @@ const DEFAULT_PROMPTS: Record<string, Omit<PromptDefinition, 'isActive' | 'versi
   'research.company': {
     id: 'research.company',
     name: 'Company Profiler Prompt',
-    description: 'Profiles a target company based on query input, classification, vertical, and target segments.',
+    description:
+      'Profiles a target company based on query input, classification, vertical, and target segments.',
     template: 'Query: "{{query}}"\nExtract core profile details.',
     systemInstruction: `You are the CompanyProfiler Agent. Your task is to gather core intelligence on a company based on the search query. Use grounding if available. Respond ONLY with a JSON object of this structure: { "name": "Company Name", "website": "website.com", "description": "Short description of the company", "industry": { "classification": "Main classification", "vertical": "Specific vertical niche", "tags": ["tag1", "tag2"] }, "profile": { "employeeCount": 450, "estimatedRevenue": "$80M", "founded": "2015", "location": "Boston, MA", "businessModel": "B2B SaaS", "targetCustomers": ["Sales Managers", "AEs"], "marketPosition": "Market Leader" } }`,
-    fewShots: [
-      'Input: stripe.com\nOutput: { "name": "Stripe", "website": "stripe.com", ... }',
-    ],
-    outputInstructions: 'Output must represent valid schema-compliant JSON. Do not include any markdown comments.',
+    fewShots: ['Input: stripe.com\nOutput: { "name": "Stripe", "website": "stripe.com", ... }'],
+    outputInstructions:
+      'Output must represent valid schema-compliant JSON. Do not include any markdown comments.',
   },
   'research.web': {
     id: 'research.web',
@@ -38,14 +35,16 @@ const DEFAULT_PROMPTS: Record<string, Omit<PromptDefinition, 'isActive' | 'versi
     id: 'research.opportunity',
     name: 'Opportunity Discovery Prompt',
     description: 'Identifies sales triggers, technology upgrades, and business opportunities.',
-    template: 'Company: {{company}}, Products: {{products}}, Competitors: {{competitors}}\nFind opportunities and risks.',
+    template:
+      'Company: {{company}}, Products: {{products}}, Competitors: {{competitors}}\nFind opportunities and risks.',
     systemInstruction: `You are the OpportunityDiscoveryEngine. Your task is to identify B2B sales opportunities and risk vectors. Respond ONLY with a JSON object of this structure: { "opportunities": [ { "insight": "Insight description", "confidence": 85, "source": "Website Careers Page", "type": "technology" | "expansion" | "operational" | "challenge" } ], "risks": [ { "insight": "Description of risk vector", "confidence": 75, "source": "Source data" } ] }`,
   },
   'research.insight': {
     id: 'research.insight',
     name: 'Research Synthesis Prompt',
     description: 'Aggregates outputs into executive summaries and structured hooks.',
-    template: 'Company: {{company}}, Opportunities: {{opportunities}}\nGenerate synthesis and recommendations.',
+    template:
+      'Company: {{company}}, Opportunities: {{opportunities}}\nGenerate synthesis and recommendations.',
     systemInstruction: `You are the InsightGenerator. Create a final synthesis. Respond ONLY with a JSON object of this structure: { "summary": "Executive summary paragraph...", "recommendations": [ "Sales hook recommendation 1", "Sales hook recommendation 2" ] }`,
   },
   'manager.plan': {
@@ -78,14 +77,16 @@ export class PromptRegistry {
         isActive: true,
       };
       this.staticCache.set(key, definition);
-      this.staticCacheHistory.set(key, [{
-        promptId: key,
-        version: 1,
-        template: definition.template,
-        systemInstruction: definition.systemInstruction,
-        changelog: 'Initial seed configuration',
-        createdAt: new Date().toISOString(),
-      }]);
+      this.staticCacheHistory.set(key, [
+        {
+          promptId: key,
+          version: 1,
+          template: definition.template,
+          systemInstruction: definition.systemInstruction,
+          changelog: 'Initial seed configuration',
+          createdAt: new Date().toISOString(),
+        },
+      ]);
     });
   }
 
@@ -106,7 +107,7 @@ export class PromptRegistry {
         logger.info('PromptRegistry: Firestore prompt collection is empty. Seeding defaults...');
         for (const promptDef of this.staticCache.values()) {
           await promptRegistryRepository.create(promptDef.id, promptDef);
-          
+
           // Seed the initial version in prompt_versions
           const initialVersion: PromptVersion = {
             promptId: promptDef.id,
@@ -135,7 +136,10 @@ export class PromptRegistry {
         return doc;
       }
     } catch (err) {
-      logger.warn(`Failed to read prompt "${promptId}" from database. Falling back to static seed.`, { error: String(err) });
+      logger.warn(
+        `Failed to read prompt "${promptId}" from database. Falling back to static seed.`,
+        { error: String(err) },
+      );
     }
 
     const fallback = this.staticCache.get(promptId);
@@ -158,11 +162,13 @@ export class PromptRegistry {
         return versions[0];
       }
     } catch (err) {
-      logger.warn(`Failed to query version ${version} of prompt "${promptId}" from database.`, { error: String(err) });
+      logger.warn(`Failed to query version ${version} of prompt "${promptId}" from database.`, {
+        error: String(err),
+      });
     }
 
     const list = this.staticCacheHistory.get(promptId) || [];
-    const match = list.find(v => v.version === version);
+    const match = list.find((v) => v.version === version);
     if (!match) {
       throw new Error(`Version ${version} of prompt "${promptId}" was not found.`);
     }
@@ -256,7 +262,9 @@ export class PromptRegistry {
       );
       if (list.length > 0) return list;
     } catch (err) {
-      logger.warn(`Failed to read prompt history for "${promptId}" from database.`, { error: String(err) });
+      logger.warn(`Failed to read prompt history for "${promptId}" from database.`, {
+        error: String(err),
+      });
     }
     return this.staticCacheHistory.get(promptId) || [];
   }

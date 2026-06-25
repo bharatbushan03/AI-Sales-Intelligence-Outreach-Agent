@@ -37,7 +37,10 @@ export class MeetingIntelligenceEngine {
           referenceId,
         };
       } catch (error) {
-        logger.error(`MeetingIntelligenceEngine live analysis failed. Falling back to mock.`, error);
+        logger.error(
+          `MeetingIntelligenceEngine live analysis failed. Falling back to mock.`,
+          error,
+        );
       }
     }
 
@@ -53,17 +56,14 @@ export class MeetingIntelligenceEngine {
         meetingId: 'meet_stripe_001',
         title: 'Stripe EU payment routing alignment call',
         date: timestamp,
-        summary: 'Reviewed EU-localized decline metrics. The client expressed severe concern about localized SCA compliance rules causing drop-offs in Germany and France.',
+        summary:
+          'Reviewed EU-localized decline metrics. The client expressed severe concern about localized SCA compliance rules causing drop-offs in Germany and France.',
         actionItems: [
           'Prepare localized routing card logs simulation (Bharat/Sales Engineering)',
           'Send merchant onboarding API setup instructions (Sales Ops)',
         ],
-        risks: [
-          'Developer bandwidth is constrained due to active Connect billing release cycle.',
-        ],
-        followUps: [
-          'Follow up next Monday with SDK routing mock setup.',
-        ],
+        risks: ['Developer bandwidth is constrained due to active Connect billing release cycle.'],
+        followUps: ['Follow up next Monday with SDK routing mock setup.'],
         referenceId,
       };
     }
@@ -73,17 +73,14 @@ export class MeetingIntelligenceEngine {
         meetingId: 'meet_hubspot_001',
         title: 'HubSpot custom relational object review',
         date: timestamp,
-        summary: 'Met with HubSpot RevOps team. Walked through current data limit ceilings and portal setup bottlenecks.',
+        summary:
+          'Met with HubSpot RevOps team. Walked through current data limit ceilings and portal setup bottlenecks.',
         actionItems: [
           'Draft database sync custom middleware API reference ( Bharat )',
           'Coordinate a 15-minute developer sandbox overview call',
         ],
-        risks: [
-          ' GRANULAR permission policy review could extend sales cycles by 2-3 weeks.',
-        ],
-        followUps: [
-          'Send CRM schema indexing template tomorrow morning.',
-        ],
+        risks: [' GRANULAR permission policy review could extend sales cycles by 2-3 weeks.'],
+        followUps: ['Send CRM schema indexing template tomorrow morning.'],
         referenceId,
       };
     }
@@ -92,17 +89,14 @@ export class MeetingIntelligenceEngine {
       meetingId: 'meet_generic_001',
       title: title || 'B2B Sales Discovery Meeting',
       date: timestamp,
-      summary: 'Initial discovery call to align on operational scalability and outbound pipeline bottlenecks.',
+      summary:
+        'Initial discovery call to align on operational scalability and outbound pipeline bottlenecks.',
       actionItems: [
         'Send custom case studies of matching vertical integrations.',
         'Schedule follow-up discussion with sales director next week.',
       ],
-      risks: [
-        'Internal champion might not have final budget sign-off authority.',
-      ],
-      followUps: [
-        'Send custom follow-up brief in 48 hours.',
-      ],
+      risks: ['Internal champion might not have final budget sign-off authority.'],
+      followUps: ['Send custom follow-up brief in 48 hours.'],
       referenceId,
     };
   }

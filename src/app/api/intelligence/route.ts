@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { ApiResponse } from '@/utils/api-response';
+import { withAuth } from '@/lib/auth-middleware';
 import { PromptRegistry } from '@/agents/platform/registry';
 import {
   promptRegistryRepository,
@@ -16,52 +17,55 @@ import { logger } from '@/utils/logger';
  * GET /api/intelligence
  * Returns all prompts, versions, evaluation results, quality scorecards, token usage, and hallucination reports.
  */
-export async function GET() {
+export const GET = withAuth(async (req, { user }) => {
   try {
-    const registry = PromptRegistry.getInstance();
-    // Seed Firestore collections if they are empty
-    await registry.initialize();
+    const userId = user.uid;
+    // Note: In a multi-tenant system, we might filter prompts by user/tenant
+    // For now, returning all data as it's primarily system configuration
+    
+    try {
+      const registry = PromptRegistry.getInstance();
+      // Seed Firestore collections if they are empty
+      await registry.initialize();
 
-    const [
-      prompts,
-      versions,
-      evaluations,
-      scorecards,
-      tokenUsage,
-      cacheEntries,
-      hallucinations,
-    ] = await Promise.all([
-      promptRegistryRepository.list(undefined, 'id', 'asc'),
-      promptVersionsRepository.list(undefined, 'createdAt', 'desc'),
-      evaluationResultsRepository.list(undefined, 'createdAt', 'desc'),
-      qualityScoresRepository.list(undefined, 'agentName', 'asc'),
-      tokenUsageRepository.list(undefined, 'createdAt', 'desc'),
-      responseCacheRepository.list(undefined, 'createdAt', 'desc'),
-      hallucinationReportsRepository.list(undefined, 'createdAt', 'desc'),
-    ]);
+      const [prompts, versions, evaluations, scorecards, tokenUsage, cacheEntries, hallucinations] =
+        await Promise.all([
+          promptRegistryRepository.list(undefined, 'id', 'asc'),
+          promptVersionsRepository.list(undefined, 'createdAt', 'desc'),
+          evaluationResultsRepository.list(undefined, 'createdAt', 'desc'),
+          qualityScoresRepository.list(undefined, 'agentName', 'asc'),
+          tokenUsageRepository.list(undefined, 'createdAt', 'desc'),
+          responseCacheRepository.list(undefined, 'createdAt', 'desc'),
+          hallucinationReportsRepository.list(undefined, 'createdAt', 'desc'),
+        ]);
 
-    return ApiResponse.success({
-      prompts,
-      versions,
-      evaluations,
-      scorecards,
-      tokenUsage,
-      cache: cacheEntries,
-      hallucinations,
-    });
+      return ApiResponse.success({
+        prompts,
+        versions,
+        evaluations,
+        scorecards,
+        tokenUsage,
+        cache: cacheEntries,
+        hallucinations,
+      });
+    } catch (dbError) {
+      logger.error('Failed to fetch intelligence metrics', dbError);
+      return ApiResponse.error('Internal server error', 'INTERNAL_ERROR', 500);
+    }
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
-    logger.error('Failed to fetch intelligence metrics', error);
-    return ApiResponse.error(errorMsg, 'INTERNAL_ERROR', 500);
+    return ApiResponse.error(errorMsg, 'AUTH_ERROR', 401);
   }
-}
+});
 
 /**
  * POST /api/intelligence
  * Updates a prompt template, creating a new version, or deprecates a prompt.
  */
-export async function POST(req: NextRequest) {
+export const POST = withAuth(async (req, { user }) => {
   try {
+    const userId = user.uid;
+    
     const body = await req.json();
     const { action, promptId } = body;
 
@@ -72,7 +76,15 @@ export async function POST(req: NextRequest) {
     const registry = PromptRegistry.getInstance();
 
     if (action === 'UPDATE_PROMPT') {
-      const { name, description, template, systemInstruction, fewShots, outputInstructions, changelog } = body;
+      const {
+        name,
+        description,
+        template,
+        systemInstruction,
+        fewShots,
+        outputInstructions,
+        changelog,
+      } = body;
 
       if (!template) {
         return ApiResponse.error('Template is required for update', 'VALIDATION_ERROR', 400);
@@ -102,4 +114,4 @@ export async function POST(req: NextRequest) {
     logger.error('Failed to handle intelligence action', error);
     return ApiResponse.error(errorMsg, 'INTERNAL_ERROR', 500);
   }
-}
+});

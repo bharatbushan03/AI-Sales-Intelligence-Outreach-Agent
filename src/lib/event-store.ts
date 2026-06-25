@@ -23,9 +23,7 @@ export class EventStoreService {
   /**
    * Appends a domain event to the log store.
    */
-  public static async recordEvent(
-    event: Omit<DomainEvent, 'timestamp'>,
-  ): Promise<string> {
+  public static async recordEvent(event: Omit<DomainEvent, 'timestamp'>): Promise<string> {
     const timestamp = new Date().toISOString();
     const payload = {
       ...event,
@@ -38,12 +36,8 @@ export class EventStoreService {
   /**
    * Retrieves events for a specific workflow.
    */
-  public static async getEventsForWorkflow(
-    workflowId: string,
-  ): Promise<DomainEvent[]> {
-    const snapshot = await this.collection
-      .where('workflowId', '==', workflowId)
-      .get();
+  public static async getEventsForWorkflow(workflowId: string): Promise<DomainEvent[]> {
+    const snapshot = await this.collection.where('workflowId', '==', workflowId).get();
 
     const list = snapshot.docs.map((doc) => ({
       id: doc.id,
@@ -56,10 +50,7 @@ export class EventStoreService {
   /**
    * Lists events for an organization.
    */
-  public static async listForOrg(
-    organizationId: string,
-    limit = 100,
-  ): Promise<DomainEvent[]> {
+  public static async listForOrg(organizationId: string, limit = 100): Promise<DomainEvent[]> {
     try {
       const snapshot = await this.collection
         .where('organizationId', '==', organizationId)

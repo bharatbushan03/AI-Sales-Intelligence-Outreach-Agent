@@ -7,7 +7,7 @@ import { Role, WorkspaceRole, Permission, RoleDefinition } from '../types/auth';
 
 // System Role Definitions
 export const SYSTEM_ROLES: Record<Role, RoleDefinition> = {
-  'Owner': {
+  Owner: {
     name: 'Owner',
     displayName: 'Organization Owner',
     description: 'Full control over organization, billing, and all resources',
@@ -21,53 +21,53 @@ export const SYSTEM_ROLES: Record<Role, RoleDefinition> = {
       'users.delete',
       'users.invite',
       'users.manage_roles',
-      
+
       // Organization Management
       'organization.read',
       'organization.update',
       'organization.settings',
       'organization.billing',
       'organization.delete',
-      
+
       // Workspace Management
       'workspaces.create',
       'workspaces.read',
       'workspaces.update',
       'workspaces.delete',
       'workspaces.manage_members',
-      
+
       // Content Management
       'workflows.create',
       'workflows.read',
       'workflows.update',
       'workflows.delete',
       'workflows.execute',
-      
+
       'reports.create',
       'reports.read',
       'reports.update',
       'reports.delete',
       'reports.export',
-      
+
       'proposals.create',
       'proposals.read',
       'proposals.update',
       'proposals.delete',
       'proposals.share',
-      
+
       'leads.create',
       'leads.read',
       'leads.update',
       'leads.delete',
       'leads.import',
       'leads.export',
-      
+
       // Collaboration
       'comments.create',
       'comments.read',
       'comments.update',
       'comments.delete',
-      
+
       // System
       'system.admin',
       'system.audit',
@@ -75,7 +75,7 @@ export const SYSTEM_ROLES: Record<Role, RoleDefinition> = {
     ],
   },
 
-  'Admin': {
+  Admin: {
     name: 'Admin',
     displayName: 'Administrator',
     description: 'Manage users, workspaces, and organization settings (except billing)',
@@ -88,57 +88,57 @@ export const SYSTEM_ROLES: Record<Role, RoleDefinition> = {
       'users.update',
       'users.invite',
       'users.manage_roles',
-      
+
       // Organization Management (no billing or delete)
       'organization.read',
       'organization.update',
       'organization.settings',
-      
+
       // Workspace Management
       'workspaces.create',
       'workspaces.read',
       'workspaces.update',
       'workspaces.delete',
       'workspaces.manage_members',
-      
+
       // Content Management
       'workflows.create',
       'workflows.read',
       'workflows.update',
       'workflows.delete',
       'workflows.execute',
-      
+
       'reports.create',
       'reports.read',
       'reports.update',
       'reports.delete',
       'reports.export',
-      
+
       'proposals.create',
       'proposals.read',
       'proposals.update',
       'proposals.delete',
       'proposals.share',
-      
+
       'leads.create',
       'leads.read',
       'leads.update',
       'leads.delete',
       'leads.import',
       'leads.export',
-      
+
       // Collaboration
       'comments.create',
       'comments.read',
       'comments.update',
       'comments.delete',
-      
+
       // System
       'system.audit',
     ],
   },
 
-  'Manager': {
+  Manager: {
     name: 'Manager',
     displayName: 'Team Manager',
     description: 'Manage team members and content within assigned workspaces',
@@ -148,41 +148,41 @@ export const SYSTEM_ROLES: Record<Role, RoleDefinition> = {
       // User Management (limited)
       'users.read',
       'users.invite',
-      
+
       // Organization Management (read-only)
       'organization.read',
-      
+
       // Workspace Management (limited)
       'workspaces.create',
       'workspaces.read',
       'workspaces.update',
       'workspaces.manage_members',
-      
+
       // Content Management
       'workflows.create',
       'workflows.read',
       'workflows.update',
       'workflows.delete',
       'workflows.execute',
-      
+
       'reports.create',
       'reports.read',
       'reports.update',
       'reports.delete',
       'reports.export',
-      
+
       'proposals.create',
       'proposals.read',
       'proposals.update',
       'proposals.delete',
       'proposals.share',
-      
+
       'leads.create',
       'leads.read',
       'leads.update',
       'leads.delete',
       'leads.export',
-      
+
       // Collaboration
       'comments.create',
       'comments.read',
@@ -200,34 +200,34 @@ export const SYSTEM_ROLES: Record<Role, RoleDefinition> = {
     permissions: [
       // User Management (read-only)
       'users.read',
-      
+
       // Organization Management (read-only)
       'organization.read',
-      
+
       // Workspace Management (read-only)
       'workspaces.read',
-      
+
       // Content Management
       'workflows.create',
       'workflows.read',
       'workflows.update',
       'workflows.execute',
-      
+
       'reports.create',
       'reports.read',
       'reports.update',
       'reports.export',
-      
+
       'proposals.create',
       'proposals.read',
       'proposals.update',
       'proposals.share',
-      
+
       'leads.create',
       'leads.read',
       'leads.update',
       'leads.export',
-      
+
       // Collaboration
       'comments.create',
       'comments.read',
@@ -235,7 +235,7 @@ export const SYSTEM_ROLES: Record<Role, RoleDefinition> = {
     ],
   },
 
-  'Viewer': {
+  Viewer: {
     name: 'Viewer',
     displayName: 'Viewer',
     description: 'Read-only access to shared content and reports',
@@ -244,19 +244,19 @@ export const SYSTEM_ROLES: Record<Role, RoleDefinition> = {
     permissions: [
       // User Management (read-only)
       'users.read',
-      
+
       // Organization Management (read-only)
       'organization.read',
-      
+
       // Workspace Management (read-only)
       'workspaces.read',
-      
+
       // Content Management (read-only)
       'workflows.read',
       'reports.read',
       'proposals.read',
       'leads.read',
-      
+
       // Collaboration (read and comment)
       'comments.create',
       'comments.read',
@@ -266,7 +266,7 @@ export const SYSTEM_ROLES: Record<Role, RoleDefinition> = {
 
 // Workspace Role Permissions (more granular than org roles)
 export const WORKSPACE_ROLE_PERMISSIONS: Record<WorkspaceRole, Permission[]> = {
-  'Owner': [
+  Owner: [
     'workspaces.read',
     'workspaces.update',
     'workspaces.delete',
@@ -297,7 +297,7 @@ export const WORKSPACE_ROLE_PERMISSIONS: Record<WorkspaceRole, Permission[]> = {
     'comments.delete',
   ],
 
-  'Admin': [
+  Admin: [
     'workspaces.read',
     'workspaces.update',
     'workspaces.manage_members',
@@ -327,7 +327,7 @@ export const WORKSPACE_ROLE_PERMISSIONS: Record<WorkspaceRole, Permission[]> = {
     'comments.delete',
   ],
 
-  'Manager': [
+  Manager: [
     'workspaces.read',
     'workflows.create',
     'workflows.read',
@@ -350,7 +350,7 @@ export const WORKSPACE_ROLE_PERMISSIONS: Record<WorkspaceRole, Permission[]> = {
     'comments.update',
   ],
 
-  'Member': [
+  Member: [
     'workspaces.read',
     'workflows.create',
     'workflows.read',
@@ -371,7 +371,7 @@ export const WORKSPACE_ROLE_PERMISSIONS: Record<WorkspaceRole, Permission[]> = {
     'comments.update',
   ],
 
-  'Viewer': [
+  Viewer: [
     'workspaces.read',
     'workflows.read',
     'reports.read',
@@ -386,11 +386,11 @@ export const WORKSPACE_ROLE_PERMISSIONS: Record<WorkspaceRole, Permission[]> = {
  * Permission Hierarchy - Higher level roles inherit all permissions from lower levels
  */
 export const ROLE_HIERARCHY: Record<Role, Role[]> = {
-  'Owner': ['Admin', 'Manager', 'Sales Rep', 'Viewer'],
-  'Admin': ['Manager', 'Sales Rep', 'Viewer'],
-  'Manager': ['Sales Rep', 'Viewer'],
+  Owner: ['Admin', 'Manager', 'Sales Rep', 'Viewer'],
+  Admin: ['Manager', 'Sales Rep', 'Viewer'],
+  Manager: ['Sales Rep', 'Viewer'],
   'Sales Rep': ['Viewer'],
-  'Viewer': [],
+  Viewer: [],
 };
 
 /**
@@ -404,7 +404,10 @@ export function hasPermission(userRole: Role, permission: Permission): boolean {
 /**
  * Check if a user has workspace-level permission
  */
-export function hasWorkspacePermission(workspaceRole: WorkspaceRole, permission: Permission): boolean {
+export function hasWorkspacePermission(
+  workspaceRole: WorkspaceRole,
+  permission: Permission,
+): boolean {
   const permissions = WORKSPACE_ROLE_PERMISSIONS[workspaceRole];
   return permissions.includes(permission);
 }
@@ -414,10 +417,10 @@ export function hasWorkspacePermission(workspaceRole: WorkspaceRole, permission:
  */
 export function canManageRole(actorRole: Role, targetRole: Role): boolean {
   if (actorRole === targetRole) return false; // Can't manage same role
-  
+
   const actorLevel = SYSTEM_ROLES[actorRole].level;
   const targetLevel = SYSTEM_ROLES[targetRole].level;
-  
+
   return actorLevel > targetLevel;
 }
 
@@ -426,13 +429,13 @@ export function canManageRole(actorRole: Role, targetRole: Role): boolean {
  */
 export function getUserPermissions(
   orgRole: Role,
-  workspaceRoles: { workspaceId: string; role: WorkspaceRole }[] = []
+  workspaceRoles: { workspaceId: string; role: WorkspaceRole }[] = [],
 ): Permission[] {
   const orgPermissions = SYSTEM_ROLES[orgRole].permissions;
-  const workspacePermissions = workspaceRoles.flatMap(({ role }) => 
-    WORKSPACE_ROLE_PERMISSIONS[role]
+  const workspacePermissions = workspaceRoles.flatMap(
+    ({ role }) => WORKSPACE_ROLE_PERMISSIONS[role],
   );
-  
+
   // Combine and deduplicate permissions
   return Array.from(new Set([...orgPermissions, ...workspacePermissions]));
 }
@@ -451,11 +454,11 @@ export function canAccessWorkspace(
   userOrgId: string,
   userWorkspaceIds: string[],
   workspaceId: string,
-  resourceOrgId: string
+  resourceOrgId: string,
 ): boolean {
   // Must be in same organization
   if (userOrgId !== resourceOrgId) return false;
-  
+
   // Must be member of workspace or have org-level permissions
   return userWorkspaceIds.includes(workspaceId);
 }
@@ -543,17 +546,22 @@ export const PLAN_FEATURES = {
 export function checkPlanLimits(
   currentPlan: keyof typeof PLAN_FEATURES,
   currentUsage: { users: number; workspaces: number; workflowRuns: number; storageGB: number },
-  action: 'add_user' | 'add_workspace' | 'run_workflow' | 'add_storage'
+  action: 'add_user' | 'add_workspace' | 'run_workflow' | 'add_storage',
 ): boolean {
   const planFeatures = PLAN_FEATURES[currentPlan];
-  
+
   switch (action) {
     case 'add_user':
       return planFeatures.maxUsers === -1 || currentUsage.users < planFeatures.maxUsers;
     case 'add_workspace':
-      return planFeatures.maxWorkspaces === -1 || currentUsage.workspaces < planFeatures.maxWorkspaces;
+      return (
+        planFeatures.maxWorkspaces === -1 || currentUsage.workspaces < planFeatures.maxWorkspaces
+      );
     case 'run_workflow':
-      return planFeatures.maxWorkflowRuns === -1 || currentUsage.workflowRuns < planFeatures.maxWorkflowRuns;
+      return (
+        planFeatures.maxWorkflowRuns === -1 ||
+        currentUsage.workflowRuns < planFeatures.maxWorkflowRuns
+      );
     case 'add_storage':
       return currentUsage.storageGB < planFeatures.storageGB;
     default:

@@ -8,7 +8,9 @@ export const getOAuthClient = () => {
   return new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID || 'mock_client_id',
     process.env.GOOGLE_CLIENT_SECRET || 'mock_client_secret',
-    process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/google` : 'http://localhost:3000/api/auth/callback/google'
+    process.env.NEXT_PUBLIC_APP_URL
+      ? `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/google`
+      : 'http://localhost:3000/api/auth/callback/google',
   );
 };
 
@@ -18,7 +20,7 @@ export const getOAuthClient = () => {
  */
 export async function getCalendarClientForUser(userId: string) {
   const userDoc = await adminDb.collection('users').doc(userId).get();
-  
+
   if (!userDoc.exists) {
     throw new Error('User not found');
   }
@@ -64,11 +66,11 @@ export async function getCalendarClientForUser(userId: string) {
 export async function fetchUpcomingSalesMeetings(userId: string, userDomain: string) {
   try {
     const calendar = await getCalendarClientForUser(userId);
-    
+
     const timeMin = new Date().toISOString();
     const timeMax = new Date();
     timeMax.setDate(timeMax.getDate() + 7); // Look 7 days ahead
-    
+
     const response = await calendar.events.list({
       calendarId: 'primary',
       timeMin: timeMin,
@@ -79,20 +81,20 @@ export async function fetchUpcomingSalesMeetings(userId: string, userDomain: str
     });
 
     const events = response.data.items || [];
-    
+
     // Filter for events with external attendees (prospects)
     const salesMeetings = events.filter((event) => {
       // Must have attendees
       if (!event.attendees || event.attendees.length === 0) return false;
-      
+
       // Look for external domains
-      const hasExternalAttendee = event.attendees.some(att => {
+      const hasExternalAttendee = event.attendees.some((att) => {
         if (!att.email) return false;
         const domain = att.email.split('@')[1];
         // If domain is different from user's domain and not a generic email (simplified check)
         return domain !== userDomain && !['gmail.com', 'yahoo.com', 'hotmail.com'].includes(domain);
       });
-      
+
       return hasExternalAttendee;
     });
 
@@ -106,25 +108,29 @@ export async function fetchUpcomingSalesMeetings(userId: string, userDomain: str
 /**
  * Updates a calendar event description with an AI-generated meeting brief.
  */
-export async function updateEventWithMeetingBrief(userId: string, eventId: string, briefContent: string) {
+export async function updateEventWithMeetingBrief(
+  userId: string,
+  eventId: string,
+  briefContent: string,
+) {
   try {
     const calendar = await getCalendarClientForUser(userId);
-    
+
     // First fetch the event to get its current state and avoid overwriting other details
     const event = await calendar.events.get({
       calendarId: 'primary',
       eventId: eventId,
     });
-    
+
     const existingDescription = event.data.description || '';
-    
+
     // Check if we've already added a brief to avoid appending multiple times
     if (existingDescription.includes('--- AI SALES BRIEF ---')) {
       return event.data;
     }
-    
+
     const newDescription = `${existingDescription}\n\n<br><br>--- AI SALES BRIEF ---\n${briefContent.replace(/\\n/g, '<br>')}`;
-    
+
     const response = await calendar.events.patch({
       calendarId: 'primary',
       eventId: eventId,
@@ -132,7 +138,7 @@ export async function updateEventWithMeetingBrief(userId: string, eventId: strin
         description: newDescription,
       },
     });
-    
+
     return response.data;
   } catch (error) {
     console.error('Error updating event description:', error);
@@ -147,10 +153,10 @@ export async function updateEventWithMeetingBrief(userId: string, eventId: strin
 export async function setupCalendarWebhook(userId: string, webhookUrl: string) {
   try {
     const calendar = await getCalendarClientForUser(userId);
-    
+
     // Generate a unique channel ID
     const channelId = `sync-channel-${userId}-${Date.now()}`;
-    
+
     const response = await calendar.events.watch({
       calendarId: 'primary',
       requestBody: {
@@ -158,10 +164,10 @@ export async function setupCalendarWebhook(userId: string, webhookUrl: string) {
         type: 'web_hook',
         address: webhookUrl,
         // Set an expiration (e.g., 1 week from now) - max is usually weeks
-        expiration: (Date.now() + 7 * 24 * 60 * 60 * 1000).toString(), 
+        expiration: (Date.now() + 7 * 24 * 60 * 60 * 1000).toString(),
       },
     });
-    
+
     return {
       channelId: response.data.id,
       resourceId: response.data.resourceId,

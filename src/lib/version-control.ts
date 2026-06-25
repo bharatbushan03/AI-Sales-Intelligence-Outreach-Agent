@@ -87,7 +87,9 @@ export class VersionControlService {
     const versions = await this.getVersions(collectionName, documentId);
     const match = versions.find((v) => v.version === version);
     if (!match) {
-      throw new Error(`Version ${version} of document ${documentId} in ${collectionName} was not found.`);
+      throw new Error(
+        `Version ${version} of document ${documentId} in ${collectionName} was not found.`,
+      );
     }
 
     const restorePayload: any = {

@@ -6,9 +6,7 @@ import { logger } from '../../../utils/logger';
 export class PipelineAnalyzer {
   constructor(private genAI: GoogleGenerativeAI | null) {}
 
-  public async analyzePipeline(
-    opportunities: OpportunityRecord[],
-  ): Promise<PipelineReport> {
+  public async analyzePipeline(opportunities: OpportunityRecord[]): Promise<PipelineReport> {
     if (this.genAI) {
       try {
         const model = this.genAI.getGenerativeModel({
@@ -67,9 +65,7 @@ export class PipelineAnalyzer {
       return {
         totalPipelineValue,
         pipelineHealth: 'Healthy',
-        risks: [
-          'HubSpot database custom permission checks might extend review cycle by 14 days.',
-        ],
+        risks: ['HubSpot database custom permission checks might extend review cycle by 14 days.'],
         recommendations: [
           'Draft database compliance brief early for the security compliance review.',
         ],
@@ -80,9 +76,7 @@ export class PipelineAnalyzer {
     return {
       totalPipelineValue: totalPipelineValue || 250000,
       pipelineHealth: 'Healthy',
-      risks: [
-        'Outbound response velocity could lag if reps fail to follow up within 48 hours.',
-      ],
+      risks: ['Outbound response velocity could lag if reps fail to follow up within 48 hours.'],
       recommendations: [
         'Automate outbound follow-up email drafts using sales intelligence templates.',
       ],

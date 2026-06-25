@@ -51,16 +51,11 @@ export async function GET(request: NextRequest, props: RouteParams) {
       const total = countQuery.data().count;
 
       // Get paginated results
-      let membersQuery = query
-        .orderBy('createdAt', 'desc')
-        .limit(pageSize);
+      let membersQuery = query.orderBy('createdAt', 'desc').limit(pageSize);
 
       if (page > 1) {
         const offset = (page - 1) * pageSize;
-        const offsetQuery = await query
-          .orderBy('createdAt', 'desc')
-          .limit(offset)
-          .get();
+        const offsetQuery = await query.orderBy('createdAt', 'desc').limit(offset).get();
 
         if (!offsetQuery.empty) {
           const lastDoc = offsetQuery.docs[offsetQuery.docs.length - 1];
@@ -70,7 +65,7 @@ export async function GET(request: NextRequest, props: RouteParams) {
 
       const membersSnapshot = await membersQuery.get();
 
-      let members = membersSnapshot.docs.map(doc => {
+      let members = membersSnapshot.docs.map((doc) => {
         const data = doc.data() as User;
         return {
           id: doc.id,
@@ -88,9 +83,10 @@ export async function GET(request: NextRequest, props: RouteParams) {
       // Apply search filter if provided
       if (search) {
         const searchLower = search.toLowerCase();
-        members = members.filter(member =>
-          member.name.toLowerCase().includes(searchLower) ||
-          member.email.toLowerCase().includes(searchLower)
+        members = members.filter(
+          (member) =>
+            member.name.toLowerCase().includes(searchLower) ||
+            member.email.toLowerCase().includes(searchLower),
         );
       }
 
@@ -116,124 +112,122 @@ export async function GET(request: NextRequest, props: RouteParams) {
  * Remove a member from organization
  */
 export async function DELETE(request: NextRequest, props: RouteParams) {
-  return withPermissions(
-    ['users.delete'],
-    async (req, context) => {
-      try {
-        const params = await props.params;
-        const orgId = params.id;
-        const { searchParams } = new URL(req.url);
-        const userId = searchParams.get('userId');
+  return withPermissions(['users.delete'], async (req, context) => {
+    try {
+      const params = await props.params;
+      const orgId = params.id;
+      const { searchParams } = new URL(req.url);
+      const userId = searchParams.get('userId');
 
-        if (!userId) {
-          return ApiResponse.badRequest('User ID is required');
-        }
+      if (!userId) {
+        return ApiResponse.badRequest('User ID is required');
+      }
 
-        if (orgId !== context.organizationId) {
-          return ApiResponse.permissionDenied('Cannot remove members from other organizations');
-        }
+      if (orgId !== context.organizationId) {
+        return ApiResponse.permissionDenied('Cannot remove members from other organizations');
+      }
 
-        // Cannot remove yourself
-        if (userId === context.user.uid) {
-          return ApiResponse.badRequest('Cannot remove yourself from the organization');
-        }
+      // Cannot remove yourself
+      if (userId === context.user.uid) {
+        return ApiResponse.badRequest('Cannot remove yourself from the organization');
+      }
 
-        // Get target user
-        const userDoc = await adminDb.collection('users').doc(userId).get();
-        if (!userDoc.exists) {
-          return ApiResponse.notFound('User not found');
-        }
+      // Get target user
+      const userDoc = await adminDb.collection('users').doc(userId).get();
+      if (!userDoc.exists) {
+        return ApiResponse.notFound('User not found');
+      }
 
-        const userData = userDoc.data() as User;
+      const userData = userDoc.data() as User;
 
-        // Verify user belongs to this organization
-        if (userData.organizationId !== orgId) {
-          return ApiResponse.badRequest('User does not belong to this organization');
-        }
+      // Verify user belongs to this organization
+      if (userData.organizationId !== orgId) {
+        return ApiResponse.badRequest('User does not belong to this organization');
+      }
 
-        // Check if current user can manage target user's role
-        if (!canManageRole(context.user.role, userData.role)) {
-          return ApiResponse.permissionDenied('Cannot remove user with higher or equal role');
-        }
+      // Check if current user can manage target user's role
+      if (!canManageRole(context.user.role, userData.role)) {
+        return ApiResponse.permissionDenied('Cannot remove user with higher or equal role');
+      }
 
-        // Check if this is the organization owner
-        const orgDoc = await adminDb.collection('organizations').doc(orgId).get();
-        const orgData = orgDoc.data();
-        
-        if (orgData?.owner === userId) {
-          return ApiResponse.badRequest('Cannot remove organization owner. Transfer ownership first.');
-        }
+      // Check if this is the organization owner
+      const orgDoc = await adminDb.collection('organizations').doc(orgId).get();
+      const orgData = orgDoc.data();
 
-        // Remove user from organization
-        await adminDb.collection('users').doc(userId).update({
-          organizationId: null,
-          role: 'Viewer', // Reset to default role
-          workspaceIds: [], // Remove from all workspaces
-          status: 'inactive',
+      if (orgData?.owner === userId) {
+        return ApiResponse.badRequest(
+          'Cannot remove organization owner. Transfer ownership first.',
+        );
+      }
+
+      // Remove user from organization
+      await adminDb.collection('users').doc(userId).update({
+        organizationId: null,
+        role: 'Viewer', // Reset to default role
+        workspaceIds: [], // Remove from all workspaces
+        status: 'inactive',
+        updatedAt: new Date().toISOString(),
+      });
+
+      // Remove user from all workspaces in the organization
+      const workspacesQuery = await adminDb
+        .collection('workspaces')
+        .where('organizationId', '==', orgId)
+        .get();
+
+      const batch = adminDb.batch();
+      workspacesQuery.docs.forEach((workspaceDoc) => {
+        const workspaceData = workspaceDoc.data();
+        const updatedMembers =
+          workspaceData.members?.filter((member: any) => member.userId !== userId) || [];
+
+        batch.update(workspaceDoc.ref, {
+          members: updatedMembers,
           updatedAt: new Date().toISOString(),
         });
+      });
 
-        // Remove user from all workspaces in the organization
-        const workspacesQuery = await adminDb
-          .collection('workspaces')
-          .where('organizationId', '==', orgId)
-          .get();
+      await batch.commit();
 
-        const batch = adminDb.batch();
-        workspacesQuery.docs.forEach(workspaceDoc => {
-          const workspaceData = workspaceDoc.data();
-          const updatedMembers = workspaceData.members?.filter(
-            (member: any) => member.userId !== userId
-          ) || [];
-
-          batch.update(workspaceDoc.ref, {
-            members: updatedMembers,
-            updatedAt: new Date().toISOString(),
-          });
-        });
-
-        await batch.commit();
-
-        // Log activity
-        await adminDb.collection('activity_feed').add({
-          userId: context.user.uid,
-          userName: context.user.profile.name,
-          organizationId: orgId,
-          action: 'LEFT',
-          entityType: 'user',
-          entityId: userId,
-          entityName: userData.name,
-          details: `${userData.name} was removed from the organization`,
-          metadata: {
-            removedBy: context.user.uid,
-            previousRole: userData.role,
-          },
-          timestamp: new Date().toISOString(),
-        });
-
-        logger.info('Member removed from organization', {
-          organizationId: orgId,
-          removedUserId: userId,
+      // Log activity
+      await adminDb.collection('activity_feed').add({
+        userId: context.user.uid,
+        userName: context.user.profile.name,
+        organizationId: orgId,
+        action: 'LEFT',
+        entityType: 'user',
+        entityId: userId,
+        entityName: userData.name,
+        details: `${userData.name} was removed from the organization`,
+        metadata: {
           removedBy: context.user.uid,
           previousRole: userData.role,
-        });
+        },
+        timestamp: new Date().toISOString(),
+      });
 
-        return ApiResponse.success({
-          success: true,
-          message: 'Member removed from organization successfully',
-          removedUser: {
-            id: userId,
-            name: userData.name,
-            email: userData.email,
-          },
-        });
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : String(error);
-        logger.error(`Member removal failed: ${errorMsg}`, error);
-        return ApiResponse.error('Failed to remove member', 'ORGANIZATION_ERROR', 500);
-      }
+      logger.info('Member removed from organization', {
+        organizationId: orgId,
+        removedUserId: userId,
+        removedBy: context.user.uid,
+        previousRole: userData.role,
+      });
+
+      return ApiResponse.success({
+        success: true,
+        message: 'Member removed from organization successfully',
+        removedUser: {
+          id: userId,
+          name: userData.name,
+          email: userData.email,
+        },
+      });
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      logger.error(`Member removal failed: ${errorMsg}`, error);
+      return ApiResponse.error('Failed to remove member', 'ORGANIZATION_ERROR', 500);
     }
-  )(request);
+  })(request);
 }
 
 /**
@@ -241,118 +235,116 @@ export async function DELETE(request: NextRequest, props: RouteParams) {
  * Update member role or status
  */
 export async function PUT(request: NextRequest, props: RouteParams) {
-  return withPermissions(
-    ['users.manage_roles'],
-    async (req, context) => {
-      try {
-        const params = await props.params;
-        const orgId = params.id;
-        const body = await req.json();
-        const { userId, role, status } = body;
+  return withPermissions(['users.manage_roles'], async (req, context) => {
+    try {
+      const params = await props.params;
+      const orgId = params.id;
+      const body = await req.json();
+      const { userId, role, status } = body;
 
-        if (!userId) {
-          return ApiResponse.badRequest('User ID is required');
+      if (!userId) {
+        return ApiResponse.badRequest('User ID is required');
+      }
+
+      if (orgId !== context.organizationId) {
+        return ApiResponse.permissionDenied('Cannot modify members in other organizations');
+      }
+
+      // Cannot modify yourself
+      if (userId === context.user.uid) {
+        return ApiResponse.badRequest('Cannot modify your own role');
+      }
+
+      // Get target user
+      const userRef = adminDb.collection('users').doc(userId);
+      const userDoc = await userRef.get();
+
+      if (!userDoc.exists) {
+        return ApiResponse.notFound('User not found');
+      }
+
+      const userData = userDoc.data() as User;
+
+      // Verify user belongs to this organization
+      if (userData.organizationId !== orgId) {
+        return ApiResponse.badRequest('User does not belong to this organization');
+      }
+
+      const updates: Partial<User> = {
+        updatedAt: new Date().toISOString(),
+      };
+
+      let activityDetails = '';
+
+      // Handle role change
+      if (role && role !== userData.role) {
+        // Check if current user can assign this role
+        if (!canManageRole(context.user.role, role as Role)) {
+          return ApiResponse.permissionDenied(`Cannot assign role '${role}'`);
         }
 
-        if (orgId !== context.organizationId) {
-          return ApiResponse.permissionDenied('Cannot modify members in other organizations');
+        // Check if current user can manage target user's current role
+        if (!canManageRole(context.user.role, userData.role)) {
+          return ApiResponse.permissionDenied('Cannot modify user with higher or equal role');
         }
 
-        // Cannot modify yourself
-        if (userId === context.user.uid) {
-          return ApiResponse.badRequest('Cannot modify your own role');
+        updates.role = role as Role;
+        activityDetails += `Role changed from ${userData.role} to ${role}. `;
+      }
+
+      // Handle status change
+      if (status && status !== userData.status) {
+        if (!['active', 'inactive', 'suspended'].includes(status)) {
+          return ApiResponse.badRequest('Invalid status value');
         }
 
-        // Get target user
-        const userRef = adminDb.collection('users').doc(userId);
-        const userDoc = await userRef.get();
-        
-        if (!userDoc.exists) {
-          return ApiResponse.notFound('User not found');
-        }
+        updates.status = status;
+        activityDetails += `Status changed to ${status}. `;
+      }
 
-        const userData = userDoc.data() as User;
+      if (Object.keys(updates).length === 1) {
+        // Only updatedAt
+        return ApiResponse.badRequest('No valid updates provided');
+      }
 
-        // Verify user belongs to this organization
-        if (userData.organizationId !== orgId) {
-          return ApiResponse.badRequest('User does not belong to this organization');
-        }
+      // Apply updates
+      await userRef.update(updates);
 
-        const updates: Partial<User> = {
-          updatedAt: new Date().toISOString(),
-        };
-
-        let activityDetails = '';
-
-        // Handle role change
-        if (role && role !== userData.role) {
-          // Check if current user can assign this role
-          if (!canManageRole(context.user.role, role as Role)) {
-            return ApiResponse.permissionDenied(`Cannot assign role '${role}'`);
-          }
-
-          // Check if current user can manage target user's current role
-          if (!canManageRole(context.user.role, userData.role)) {
-            return ApiResponse.permissionDenied('Cannot modify user with higher or equal role');
-          }
-
-          updates.role = role as Role;
-          activityDetails += `Role changed from ${userData.role} to ${role}. `;
-        }
-
-        // Handle status change
-        if (status && status !== userData.status) {
-          if (!['active', 'inactive', 'suspended'].includes(status)) {
-            return ApiResponse.badRequest('Invalid status value');
-          }
-
-          updates.status = status;
-          activityDetails += `Status changed to ${status}. `;
-        }
-
-        if (Object.keys(updates).length === 1) { // Only updatedAt
-          return ApiResponse.badRequest('No valid updates provided');
-        }
-
-        // Apply updates
-        await userRef.update(updates);
-
-        // Log activity
-        await adminDb.collection('activity_feed').add({
-          userId: context.user.uid,
-          userName: context.user.profile.name,
-          organizationId: orgId,
-          action: 'UPDATED',
-          entityType: 'user',
-          entityId: userId,
-          entityName: userData.name,
-          details: `Member updated: ${activityDetails.trim()}`,
-          metadata: {
-            updatedBy: context.user.uid,
-            changes: updates,
-            previousRole: userData.role,
-            previousStatus: userData.status,
-          },
-          timestamp: new Date().toISOString(),
-        });
-
-        logger.info('Member updated', {
-          organizationId: orgId,
-          targetUserId: userId,
+      // Log activity
+      await adminDb.collection('activity_feed').add({
+        userId: context.user.uid,
+        userName: context.user.profile.name,
+        organizationId: orgId,
+        action: 'UPDATED',
+        entityType: 'user',
+        entityId: userId,
+        entityName: userData.name,
+        details: `Member updated: ${activityDetails.trim()}`,
+        metadata: {
           updatedBy: context.user.uid,
           changes: updates,
-        });
+          previousRole: userData.role,
+          previousStatus: userData.status,
+        },
+        timestamp: new Date().toISOString(),
+      });
 
-        return ApiResponse.success({
-          success: true,
-          message: 'Member updated successfully',
-          updates,
-        });
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : String(error);
-        logger.error(`Member update failed: ${errorMsg}`, error);
-        return ApiResponse.error('Failed to update member', 'ORGANIZATION_ERROR', 500);
-      }
+      logger.info('Member updated', {
+        organizationId: orgId,
+        targetUserId: userId,
+        updatedBy: context.user.uid,
+        changes: updates,
+      });
+
+      return ApiResponse.success({
+        success: true,
+        message: 'Member updated successfully',
+        updates,
+      });
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      logger.error(`Member update failed: ${errorMsg}`, error);
+      return ApiResponse.error('Failed to update member', 'ORGANIZATION_ERROR', 500);
     }
-  )(request);
+  })(request);
 }

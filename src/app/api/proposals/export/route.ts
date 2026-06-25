@@ -12,7 +12,7 @@ export const POST = withAuth(async (req: NextRequest, context: any) => {
 
     const userId = user.uid;
     const body = await req.json().catch(() => ({}));
-    
+
     // Accept either a direct markdown content string or a proposalId
     let markdownContent = body.content;
     let title = body.title || `Sales Proposal - ${new Date().toISOString().split('T')[0]}`;
@@ -23,10 +23,11 @@ export const POST = withAuth(async (req: NextRequest, context: any) => {
       if (!proposalDoc.exists) {
         return NextResponse.json({ error: 'Proposal not found' }, { status: 404 });
       }
-      
+
       const proposalData = proposalDoc.data();
       // Assume the proposal document has a markdown field or an executive summary
-      markdownContent = proposalData?.markdown || JSON.stringify(proposalData?.document || {}, null, 2);
+      markdownContent =
+        proposalData?.markdown || JSON.stringify(proposalData?.document || {}, null, 2);
       title = proposalData?.title || title;
     }
 
@@ -42,18 +43,20 @@ export const POST = withAuth(async (req: NextRequest, context: any) => {
       await adminDb.collection('proposals').doc(body.proposalId).update({
         driveUrl: result.webViewLink,
         driveFileId: result.fileId,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
     }
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: 'Proposal exported to Google Drive successfully',
-      driveLink: result.webViewLink
+      driveLink: result.webViewLink,
     });
-
   } catch (error: any) {
     console.error('Proposal export error:', error);
-    return NextResponse.json({ error: error.message || 'Failed to export proposal' }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || 'Failed to export proposal' },
+      { status: 500 },
+    );
   }
 });

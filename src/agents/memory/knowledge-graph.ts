@@ -24,7 +24,10 @@ export class KnowledgeGraphManager {
         return graphs[0];
       }
     } catch (err) {
-      logger.error('Failed to load knowledge graph from repository, using fallback empty graph', err);
+      logger.error(
+        'Failed to load knowledge graph from repository, using fallback empty graph',
+        err,
+      );
     }
 
     return {
@@ -37,19 +40,22 @@ export class KnowledgeGraphManager {
   /**
    * Overwrites or adds new nodes and edges, updating the single state record in Firestore.
    */
-  public async updateGraph(newNodes: KnowledgeNode[], newEdges: KnowledgeEdge[]): Promise<KnowledgeGraph> {
+  public async updateGraph(
+    newNodes: KnowledgeNode[],
+    newEdges: KnowledgeEdge[],
+  ): Promise<KnowledgeGraph> {
     try {
       const graph = await this.getGraph();
-      
+
       // Merge nodes uniquely by ID
       const nodeMap = new Map<string, KnowledgeNode>();
-      graph.nodes.forEach(n => nodeMap.set(n.id, n));
-      newNodes.forEach(n => nodeMap.set(n.id, n));
+      graph.nodes.forEach((n) => nodeMap.set(n.id, n));
+      newNodes.forEach((n) => nodeMap.set(n.id, n));
 
       // Merge edges uniquely by source-target-relationship key
       const edgeMap = new Map<string, KnowledgeEdge>();
-      graph.edges.forEach(e => edgeMap.set(`${e.source}-${e.target}-${e.relationship}`, e));
-      newEdges.forEach(e => edgeMap.set(`${e.source}-${e.target}-${e.relationship}`, e));
+      graph.edges.forEach((e) => edgeMap.set(`${e.source}-${e.target}-${e.relationship}`, e));
+      newEdges.forEach((e) => edgeMap.set(`${e.source}-${e.target}-${e.relationship}`, e));
 
       const updatedGraph: KnowledgeGraph = {
         id: graph.id || undefined,
@@ -85,7 +91,7 @@ export class KnowledgeGraphManager {
    */
   public getMockGraph(companyName: string): KnowledgeGraph {
     const name = companyName.toLowerCase();
-    
+
     // Core nodes
     const nodes: KnowledgeNode[] = [
       { id: 'target_co', label: companyName, type: 'company' },
@@ -162,18 +168,20 @@ export class KnowledgeGraphManager {
   /**
    * Retrieves adjacent nodes and edges directly connected to the specified node ID.
    */
-  public async queryConnections(nodeId: string): Promise<{ nodes: KnowledgeNode[]; edges: KnowledgeEdge[] }> {
+  public async queryConnections(
+    nodeId: string,
+  ): Promise<{ nodes: KnowledgeNode[]; edges: KnowledgeEdge[] }> {
     const graph = await this.getGraph();
-    const connectedEdges = graph.edges.filter(e => e.source === nodeId || e.target === nodeId);
+    const connectedEdges = graph.edges.filter((e) => e.source === nodeId || e.target === nodeId);
     const connectedNodeIds = new Set<string>();
-    
+
     connectedNodeIds.add(nodeId);
-    connectedEdges.forEach(e => {
+    connectedEdges.forEach((e) => {
       connectedNodeIds.add(e.source);
       connectedNodeIds.add(e.target);
     });
 
-    const connectedNodes = graph.nodes.filter(n => connectedNodeIds.has(n.id));
+    const connectedNodes = graph.nodes.filter((n) => connectedNodeIds.has(n.id));
 
     return {
       nodes: connectedNodes,

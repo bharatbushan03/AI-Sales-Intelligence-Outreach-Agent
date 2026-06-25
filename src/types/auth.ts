@@ -60,6 +60,7 @@ export interface Organization {
   industry?: string;
   size?: 'startup' | 'small' | 'medium' | 'enterprise';
   plan: Plan;
+  planFeatures?: PlanFeatures;
   settings: OrganizationSettings;
   billing?: BillingInfo;
   limits: UsageLimits;
@@ -170,7 +171,7 @@ export interface RoleDefinition {
   level: number; // For hierarchy: Owner=5, Admin=4, Manager=3, Sales Rep=2, Viewer=1
 }
 
-export type Permission = 
+export type Permission =
   // User Management
   | 'users.create'
   | 'users.read'
@@ -178,53 +179,50 @@ export type Permission =
   | 'users.delete'
   | 'users.invite'
   | 'users.manage_roles'
-  
+
   // Organization Management
   | 'organization.read'
   | 'organization.update'
   | 'organization.settings'
   | 'organization.billing'
   | 'organization.delete'
-  
+
   // Workspace Management
   | 'workspaces.create'
   | 'workspaces.read'
   | 'workspaces.update'
   | 'workspaces.delete'
   | 'workspaces.manage_members'
-  
+
   // Content Management
   | 'workflows.create'
   | 'workflows.read'
   | 'workflows.update'
   | 'workflows.delete'
   | 'workflows.execute'
-  
   | 'reports.create'
   | 'reports.read'
   | 'reports.update'
   | 'reports.delete'
   | 'reports.export'
-  
   | 'proposals.create'
   | 'proposals.read'
   | 'proposals.update'
   | 'proposals.delete'
   | 'proposals.share'
-  
   | 'leads.create'
   | 'leads.read'
   | 'leads.update'
   | 'leads.delete'
   | 'leads.import'
   | 'leads.export'
-  
+
   // Collaboration
   | 'comments.create'
   | 'comments.read'
   | 'comments.update'
   | 'comments.delete'
-  
+
   // System
   | 'system.admin'
   | 'system.audit'

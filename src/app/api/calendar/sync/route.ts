@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminDb } from '../../../../lib/firebase-admin';
-import { fetchUpcomingSalesMeetings, updateEventWithMeetingBrief } from '../../../../lib/google-calendar';
+import {
+  fetchUpcomingSalesMeetings,
+  updateEventWithMeetingBrief,
+} from '../../../../lib/google-calendar';
 import { ManagerAgent } from '../../../../agents/manager-agent';
 import { withAuth } from '../../../../lib/auth-middleware';
 
@@ -19,10 +22,10 @@ export const POST = withAuth(async (req: NextRequest, context: any) => {
     const meetings = await fetchUpcomingSalesMeetings(userId, userDomain);
 
     if (!meetings || meetings.length === 0) {
-      return NextResponse.json({ 
-        success: true, 
+      return NextResponse.json({
+        success: true,
         message: 'No upcoming external sales meetings found.',
-        meetingsCount: 0 
+        meetingsCount: 0,
       });
     }
 
@@ -32,7 +35,7 @@ export const POST = withAuth(async (req: NextRequest, context: any) => {
     // 2. Process each meeting
     for (const meeting of meetings) {
       // Find the external attendee's domain to use for research
-      const externalAttendees = meeting.attendees?.filter(a => {
+      const externalAttendees = meeting.attendees?.filter((a) => {
         if (!a.email) return false;
         const domain = a.email.split('@')[1];
         return domain !== userDomain && !['gmail.com', 'yahoo.com', 'hotmail.com'].includes(domain);
@@ -53,7 +56,7 @@ export const POST = withAuth(async (req: NextRequest, context: any) => {
       const workflowResult = await manager.orchestrate(
         userId,
         `Research company ${targetDomain} and generate a meeting brief for the upcoming call.`,
-        'default'
+        'default',
       );
 
       // 4. Extract the synthesized brief from the CRM agent's output or generate a new text block
@@ -83,15 +86,17 @@ ${(opportunityData?.analysis?.valuePropositions || ['No value propositions ident
       }
     }
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: `Successfully synchronized calendar and generated ${briefsGenerated} meeting briefs.`,
       meetingsProcessed: meetings.length,
-      briefsGenerated
+      briefsGenerated,
     });
-
   } catch (error: any) {
     console.error('Calendar sync error:', error);
-    return NextResponse.json({ error: error.message || 'Failed to sync calendar' }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || 'Failed to sync calendar' },
+      { status: 500 },
+    );
   }
 });

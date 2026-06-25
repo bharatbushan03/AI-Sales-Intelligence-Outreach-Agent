@@ -1,4 +1,5 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { withAuth } from '@/lib/auth-middleware';
 import { ApiResponse } from '@/utils/api-response';
 import { createAgentContext } from '@/agents/context';
 import { ResearchAgent } from '@/agents/specialists/research-agent';
@@ -29,18 +30,20 @@ export async function GET() {
  * POST /api/research
  * Starts a new research job, executes the Research Agent, and saves results.
  */
-export async function POST(req: NextRequest) {
-  let jobId = '';
-
+export const POST = withAuth(async (req: NextRequest, { user }) => {
+  let jobId: string | undefined;
   try {
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await req.json();
+    const userId = user.uid;
     const query = body.query || '';
 
     if (!query || typeof query !== 'string' || query.trim().length === 0) {
       return ApiResponse.error('Query is required', 'VALIDATION_ERROR', 400);
     }
-
-    const userId = req.headers.get('x-user-id') || 'mock-user-123';
 
     // 1. Create a ResearchJob tracking state
     const job = await jobsRepository.add({
@@ -51,9 +54,9 @@ export async function POST(req: NextRequest) {
 
     // 2. Instantiate and execute the ResearchAgent
     const agent = new ResearchAgent();
-    const context = createAgentContext(userId, `Research company details for: "${query}"`);
+    const agentContext = createAgentContext(userId, `Research company details for: "${query}"`);
 
-    const result = await agent.execute(context, { websiteUrl: query });
+    const result = await agent.execute(agentContext, { websiteUrl: query });
 
     if (!result.success || !result.output || Object.keys(result.output).length === 0) {
       throw new Error(result.error || 'Research pipeline returned an empty or invalid output.');
@@ -109,4 +112,4 @@ export async function POST(req: NextRequest) {
 
     return ApiResponse.error(errorMsg, 'RESEARCH_PIPELINE_ERROR', 500);
   }
-}
+});

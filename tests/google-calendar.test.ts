@@ -1,18 +1,20 @@
 import { fetchUpcomingSalesMeetings } from '../src/lib/google-calendar';
-import { adminDb } from '../src/lib/firebase-admin';
+import { describe, expect, it, vi } from 'vitest';
 
 // Mock the googleapis module
-jest.mock('googleapis', () => ({
+vi.mock('googleapis', () => ({
   google: {
     auth: {
-      OAuth2: jest.fn().mockImplementation(() => ({
-        setCredentials: jest.fn(),
-        on: jest.fn(),
-      })),
+      OAuth2: vi.fn().mockImplementation(function OAuth2() {
+        return {
+        setCredentials: vi.fn(),
+        on: vi.fn(),
+        };
+      }),
     },
-    calendar: jest.fn().mockReturnValue({
+    calendar: vi.fn().mockReturnValue({
       events: {
-        list: jest.fn().mockResolvedValue({
+        list: vi.fn().mockResolvedValue({
           data: {
             items: [
               {
@@ -34,19 +36,19 @@ jest.mock('googleapis', () => ({
             ]
           }
         }),
-        patch: jest.fn().mockResolvedValue({ data: {} }),
-        get: jest.fn().mockResolvedValue({ data: { description: '' } })
+        patch: vi.fn().mockResolvedValue({ data: {} }),
+        get: vi.fn().mockResolvedValue({ data: { description: '' } })
       }
     })
   }
 }));
 
 // Mock firebase-admin
-jest.mock('../src/lib/firebase-admin', () => ({
+vi.mock('../src/lib/firebase-admin', () => ({
   adminDb: {
-    collection: jest.fn().mockReturnThis(),
-    doc: jest.fn().mockReturnThis(),
-    get: jest.fn().mockResolvedValue({
+    collection: vi.fn().mockReturnThis(),
+    doc: vi.fn().mockReturnThis(),
+    get: vi.fn().mockResolvedValue({
       exists: true,
       data: () => ({
         googleOAuthToken: {
@@ -56,7 +58,7 @@ jest.mock('../src/lib/firebase-admin', () => ({
         }
       })
     }),
-    update: jest.fn().mockResolvedValue({})
+    update: vi.fn().mockResolvedValue({})
   }
 }));
 

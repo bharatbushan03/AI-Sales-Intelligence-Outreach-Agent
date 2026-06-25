@@ -23,13 +23,17 @@ export function CompanyCard({
 }: CompanyCardProps) {
   // Parse confidence percentage for color
   const confidenceNum = parseInt(confidence);
-  const confidenceColor = confidenceNum >= 90 ? 'bg-indigo-500/20 text-indigo-400' :
-    confidenceNum >= 80 ? 'bg-green-500/20 text-green-400' :
-    confidenceNum >= 70 ? 'bg-yellow-500/20 text-yellow-400' :
-    'bg-red-500/20 text-red-400';
+  const confidenceColor =
+    confidenceNum >= 90
+      ? 'bg-indigo-500/20 text-indigo-400'
+      : confidenceNum >= 80
+        ? 'bg-green-500/20 text-green-400'
+        : confidenceNum >= 70
+          ? 'bg-yellow-500/20 text-yellow-400'
+          : 'bg-red-500/20 text-red-400';
 
   return (
-    <div className="bg-slate-900/50 rounded-xl p-6 border border-slate-800 hover:bg-slate-900/70 transition-colors">
+    <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-6 transition-colors hover:bg-slate-900/70">
       <div className="space-y-5">
         {/* Header */}
         <div className="flex items-start justify-between">
@@ -38,7 +42,7 @@ export function CompanyCard({
             <p className="text-sm text-slate-400">{industry}</p>
           </div>
           <div className="flex items-center gap-2">
-            <span className={`px-3 py-1 rounded text-xs font-medium ${confidenceColor}`}>
+            <span className={`rounded px-3 py-1 text-xs font-medium ${confidenceColor}`}>
               {confidence} Confidence
             </span>
           </div>
@@ -55,10 +59,10 @@ export function CompanyCard({
 
         {/* Insights */}
         <div className="space-y-2">
-          <p className="text-sm font-medium text-slate-100 mb-1">Key Insights</p>
+          <p className="mb-1 text-sm font-medium text-slate-100">Key Insights</p>
           <div className="space-y-1">
             {insights.map((insight, index) => (
-              <div key={index} className="flex items-start gap-2 text-slate-400 text-sm">
+              <div key={index} className="flex items-start gap-2 text-sm text-slate-400">
                 <Brain className="h-3 w-3 flex-shrink-0" />
                 <p>{insight}</p>
               </div>
@@ -68,10 +72,13 @@ export function CompanyCard({
 
         {/* Tech Stack */}
         <div className="space-y-2">
-          <p className="text-sm font-medium text-slate-100 mb-1">Technology Stack</p>
+          <p className="mb-1 text-sm font-medium text-slate-100">Technology Stack</p>
           <div className="flex flex-wrap gap-1">
             {techStack.map((tech, index) => (
-              <span key={index} className="bg-slate-800/50 px-2 py-0.5 rounded text-xs text-slate-300">
+              <span
+                key={index}
+                className="rounded bg-slate-800/50 px-2 py-0.5 text-xs text-slate-300"
+              >
                 {tech}
               </span>
             ))}
@@ -79,7 +86,7 @@ export function CompanyCard({
         </div>
 
         {/* Company Info */}
-        <div className="grid gap-3 grid-cols-2 text-slate-400 text-sm">
+        <div className="grid grid-cols-2 gap-3 text-sm text-slate-400">
           <div>
             <p className="font-medium">Funding</p>
             <p>{funding}</p>
@@ -99,16 +106,12 @@ export function CompanyCard({
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-4 pt-3 border-t border-slate-800">
+        <div className="mt-4 border-t border-slate-800 pt-3">
           <div className="flex flex-wrap gap-2">
-            <button
-              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600/20 text-indigo-300 text-xs font-medium rounded hover:bg-indigo-600/30 transition-colors"
-            >
+            <button className="flex flex-1 items-center justify-center gap-2 rounded bg-indigo-600/20 px-3 py-2 text-xs font-medium text-indigo-300 transition-colors hover:bg-indigo-600/30">
               <Shield className="h-3 w-3" /> Export Report
             </button>
-            <button
-              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-slate-800/20 text-slate-300 text-xs font-medium rounded hover:bg-slate-800/30 transition-colors"
-            >
+            <button className="flex flex-1 items-center justify-center gap-2 rounded bg-slate-800/20 px-3 py-2 text-xs font-medium text-slate-300 transition-colors hover:bg-slate-800/30">
               <Users className="h-3 w-3" /> Share
             </button>
           </div>

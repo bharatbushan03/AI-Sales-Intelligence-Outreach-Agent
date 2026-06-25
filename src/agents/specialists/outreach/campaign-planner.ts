@@ -90,7 +90,8 @@ export class CampaignPlanner {
           timeline: 'Day 20',
           channel: 'Follow-up',
           objective: 'Alternative contact query',
-          messageTheme: 'Identify if payment operations or engineering leadership is better to contact',
+          messageTheme:
+            'Identify if payment operations or engineering leadership is better to contact',
           cta: 'Request reference or referral to the correct lead',
         },
         {

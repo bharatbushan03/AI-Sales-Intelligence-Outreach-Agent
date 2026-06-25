@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
 
     const idToken = authHeader.split('Bearer ')[1];
     const decodedToken = await adminAuth.verifyIdToken(idToken);
-    
+
     // Get user sessions
     const sessionsQuery = await adminDb
       .collection('sessions')
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
       .limit(10)
       .get();
 
-    const sessions = sessionsQuery.docs.map(doc => ({
+    const sessions = sessionsQuery.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
 
     const idToken = authHeader.split('Bearer ')[1];
     const decodedToken = await adminAuth.verifyIdToken(idToken);
-    
+
     const body = await req.json();
     const { deviceInfo, organizationId } = body;
 
@@ -91,17 +91,20 @@ export async function POST(req: NextRequest) {
 
     const sessionRef = await adminDb.collection('sessions').add(sessionData);
 
-    logger.info('Session created', { 
-      userId: decodedToken.uid, 
+    logger.info('Session created', {
+      userId: decodedToken.uid,
       sessionId: sessionRef.id,
       ip,
-      userAgent: userAgent.substring(0, 50) + '...'
+      userAgent: userAgent.substring(0, 50) + '...',
     });
 
-    return ApiResponse.success({
-      sessionId: sessionRef.id,
-      expiresAt: sessionData.expiresAt,
-    }, 201);
+    return ApiResponse.success(
+      {
+        sessionId: sessionRef.id,
+        expiresAt: sessionData.expiresAt,
+      },
+      201,
+    );
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     logger.error(`Session creation failed: ${errorMsg}`, error);
@@ -122,7 +125,7 @@ export async function PUT(req: NextRequest) {
 
     const idToken = authHeader.split('Bearer ')[1];
     const decodedToken = await adminAuth.verifyIdToken(idToken);
-    
+
     const body = await req.json();
     const { sessionId } = body;
 
@@ -176,7 +179,7 @@ export async function DELETE(req: NextRequest) {
 
     const idToken = authHeader.split('Bearer ')[1];
     const decodedToken = await adminAuth.verifyIdToken(idToken);
-    
+
     const { searchParams } = new URL(req.url);
     const sessionId = searchParams.get('sessionId');
     const allSessions = searchParams.get('all') === 'true';
@@ -190,8 +193,8 @@ export async function DELETE(req: NextRequest) {
         .get();
 
       const batch = adminDb.batch();
-      sessionsQuery.docs.forEach(doc => {
-        batch.update(doc.ref, { 
+      sessionsQuery.docs.forEach((doc) => {
+        batch.update(doc.ref, {
           revoked: true,
           revokedAt: new Date().toISOString(),
         });
@@ -200,10 +203,10 @@ export async function DELETE(req: NextRequest) {
       await batch.commit();
 
       logger.info('All sessions revoked', { userId: decodedToken.uid });
-      
-      return ApiResponse.success({ 
-        success: true, 
-        revokedCount: sessionsQuery.docs.length 
+
+      return ApiResponse.success({
+        success: true,
+        revokedCount: sessionsQuery.docs.length,
       });
     }
 

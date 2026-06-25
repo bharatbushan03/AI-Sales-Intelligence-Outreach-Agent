@@ -7,6 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "security:scan": "npm audit --audit-level=high",
+    "smoke": "bash scripts/smoke-test.sh",
+    "load:test": "node scripts/load-test.mjs",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
+    "validate": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run security:scan",
     "prepare": "husky"
   },
   "dependencies": {

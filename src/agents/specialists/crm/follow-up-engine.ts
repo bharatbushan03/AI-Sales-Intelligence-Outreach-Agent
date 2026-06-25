@@ -60,7 +60,8 @@ export class FollowUpEngine {
           taskName: 'Send European localized routing SDK templates',
           priority: 'high',
           dueDate: dateOffset(2),
-          rationale: 'Follow up on the technical query regarding decline maps raised during the discovery alignment call.',
+          rationale:
+            'Follow up on the technical query regarding decline maps raised during the discovery alignment call.',
           completed: false,
           referenceId,
         },
@@ -69,7 +70,8 @@ export class FollowUpEngine {
           taskName: 'Check checkouts local conversion benchmarks with sales engineering',
           priority: 'medium',
           dueDate: dateOffset(5),
-          rationale: 'Verify German bank routing configurations to provide the client concrete stats.',
+          rationale:
+            'Verify German bank routing configurations to provide the client concrete stats.',
           completed: false,
           referenceId,
         },
@@ -83,7 +85,8 @@ export class FollowUpEngine {
           taskName: 'Coordinate developer sandbox session for CRM sync middleware',
           priority: 'high',
           dueDate: dateOffset(3),
-          rationale: 'Answer technical compliance questions about custom object limits bypass rules.',
+          rationale:
+            'Answer technical compliance questions about custom object limits bypass rules.',
           completed: false,
           referenceId,
         },

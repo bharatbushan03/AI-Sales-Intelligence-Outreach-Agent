@@ -5,7 +5,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
  */
 export function useHoverDelay({
   delayOn = 100,
-  delayOff = 300
+  delayOff = 300,
 }: {
   delayOn?: number;
   delayOff?: number;
@@ -44,8 +44,8 @@ export function useHoverDelay({
 export function useElementVisibility(
   options: IntersectionObserverInit = {
     threshold: 0.1,
-    rootMargin: '0px'
-  }
+    rootMargin: '0px',
+  },
 ) {
   const [isVisible, setIsVisible] = useState(false);
   const elementRef = useRef<HTMLElement | null>(null);
@@ -65,16 +65,13 @@ export function useElementVisibility(
     };
   }, [options]);
 
-  return [ref, isVisible] as const;
+  return [elementRef, isVisible] as const;
 }
 
 /**
  * Custom hook for handling long press events
  */
-export function useLongPress(
-  callback: () => void,
-  { delay = 300 }: { delay?: number } = {}
-) {
+export function useLongPress(callback: () => void, { delay = 300 }: { delay?: number } = {}) {
   const [isPressed, setIsPressed] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -112,44 +109,46 @@ export function useDrag<T extends HTMLElement = HTMLElement>() {
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const ref = useRef<T | null>(null);
 
+  const getPointerPosition = (e: MouseEvent | TouchEvent) => {
+    if (e instanceof TouchEvent) {
+      const touch = e.touches[0] ?? e.changedTouches[0];
+      return { clientX: touch.clientX, clientY: touch.clientY };
+    }
+
+    return { clientX: e.clientX, clientY: e.clientY };
+  };
+
   const handleDragStart = useCallback((e: MouseEvent | TouchEvent) => {
     setIsDragging(true);
 
-    const clientX = e.type.startsWith('touch')
-      ? e.touches[0].clientX
-      : e.clientX;
-    const clientY = e.type.startsWith('touch')
-      ? e.touches[0].clientY
-      : e.clientY;
+    const { clientX, clientY } = getPointerPosition(e);
 
     if (ref.current) {
       const rect = ref.current.getBoundingClientRect();
       setOffset({
         x: clientX - rect.left,
-        y: clientY - rect.top
+        y: clientY - rect.top,
       });
     }
 
     e.preventDefault();
   }, []);
 
-  const handleDrag = useCallback((e: MouseEvent | TouchEvent) => {
-    if (!isDragging || !ref.current) return;
+  const handleDrag = useCallback(
+    (e: MouseEvent | TouchEvent) => {
+      if (!isDragging || !ref.current) return;
 
-    const clientX = e.type.startsWith('touch')
-      ? e.touches[0].clientX
-      : e.clientX;
-    const clientY = e.type.startsWith('touch')
-      ? e.touches[0].clientY
-      : e.clientY;
+      const { clientX, clientY } = getPointerPosition(e);
 
-    setPosition({
-      x: clientX - offset.x,
-      y: clientY - offset.y
-    });
+      setPosition({
+        x: clientX - offset.x,
+        y: clientY - offset.y,
+      });
 
-    e.preventDefault();
-  }, [isDragging, offset]);
+      e.preventDefault();
+    },
+    [isDragging, offset],
+  );
 
   const handleDragEnd = useCallback(() => {
     setIsDragging(false);
@@ -193,13 +192,13 @@ export function useKeyboardShortcut(
     ctrl = false,
     shift = false,
     alt = false,
-    preventDefault = true
+    preventDefault = true,
   }: {
     ctrl?: boolean;
     shift?: boolean;
     alt?: boolean;
     preventDefault?: boolean;
-  } = {}
+  } = {},
 ) {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -222,11 +221,3 @@ export function useKeyboardShortcut(
     };
   }, [key, callback, ctrl, shift, alt, preventDefault]);
 }
-
-export {
-  useHoverDelay,
-  useElementVisibility,
-  useLongPress,
-  useDrag,
-  useKeyboardShortcut
-};
