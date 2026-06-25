@@ -1,86 +1,29 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
-  Brain,
-  Database,
   Network,
-  History,
-  MessageSquare,
-  Cpu,
   Search,
-  Building,
-  TrendingUp,
-  Clock,
-  ArrowRight,
-  ChevronRight,
-  Info,
-  ShieldCheck,
-  Eye,
+  ZoomIn,
+  ZoomOut,
+  Move,
   X,
-  RefreshCw,
-  Zap,
+  Info,
+  Layers,
+  Building2,
+  Crosshair,
+  TrendingUp,
+  Briefcase,
+  Megaphone,
 } from 'lucide-react';
 
-type TabName = 'graph' | 'workflows' | 'companies' | 'messages' | 'performance';
-
-interface WorkflowRecord {
-  id?: string;
-  workflowId: string;
-  userId: string;
-  userGoal: string;
-  agentOutputs: Record<string, unknown>;
-  intermediateResults: Record<string, unknown>;
-  finalResults?: Record<string, unknown>;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface CompanyRecord {
-  id?: string;
-  companyName: string;
-  domain: string;
-  profile?: Record<string, unknown>;
-  opportunities?: Record<string, unknown>[];
-  outreachPlans?: Record<string, unknown>[];
-  crmData?: Record<string, unknown>;
-  proposals?: Record<string, unknown>[];
-  lastUpdated: string;
-}
-
-interface AgentRecord {
-  id?: string;
-  agentName: string;
-  executionsCount: number;
-  discoveredCompetitors: string[];
-  analyzedCompanies: string[];
-  performanceMetrics: {
-    averageLatencyMs: number;
-    successRate: number;
-    lastExecutedAt: string;
-  };
-}
-
-interface MessageRecord {
-  id?: string;
-  timestamp: string;
-  sender: string;
-  topic: string;
-  payload: Record<string, unknown>;
-}
+type NodeType = 'company' | 'competitor' | 'opportunity' | 'industry' | 'campaign';
 
 interface GraphNode {
   id: string;
   label: string;
-  type:
-    | 'company'
-    | 'competitor'
-    | 'industry'
-    | 'pain-point'
-    | 'opportunity'
-    | 'campaign'
-    | 'proposal';
+  type: NodeType;
+  description: string;
 }
 
 interface GraphEdge {
@@ -89,960 +32,660 @@ interface GraphEdge {
   relationship: string;
 }
 
-interface GraphData {
-  nodes: GraphNode[];
-  edges: GraphEdge[];
+interface NodePosition {
+  x: number;
+  y: number;
 }
 
-export default function MemoryDashboardPage() {
-  const [activeTab, setActiveTab] = useState<TabName>('graph');
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [workflows, setWorkflows] = useState<WorkflowRecord[]>([]);
-  const [companies, setCompanies] = useState<CompanyRecord[]>([]);
-  const [agents, setAgents] = useState<AgentRecord[]>([]);
-  const [messages, setMessages] = useState<MessageRecord[]>([]);
-  const [graph, setGraph] = useState<GraphData>({ nodes: [], edges: [] });
+const NODE_META: Record<NodeType, { label: string; icon: React.ComponentType<{ className?: string }>; color: string; stroke: string; glow: string }> = {
+  company: { label: 'Company', icon: Building2, color: '#312e81', stroke: '#6366f1', glow: 'rgba(99,102,241,0.25)' },
+  competitor: { label: 'Competitor', icon: Crosshair, color: '#881337', stroke: '#f43f5e', glow: 'rgba(244,63,94,0.25)' },
+  opportunity: { label: 'Opportunity', icon: TrendingUp, color: '#064e3b', stroke: '#34d399', glow: 'rgba(52,211,153,0.25)' },
+  industry: { label: 'Industry', icon: Briefcase, color: '#3b0764', stroke: '#a78bfa', glow: 'rgba(167,139,250,0.25)' },
+  campaign: { label: 'Campaign', icon: Megaphone, color: '#78350f', stroke: '#fbbf24', glow: 'rgba(251,191,36,0.25)' },
+};
 
-  // Selection states
-  const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowRecord | null>(null);
-  const [selectedCompany, setSelectedCompany] = useState<CompanyRecord | null>(null);
-  const [activeGraphCompany, setActiveGraphCompany] = useState<string>('Stripe');
-  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+const MOCK_NODES: GraphNode[] = [
+  { id: 'stripe', label: 'Stripe', type: 'company', description: 'Leading payment processing platform handling billions in transactions annually for internet businesses.' },
+  { id: 'hubspot', label: 'HubSpot', type: 'company', description: 'CRM and marketing automation platform for scaling businesses with inbound methodology.' },
+  { id: 'salesforce', label: 'Salesforce', type: 'company', description: 'Enterprise CRM platform with comprehensive sales intelligence and workflow automation.' },
+  { id: 'adyen', label: 'Adyen', type: 'competitor', description: 'Global payment company offering a unified commerce platform for omnichannel businesses.' },
+  { id: 'mailchimp', label: 'Mailchimp', type: 'competitor', description: 'Email marketing and automation platform popular with small to medium businesses.' },
+  { id: 'pipedrive', label: 'Pipedrive', type: 'competitor', description: 'Sales CRM platform built for SMB sales teams with pipeline management focus.' },
+  { id: 'payments-industry', label: 'Payments', type: 'industry', description: 'Digital payment processing and financial technology infrastructure sector.' },
+  { id: 'crm-industry', label: 'CRM', type: 'industry', description: 'Customer relationship management software market serving enterprise and SMB segments.' },
+  { id: 'martech-industry', label: 'Marketing Tech', type: 'industry', description: 'Marketing technology and automation software landscape for digital engagement.' },
+  { id: 'enterprise-deal', label: 'Enterprise Deal', type: 'opportunity', description: '$500K ARR enterprise agreement with tiered pricing and dedicated support.' },
+  { id: 'upselling', label: 'Upsell Growth', type: 'opportunity', description: 'Expansion revenue opportunity from existing customer base via cross-sell and upsell.' },
+  { id: 'expansion', label: 'Market Expansion', type: 'opportunity', description: 'New vertical and geographic market expansion into adjacent industry segments.' },
+  { id: 'q1-campaign', label: 'Q1 Outreach', type: 'campaign', description: 'Q1 outbound prospecting campaign targeting enterprise accounts in fintech.' },
+  { id: 'product-launch', label: 'Launch 2026', type: 'campaign', description: 'New product launch campaign with multi-channel distribution and demo-driven outreach.' },
+  { id: 'retargeting', label: 'Retargeting', type: 'campaign', description: 'Retargeting campaign for warm leads in the pipeline with personalized content.' },
+];
 
-  // Inspector states
-  const [isInspectorOpen, setIsInspectorOpen] = useState(false);
-  const [inspectorTitle, setInspectorTitle] = useState('');
-  const [inspectorData, setInspectorData] = useState<unknown>(null);
+const MOCK_EDGES: GraphEdge[] = [
+  { source: 'stripe', target: 'payments-industry', relationship: 'operates_in' },
+  { source: 'stripe', target: 'adyen', relationship: 'competes_with' },
+  { source: 'stripe', target: 'enterprise-deal', relationship: 'targets' },
+  { source: 'stripe', target: 'q1-campaign', relationship: 'campaign_for' },
+  { source: 'hubspot', target: 'crm-industry', relationship: 'operates_in' },
+  { source: 'hubspot', target: 'mailchimp', relationship: 'competes_with' },
+  { source: 'hubspot', target: 'upselling', relationship: 'targets' },
+  { source: 'hubspot', target: 'retargeting', relationship: 'campaign_for' },
+  { source: 'salesforce', target: 'crm-industry', relationship: 'operates_in' },
+  { source: 'salesforce', target: 'pipedrive', relationship: 'competes_with' },
+  { source: 'salesforce', target: 'expansion', relationship: 'targets' },
+  { source: 'salesforce', target: 'product-launch', relationship: 'campaign_for' },
+  { source: 'mailchimp', target: 'martech-industry', relationship: 'operates_in' },
+  { source: 'pipedrive', target: 'martech-industry', relationship: 'operates_in' },
+  { source: 'adyen', target: 'payments-industry', relationship: 'operates_in' },
+  { source: 'martech-industry', target: 'product-launch', relationship: 'related_to' },
+  { source: 'crm-industry', target: 'retargeting', relationship: 'related_to' },
+  { source: 'payments-industry', target: 'upselling', relationship: 'related_to' },
+  { source: 'enterprise-deal', target: 'q1-campaign', relationship: 'supported_by' },
+  { source: 'expansion', target: 'retargeting', relationship: 'supported_by' },
+];
 
-  // Filter messages
-  const [msgTopicFilter, setMsgTopicFilter] = useState<string>('all');
+function computeLayout(nodes: GraphNode[]): Record<string, NodePosition> {
+  const positions: Record<string, NodePosition> = {};
+  const cx = 400;
+  const cy = 300;
 
-  const fetchData = React.useCallback(
-    async (showProgress = true) => {
-      if (showProgress) setLoading(true);
-      else setRefreshing(true);
+  const groups: Record<string, GraphNode[]> = {};
+  for (const n of nodes) {
+    if (!groups[n.type]) groups[n.type] = [];
+    groups[n.type].push(n);
+  }
 
-      try {
-        const [wfRes, compRes, agentRes, msgRes, graphRes] = await Promise.all([
-          fetch('/api/memory?type=workflows'),
-          fetch('/api/memory?type=companies'),
-          fetch('/api/memory?type=agents'),
-          fetch('/api/memory?type=messages'),
-          fetch(`/api/memory?type=graph&companyName=${activeGraphCompany}`),
-        ]);
+  const ringConfig: { type: NodeType; radius: number; offset: number }[] = [
+    { type: 'industry', radius: 90, offset: -Math.PI / 2 },
+    { type: 'company', radius: 180, offset: -Math.PI / 2 },
+    { type: 'competitor', radius: 280, offset: 0 },
+    { type: 'opportunity', radius: 270, offset: Math.PI / 4 },
+    { type: 'campaign', radius: 290, offset: Math.PI / 3 },
+  ];
 
-        const [wf, comp, age, msg, gr] = await Promise.all([
-          wfRes.json(),
-          compRes.json(),
-          agentRes.json(),
-          msgRes.json(),
-          graphRes.json(),
-        ]);
-
-        if (wf.success) setWorkflows(wf.data);
-        if (comp.success) setCompanies(comp.data);
-        if (age.success) setAgents(age.data);
-        if (msg.success) setMessages(msg.data);
-        if (gr.success) setGraph(gr.data);
-      } catch (error) {
-        console.error('Failed to retrieve intelligence memory context:', error);
-      } finally {
-        setLoading(false);
-        setRefreshing(false);
-      }
-    },
-    [activeGraphCompany],
-  );
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const handleOpenInspector = (title: string, data: unknown) => {
-    setInspectorTitle(title);
-    setInspectorData(data);
-    setIsInspectorOpen(true);
-  };
-
-  // Node position map generator for SVG knowledge graph layout
-  const getNodePositions = () => {
-    const positions: Record<string, { x: number; y: number }> = {};
-    if (graph.nodes.length === 0) return positions;
-
-    // Find company node or default center
-    const companyNode = graph.nodes.find((n) => n.type === 'company') || graph.nodes[0];
-    const center = { x: 350, y: 250 };
-    positions[companyNode.id] = center;
-
-    // Place remaining nodes in radial layout around center
-    const peripheralNodes = graph.nodes.filter((n) => n.id !== companyNode.id);
-    const radius = 180;
-
-    peripheralNodes.forEach((node, idx) => {
-      const angle = (idx / peripheralNodes.length) * 2 * Math.PI;
+  for (const config of ringConfig) {
+    const typeNodes = groups[config.type];
+    if (!typeNodes) continue;
+    typeNodes.forEach((node, i) => {
+      const angle = config.offset + (2 * Math.PI * i) / typeNodes.length;
       positions[node.id] = {
-        x: center.x + radius * Math.cos(angle),
-        y: center.y + radius * Math.sin(angle),
+        x: cx + config.radius * Math.cos(angle),
+        y: cy + config.radius * Math.sin(angle),
       };
     });
+  }
 
-    return positions;
+  return positions;
+}
+
+export default function KnowledgeGraphPage() {
+  const [nodes] = useState<GraphNode[]>(MOCK_NODES);
+  const [edges] = useState<GraphEdge[]>(MOCK_EDGES);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+  const [typeFilter, setTypeFilter] = useState<NodeType | 'all'>('all');
+  const [showLegend, setShowLegend] = useState(true);
+
+  const [viewport, setViewport] = useState({ x: 0, y: 0, scale: 1 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const svgContainerRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  const nodePositions = useMemo(() => computeLayout(nodes), [nodes]);
+
+  const filteredNodeIds = useMemo(() => {
+    if (!searchQuery && typeFilter === 'all') return null;
+    return new Set(
+      nodes
+        .filter((n) => {
+          if (typeFilter !== 'all' && n.type !== typeFilter) return false;
+          if (
+            searchQuery &&
+            !n.label.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+            return false;
+          return true;
+        })
+        .map((n) => n.id),
+    );
+  }, [nodes, searchQuery, typeFilter]);
+
+  const handleZoomIn = () =>
+    setViewport((v) => ({ ...v, scale: Math.min(v.scale * 1.4, 5) }));
+  const handleZoomOut = () =>
+    setViewport((v) => ({ ...v, scale: Math.max(v.scale / 1.4, 0.15) }));
+  const handleResetView = () => setViewport({ x: 0, y: 0, scale: 1 });
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (
+        e.target === svgRef.current ||
+        (e.target instanceof SVGElement && e.target.tagName === 'svg')
+      ) {
+        setIsDragging(true);
+        setDragStart({ x: e.clientX - viewport.x, y: e.clientY - viewport.y });
+      }
+    },
+    [viewport.x, viewport.y],
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (isDragging) {
+        setViewport((v) => ({
+          ...v,
+          x: e.clientX - dragStart.x,
+          y: e.clientY - dragStart.y,
+        }));
+      }
+    },
+    [isDragging, dragStart],
+  );
+
+  const handleMouseUp = useCallback(() => setIsDragging(false), []);
+
+  useEffect(() => {
+    const container = svgContainerRef.current;
+    if (!container) return;
+
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? 0.88 : 1 / 0.88;
+      setViewport((v) => ({
+        ...v,
+        scale: Math.max(0.15, Math.min(5, v.scale * delta)),
+      }));
+    };
+
+    container.addEventListener('wheel', onWheel, { passive: false });
+    return () => container.removeEventListener('wheel', onWheel);
+  }, []);
+
+  const handleNodeClick = useCallback(
+    (node: GraphNode) => {
+      setSelectedNode((prev) => (prev?.id === node.id ? null : node));
+    },
+    [],
+  );
+
+  const connectedEdges = useMemo(() => {
+    if (!selectedNode) return [];
+    return edges.filter(
+      (e) => e.source === selectedNode.id || e.target === selectedNode.id,
+    );
+  }, [selectedNode, edges]);
+
+  const getConnectedNode = (edge: GraphEdge, currentNodeId: string) => {
+    const connectedId =
+      edge.source === currentNodeId ? edge.target : edge.source;
+    return nodes.find((n) => n.id === connectedId);
   };
 
-  const nodePositions = getNodePositions();
+  const isNodeVisible = (nodeId: string) => {
+    if (!filteredNodeIds) return true;
+    return filteredNodeIds.has(nodeId);
+  };
 
-  const getNodeColor = (type: GraphNode['type']) => {
-    switch (type) {
-      case 'company':
-        return 'fill-indigo-650 stroke-indigo-400';
-      case 'competitor':
-        return 'fill-rose-950/70 stroke-rose-500/80';
-      case 'industry':
-        return 'fill-emerald-950/70 stroke-emerald-500/80';
-      case 'pain-point':
-        return 'fill-amber-950/70 stroke-amber-500/80';
-      case 'opportunity':
-        return 'fill-cyan-950/70 stroke-cyan-500/80';
-      case 'campaign':
-        return 'fill-violet-950/70 stroke-violet-500/80';
-      case 'proposal':
-        return 'fill-pink-950/70 stroke-pink-500/80';
-      default:
-        return 'fill-slate-800 stroke-slate-600';
+  const nodeTypeCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const n of nodes) {
+      counts[n.type] = (counts[n.type] || 0) + 1;
     }
-  };
-
-  const getTopicBadgeColor = (topic: string) => {
-    if (topic === 'broadcast') return 'bg-indigo-950/80 text-indigo-400 border-indigo-900/50';
-    if (topic.startsWith('direct:')) return 'bg-cyan-950/80 text-cyan-400 border-cyan-900/50';
-    if (topic === 'market_insight')
-      return 'bg-emerald-950/80 text-emerald-400 border-emerald-900/50';
-    return 'bg-slate-900 text-slate-400 border-slate-850';
-  };
+    return counts;
+  }, [nodes]);
 
   return (
-    <div className="space-y-8 pb-16 text-slate-100">
-      {/* Header Panel */}
+    <div className="flex h-full flex-col space-y-6 pb-8 text-slate-100">
       <div className="flex flex-col justify-between gap-4 border-b border-slate-800 pb-5 md:flex-row md:items-center">
         <div>
           <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-white md:text-4xl">
-            <Brain className="h-9 w-9 text-indigo-500" />
-            Memory Intelligence Hub
+            <Network className="h-9 w-9 text-indigo-500" />
+            Interactive Knowledge Graph
           </h1>
           <p className="mt-2 text-sm text-slate-400">
-            Inspect B2B sales memory routing, live messaging bus activities, and company graph
-            relationships.
+            Explore relationships between companies, competitors, opportunities,
+            industries, and campaigns.
           </p>
         </div>
-        <button
-          onClick={() => fetchData(false)}
-          disabled={loading || refreshing}
-          className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-semibold text-slate-200 transition-all duration-200 hover:bg-slate-700 disabled:opacity-50"
-        >
-          <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-          Refresh Memory
-        </button>
       </div>
 
-      {/* Metrics Row */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="flex items-center justify-between rounded-2xl border border-slate-800/80 bg-slate-900/40 p-6">
-          <div className="space-y-1.5">
-            <span className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-              Workflow Runs
-            </span>
-            <div className="text-2xl font-bold text-white">{workflows.length}</div>
-          </div>
-          <History className="h-8 w-8 text-indigo-500 opacity-60" />
-        </div>
-        <div className="flex items-center justify-between rounded-2xl border border-slate-800/80 bg-slate-900/40 p-6">
-          <div className="space-y-1.5">
-            <span className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-              Company Profiles
-            </span>
-            <div className="text-2xl font-bold text-white">{companies.length}</div>
-          </div>
-          <Building className="h-8 w-8 text-emerald-500 opacity-60" />
-        </div>
-        <div className="flex items-center justify-between rounded-2xl border border-slate-800/80 bg-slate-900/40 p-6">
-          <div className="space-y-1.5">
-            <span className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-              Graph Nodes
-            </span>
-            <div className="text-2xl font-bold text-white">{graph.nodes.length}</div>
-          </div>
-          <Network className="h-8 w-8 text-cyan-500 opacity-60" />
-        </div>
-        <div className="flex items-center justify-between rounded-2xl border border-slate-800/80 bg-slate-900/40 p-6">
-          <div className="space-y-1.5">
-            <span className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-              Bus Events Logged
-            </span>
-            <div className="text-2xl font-bold text-white">{messages.length}</div>
-          </div>
-          <MessageSquare className="h-8 w-8 text-violet-500 opacity-60" />
-        </div>
-      </div>
+      <div className="grid flex-1 grid-cols-1 gap-6 xl:grid-cols-4">
+        <div className="flex flex-col space-y-4 xl:col-span-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search nodes..."
+                className="w-full rounded-xl border border-slate-800 bg-slate-950 py-2.5 pl-10 pr-4 text-sm text-slate-200 placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
 
-      {/* Main Content Layout */}
-      <div className="grid gap-8 lg:grid-cols-4">
-        {/* Navigation Tabs (Sidebar Layout style) */}
-        <div className="space-y-2 lg:col-span-1">
-          {[
-            { id: 'graph', label: 'Knowledge Graph', icon: Network, desc: 'Browse node linkages' },
-            {
-              id: 'workflows',
-              label: 'Workflow Memory',
-              icon: History,
-              desc: 'Traces and run results',
-            },
-            {
-              id: 'companies',
-              label: 'Company Contexts',
-              icon: Building,
-              desc: 'Stored accounts details',
-            },
-            {
-              id: 'messages',
-              label: 'Agent Message Bus',
-              icon: MessageSquare,
-              desc: 'Live event pub/sub',
-            },
-            {
-              id: 'performance',
-              label: 'Agent Metrics',
-              icon: Cpu,
-              desc: 'Latencies & execution rates',
-            },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
+            <select
+              value={typeFilter}
+              onChange={(e) =>
+                setTypeFilter(e.target.value as NodeType | 'all')
+              }
+              className="rounded-xl border border-slate-800 bg-slate-950 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
+            >
+              <option value="all">All Types</option>
+              <option value="company">Companies</option>
+              <option value="competitor">Competitors</option>
+              <option value="opportunity">Opportunities</option>
+              <option value="industry">Industries</option>
+              <option value="campaign">Campaigns</option>
+            </select>
+
+            <div className="flex items-center gap-1 rounded-xl border border-slate-800 bg-slate-950 p-1">
               <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as TabName)}
-                className={`flex w-full items-center gap-3.5 rounded-2xl border p-4 text-left transition-all duration-200 ${
-                  isActive
-                    ? 'border-indigo-500/80 bg-indigo-950/30 text-indigo-300 shadow-md'
-                    : 'border-slate-850 bg-slate-900/20 text-slate-400 hover:bg-slate-900/50 hover:text-slate-200'
-                }`}
+                onClick={handleZoomIn}
+                title="Zoom in"
+                className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
               >
-                <Icon
-                  className={`h-6 w-6 shrink-0 ${isActive ? 'text-indigo-400' : 'text-slate-500'}`}
-                />
-                <div className="overflow-hidden">
-                  <div className="text-sm leading-snug font-semibold">{tab.label}</div>
-                  <div className="truncate text-[10px] text-slate-500">{tab.desc}</div>
-                </div>
+                <ZoomIn className="h-4 w-4" />
               </button>
-            );
-          })}
+              <button
+                onClick={handleZoomOut}
+                title="Zoom out"
+                className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+              >
+                <ZoomOut className="h-4 w-4" />
+              </button>
+              <button
+                onClick={handleResetView}
+                title="Reset view"
+                className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+              >
+                <Move className="h-4 w-4" />
+              </button>
+              <span className="border-l border-slate-800 px-2 text-[10px] text-slate-600 tabular-nums">
+                {Math.round(viewport.scale * 100)}%
+              </span>
+            </div>
+
+            <button
+              onClick={() => setShowLegend(!showLegend)}
+              className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm transition-all ${
+                showLegend
+                  ? 'border-indigo-500/50 bg-indigo-950/30 text-indigo-300'
+                  : 'border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Layers className="h-4 w-4" />
+              Legend
+            </button>
+          </div>
+
+          <div
+            ref={svgContainerRef}
+            className="relative min-h-[500px] flex-1 overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/60"
+          >
+            <div className="pointer-events-none absolute right-3 bottom-3 z-10 flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/80 px-2.5 py-1 text-[10px] text-slate-500">
+              <Move className="h-3 w-3" />
+              Drag to pan · Scroll to zoom
+            </div>
+
+            {showLegend && (
+              <div className="pointer-events-none absolute left-3 top-3 z-10 space-y-1.5 rounded-xl border border-slate-800 bg-slate-900/90 px-3 py-2.5 backdrop-blur-sm">
+                <span className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
+                  Legend
+                </span>
+                {(Object.keys(NODE_META) as NodeType[]).map((type) => {
+                  const meta = NODE_META[type];
+                  return (
+                    <div key={type} className="flex items-center gap-2 text-xs">
+                      <span
+                        className="inline-block h-2.5 w-2.5 rounded-full"
+                        style={{ backgroundColor: meta.stroke }}
+                      />
+                      <span className="text-slate-400">{meta.label}</span>
+                      <span className="text-[10px] text-slate-600">
+                        ({nodeTypeCounts[type] || 0})
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <svg
+              ref={svgRef}
+              className="h-full w-full cursor-grab active:cursor-grabbing"
+              viewBox="0 0 800 600"
+              preserveAspectRatio="xMidYMid meet"
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+            >
+              <defs>
+                {(Object.keys(NODE_META) as NodeType[]).map((type) => (
+                  <filter key={type} id={`glow-${type}`}>
+                    <feDropShadow
+                      dx="0"
+                      dy="0"
+                      stdDeviation="6"
+                      floodColor={NODE_META[type].glow}
+                    />
+                  </filter>
+                ))}
+              </defs>
+
+              <g
+                transform={`translate(${viewport.x}, ${viewport.y}) scale(${viewport.scale})`}
+              >
+                {edges.map((edge, idx) => {
+                  const sourcePos = nodePositions[edge.source];
+                  const targetPos = nodePositions[edge.target];
+                  if (!sourcePos || !targetPos) return null;
+
+                  const midX = (sourcePos.x + targetPos.x) / 2;
+                  const midY = (sourcePos.y + targetPos.y) / 2;
+                  const isConnectedToSelected =
+                    selectedNode &&
+                    (edge.source === selectedNode.id ||
+                      edge.target === selectedNode.id);
+                  const isDimmed =
+                    selectedNode && !isConnectedToSelected;
+
+                  return (
+                    <g key={`edge-${idx}`}>
+                      <line
+                        x1={sourcePos.x}
+                        y1={sourcePos.y}
+                        x2={targetPos.x}
+                        y2={targetPos.y}
+                        stroke={isConnectedToSelected ? '#6366f1' : '#334155'}
+                        strokeWidth={isConnectedToSelected ? 2.5 : 1.5}
+                        strokeDasharray="5,4"
+                        className={
+                          isDimmed
+                            ? 'opacity-20 transition-opacity duration-300'
+                            : 'transition-opacity duration-300'
+                        }
+                      />
+                      <rect
+                        x={midX - 52}
+                        y={midY - 9}
+                        width="104"
+                        height="18"
+                        rx="4"
+                        fill={isDimmed ? '#0f172a' : '#0f172a'}
+                        stroke={isConnectedToSelected ? '#6366f1' : '#1e293b'}
+                        strokeWidth="1"
+                        className={
+                          isDimmed
+                            ? 'opacity-30 transition-opacity duration-300'
+                            : 'transition-opacity duration-300'
+                        }
+                      />
+                      <text
+                        x={midX}
+                        y={midY + 3.5}
+                        textAnchor="middle"
+                        fill={isConnectedToSelected ? '#a5b4fc' : '#64748b'}
+                        fontSize="8"
+                        fontWeight="600"
+                        className={
+                          isDimmed
+                            ? 'opacity-30 transition-opacity duration-300'
+                            : 'transition-opacity duration-300'
+                        }
+                      >
+                        {edge.relationship.replace(/_/g, ' ')}
+                      </text>
+                    </g>
+                  );
+                })}
+
+                {nodes.map((node) => {
+                  const pos = nodePositions[node.id];
+                  if (!pos) return null;
+
+                  const meta = NODE_META[node.type];
+                  const isSelected = selectedNode?.id === node.id;
+                  const isHovered = hoveredNodeId === node.id;
+                  const isConnectedToSelected =
+                    selectedNode &&
+                    edges.some(
+                      (e) =>
+                        (e.source === selectedNode.id &&
+                          e.target === node.id) ||
+                        (e.target === selectedNode.id &&
+                          e.source === node.id),
+                    );
+                  const isDimmed =
+                    selectedNode &&
+                    !isSelected &&
+                    !isConnectedToSelected;
+                  const visible =
+                    !filteredNodeIds || filteredNodeIds.has(node.id);
+                  const radius =
+                    node.type === 'company' ? 24 : node.type === 'industry' ? 20 : 18;
+
+                  if (!visible) return null;
+
+                  return (
+                    <g
+                      key={node.id}
+                      className="cursor-pointer transition-opacity duration-300"
+                      style={{ opacity: isDimmed ? 0.2 : 1 }}
+                      onClick={() => handleNodeClick(node)}
+                      onMouseEnter={() => setHoveredNodeId(node.id)}
+                      onMouseLeave={() => setHoveredNodeId(null)}
+                    >
+                      <circle
+                        cx={pos.x}
+                        cy={pos.y}
+                        r={radius}
+                        fill={meta.color}
+                        stroke={
+                          isSelected
+                            ? '#e2e8f0'
+                            : isHovered
+                              ? meta.stroke
+                              : meta.stroke
+                        }
+                        strokeWidth={isSelected ? 3 : isHovered ? 2.5 : 2}
+                        filter={
+                          isSelected
+                            ? `url(#glow-${node.type})`
+                            : undefined
+                        }
+                        className={
+                          isSelected
+                            ? 'drop-shadow-lg'
+                            : 'hover:brightness-125'
+                        }
+                        style={{
+                          transition:
+                            'stroke-width 0.2s, filter 0.2s, stroke 0.2s',
+                        }}
+                      />
+                      <text
+                        x={pos.x}
+                        y={pos.y + 4}
+                        textAnchor="middle"
+                        fill="#f8fafc"
+                        fontSize={
+                          node.type === 'company'
+                            ? 10
+                            : node.type === 'industry'
+                              ? 9
+                              : 8
+                        }
+                        fontWeight="bold"
+                        className="pointer-events-none select-none"
+                        style={{
+                          textShadow:
+                            '0 1px 3px rgba(0,0,0,0.8), 0 0 6px rgba(0,0,0,0.5)',
+                        }}
+                      >
+                        {node.label.length > 10
+                          ? node.label.slice(0, 9) + '...'
+                          : node.label}
+                      </text>
+                      <title>
+                        {node.label} ({meta.label})
+                        {!!filteredNodeIds && !visible
+                          ? ' (hidden by filter)'
+                          : ''}
+                      </title>
+                    </g>
+                  );
+                })}
+              </g>
+            </svg>
+          </div>
         </div>
 
-        {/* Workspace Display Viewports */}
-        <div className="flex min-h-[550px] flex-col justify-between rounded-3xl border border-slate-800 bg-slate-900/20 p-6 md:p-8 lg:col-span-3">
-          {loading ? (
-            <div className="flex flex-1 flex-col items-center justify-center space-y-4">
-              <Brain className="h-10 w-10 animate-bounce text-indigo-400" />
-              <div className="text-sm font-semibold text-slate-400">Crawl memory indexes...</div>
+        <div className="flex flex-col space-y-4">
+          {selectedNode ? (
+            <div className="animate-in slide-in-from-right rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+              <div className="flex items-start justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2">
+                  {(() => {
+                    const Icon = NODE_META[selectedNode.type].icon;
+                    return (
+                      <Icon
+                        className="h-5 w-5"
+                        style={{ color: NODE_META[selectedNode.type].stroke }}
+                      />
+                    );
+                  })()}
+                  <div>
+                    <span
+                      className="rounded border px-2 py-0.5 text-[9px] font-bold uppercase"
+                      style={{
+                        borderColor: NODE_META[selectedNode.type].stroke + '40',
+                        backgroundColor:
+                          NODE_META[selectedNode.type].color + '80',
+                        color: NODE_META[selectedNode.type].stroke,
+                      }}
+                    >
+                      {NODE_META[selectedNode.type].label}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedNode(null)}
+                  className="rounded-lg p-1 text-slate-500 hover:bg-slate-800 hover:text-slate-300"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <h3 className="mt-3 text-lg font-bold text-white">
+                {selectedNode.label}
+              </h3>
+              <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                {selectedNode.description}
+              </p>
+
+              {connectedEdges.length > 0 && (
+                <div className="mt-5 space-y-3">
+                  <span className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+                    Connections ({connectedEdges.length})
+                  </span>
+                  <div className="space-y-2">
+                    {connectedEdges.map((edge, idx) => {
+                      const connectedNode = getConnectedNode(
+                        edge,
+                        selectedNode.id,
+                      );
+                      if (!connectedNode) return null;
+                      const meta = NODE_META[connectedNode.type];
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => handleNodeClick(connectedNode)}
+                          className="flex w-full items-center gap-2.5 rounded-xl border border-slate-800 bg-slate-950/40 p-3 text-left transition-all hover:border-slate-700 hover:bg-slate-900/60"
+                        >
+                          <span
+                            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
+                            style={{ backgroundColor: meta.color + '80' }}
+                          >
+                            {(() => {
+                              const Icon = meta.icon;
+                              return (
+                                <Icon
+                                  className="h-3.5 w-3.5"
+                                  style={{ color: meta.stroke }}
+                                />
+                              );
+                            })()}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5">
+                              <span className="truncate text-xs font-semibold text-slate-200">
+                                {connectedNode.label}
+                              </span>
+                              <span className="shrink-0 text-[9px] text-slate-600">
+                                ({meta.label})
+                              </span>
+                            </div>
+                            <div className="mt-0.5 text-[10px] text-indigo-400">
+                              {edge.relationship.replace(/_/g, ' ')}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
-            <div className="flex flex-1 flex-col">
-              {/* TAB 1: KNOWLEDGE GRAPH EXPLORER */}
-              {activeTab === 'graph' && (
-                <div className="flex flex-1 flex-col space-y-6">
-                  <div className="flex flex-col justify-between gap-4 border-b border-slate-800/80 pb-4 sm:flex-row">
-                    <div>
-                      <h2 className="flex items-center gap-2 text-xl font-bold text-white">
-                        <Network className="h-5 w-5 text-indigo-400" /> Relational Knowledge Graph
-                      </h2>
-                      <p className="mt-1 text-xs text-slate-400">
-                        Linked associations generated across research profiles, risks, and
-                        campaigns.
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-slate-400">Focus Account:</span>
-                      <select
-                        value={activeGraphCompany}
-                        onChange={(e) => setActiveGraphCompany(e.target.value)}
-                        className="rounded-xl border border-slate-800 bg-slate-950 px-3 py-1.5 text-xs text-slate-200 focus:border-indigo-500 focus:outline-none"
-                      >
-                        {companies.length > 0 ? (
-                          companies.map((c) => (
-                            <option key={c.companyName} value={c.companyName}>
-                              {c.companyName}
-                            </option>
-                          ))
-                        ) : (
-                          <>
-                            <option value="Stripe">Stripe</option>
-                            <option value="HubSpot">HubSpot</option>
-                            <option value="Salesforce">Salesforce</option>
-                          </>
-                        )}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="grid flex-1 grid-cols-1 items-stretch gap-6 xl:grid-cols-3">
-                    {/* SVG Viewer */}
-                    <div className="relative flex min-h-[400px] items-center justify-center overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-950/60 xl:col-span-2">
-                      {graph.nodes.length === 0 ? (
-                        <div className="text-xs text-slate-500 italic">
-                          No connections registered.
-                        </div>
-                      ) : (
-                        <svg className="h-full min-h-[450px] w-full" viewBox="0 0 700 500">
-                          <defs>
-                            <marker
-                              id="arrow"
-                              viewBox="0 0 10 10"
-                              refX="22"
-                              refY="5"
-                              markerWidth="6"
-                              markerHeight="6"
-                              orient="auto-start-reverse"
-                            >
-                              <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569" />
-                            </marker>
-                          </defs>
-
-                          {/* Edges Lines */}
-                          {graph.edges.map((edge, idx) => {
-                            const sourcePos = nodePositions[edge.source];
-                            const targetPos = nodePositions[edge.target];
-                            if (!sourcePos || !targetPos) return null;
-
-                            const midX = (sourcePos.x + targetPos.x) / 2;
-                            const midY = (sourcePos.y + targetPos.y) / 2;
-
-                            return (
-                              <g key={`edge-${idx}`}>
-                                <line
-                                  x1={sourcePos.x}
-                                  y1={sourcePos.y}
-                                  x2={targetPos.x}
-                                  y2={targetPos.y}
-                                  stroke="#334155"
-                                  strokeWidth="2"
-                                  strokeDasharray="4,4"
-                                  className="stroke-slate-700"
-                                  markerEnd="url(#arrow)"
-                                />
-                                <rect
-                                  x={midX - 45}
-                                  y={midY - 10}
-                                  width="90"
-                                  height="18"
-                                  rx="4"
-                                  fill="#0f172a"
-                                  stroke="#1e293b"
-                                  strokeWidth="1"
-                                />
-                                <text
-                                  x={midX}
-                                  y={midY + 2}
-                                  textAnchor="middle"
-                                  fill="#94a3b8"
-                                  fontSize="9"
-                                  fontWeight="600"
-                                >
-                                  {edge.relationship.toUpperCase()}
-                                </text>
-                              </g>
-                            );
-                          })}
-
-                          {/* Nodes Circles */}
-                          {graph.nodes.map((node) => {
-                            const pos = nodePositions[node.id];
-                            if (!pos) return null;
-                            const isSelected = selectedNode?.id === node.id;
-
-                            return (
-                              <g
-                                key={node.id}
-                                className="group cursor-pointer"
-                                onClick={() => setSelectedNode(node)}
-                              >
-                                <circle
-                                  cx={pos.x}
-                                  cy={pos.y}
-                                  r={node.type === 'company' ? '28' : '22'}
-                                  className={`transition-all duration-300 ${getNodeColor(node.type)} ${
-                                    isSelected
-                                      ? 'scale-110 stroke-indigo-400 stroke-[3px] shadow-lg'
-                                      : 'stroke-slate-700 hover:scale-105 hover:stroke-indigo-500'
-                                  }`}
-                                />
-                                <text
-                                  x={pos.x}
-                                  y={pos.y + 4}
-                                  textAnchor="middle"
-                                  fill="#f8fafc"
-                                  fontSize={node.type === 'company' ? '9' : '8'}
-                                  fontWeight="bold"
-                                  className="pointer-events-none drop-shadow"
-                                >
-                                  {node.label.length > 10
-                                    ? `${node.label.substring(0, 8)}...`
-                                    : node.label}
-                                </text>
-                                <title>{`${node.label} (${node.type})`}</title>
-                              </g>
-                            );
-                          })}
-                        </svg>
-                      )}
-                    </div>
-
-                    {/* Details Inspector Panel */}
-                    <div className="flex flex-col justify-between rounded-2xl border border-slate-800/80 bg-slate-900/40 p-5">
-                      {selectedNode ? (
-                        <div className="space-y-4">
-                          <div className="border-b border-slate-800 pb-3">
-                            <span className="rounded border border-indigo-900 bg-indigo-950 px-2 py-0.5 text-[9px] font-bold text-indigo-400 uppercase">
-                              {selectedNode.type}
-                            </span>
-                            <h3 className="mt-2 text-lg font-bold text-white">
-                              {selectedNode.label}
-                            </h3>
-                            <p className="mt-0.5 text-xs text-slate-500">ID: {selectedNode.id}</p>
-                          </div>
-
-                          <div className="space-y-3 text-xs text-slate-400">
-                            <div>
-                              <span className="font-semibold text-slate-200">Relationships:</span>
-                              <div className="mt-2 space-y-1">
-                                {graph.edges
-                                  .filter(
-                                    (e) =>
-                                      e.source === selectedNode.id || e.target === selectedNode.id,
-                                  )
-                                  .map((e, idx) => (
-                                    <div
-                                      key={idx}
-                                      className="border-slate-850 flex items-center gap-1 rounded-lg border bg-slate-950/40 p-2"
-                                    >
-                                      <span className="font-medium text-slate-200">
-                                        {e.source === selectedNode.id ? 'Self' : e.source}
-                                      </span>
-                                      <span className="font-mono text-[10px] text-indigo-400">{`[${e.relationship}]`}</span>
-                                      <span className="font-medium text-slate-200">
-                                        {e.target === selectedNode.id ? 'Self' : e.target}
-                                      </span>
-                                    </div>
-                                  ))}
-                              </div>
-                            </div>
-                          </div>
-
-                          <button
-                            onClick={() =>
-                              handleOpenInspector(`Graph Node: ${selectedNode.label}`, selectedNode)
-                            }
-                            className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold hover:border-slate-600"
-                          >
-                            <Eye className="h-3.5 w-3.5" /> View JSON
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex flex-1 flex-col items-center justify-center p-6 text-center text-slate-500">
-                          <Info className="mb-2 h-8 w-8 text-slate-600" />
-                          <p className="text-xs">
-                            Click a node on the knowledge graph network to view details and
-                            metadata.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB 2: WORKFLOW MEMORY TIMELINE */}
-              {activeTab === 'workflows' && (
-                <div className="flex flex-1 flex-col space-y-6">
-                  <div>
-                    <h2 className="flex items-center gap-2 text-xl font-bold text-white">
-                      <History className="h-5 w-5 text-indigo-400" /> Historical Workflow executions
-                    </h2>
-                    <p className="mt-1 text-xs text-slate-400">
-                      Check execution plan details, agent step traces, and output variables.
-                    </p>
-                  </div>
-
-                  <div className="grid flex-1 grid-cols-1 items-stretch gap-6 xl:grid-cols-3">
-                    {/* List Table */}
-                    <div className="max-h-[450px] space-y-2 overflow-y-auto rounded-2xl border border-slate-800/80 bg-slate-950/40 p-2 xl:col-span-1">
-                      {workflows.length === 0 ? (
-                        <p className="p-4 text-xs text-slate-500 italic">
-                          No workflow executions found.
-                        </p>
-                      ) : (
-                        workflows.map((wf) => (
-                          <button
-                            key={wf.workflowId}
-                            onClick={() => setSelectedWorkflow(wf)}
-                            className={`w-full rounded-xl border p-4 text-left transition-all ${
-                              selectedWorkflow?.workflowId === wf.workflowId
-                                ? 'border-indigo-500 bg-indigo-950/20'
-                                : 'border-slate-850 bg-slate-900/10 hover:bg-slate-900/30'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="font-mono text-xs font-semibold text-indigo-400">
-                                {wf.workflowId}
-                              </span>
-                              <span className="rounded border border-emerald-900/30 bg-emerald-950 px-1.5 py-0.5 text-[8px] font-bold text-emerald-400 uppercase">
-                                {wf.status}
-                              </span>
-                            </div>
-                            <p className="mt-2 line-clamp-2 text-xs font-semibold text-slate-200">
-                              {wf.userGoal}
-                            </p>
-                            <div className="mt-2 flex items-center justify-between text-[10px] text-slate-500">
-                              <span>User: {wf.userId}</span>
-                              <span>{new Date(wf.createdAt).toLocaleDateString()}</span>
-                            </div>
-                          </button>
-                        ))
-                      )}
-                    </div>
-
-                    {/* Step timeline / details */}
-                    <div className="flex flex-col justify-between rounded-2xl border border-slate-800 bg-slate-900/40 p-5 xl:col-span-2">
-                      {selectedWorkflow ? (
-                        <div className="flex flex-1 flex-col justify-between space-y-6">
-                          <div>
-                            <div className="flex items-start justify-between border-b border-slate-800 pb-3">
-                              <div>
-                                <h3 className="text-md font-bold text-white">
-                                  Workflow Run Timeline
-                                </h3>
-                                <p className="mt-1 text-xs text-slate-400">
-                                  Goal: &quot;{selectedWorkflow.userGoal}&quot;
-                                </p>
-                              </div>
-                              <button
-                                onClick={() =>
-                                  handleOpenInspector(
-                                    `Workflow Memory: ${selectedWorkflow.workflowId}`,
-                                    selectedWorkflow,
-                                  )
-                                }
-                                className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-[10px] font-semibold"
-                              >
-                                <Eye className="h-3.5 w-3.5" /> Inspect Raw
-                              </button>
-                            </div>
-
-                            {/* Agent output list timeline */}
-                            <div className="mt-6 max-h-[300px] space-y-4 overflow-y-auto pr-1">
-                              {Object.entries(selectedWorkflow.agentOutputs).map(
-                                ([agentKey, outputVal], idx) => {
-                                  if (!outputVal) return null;
-                                  const val = outputVal as any;
-                                  return (
-                                    <div
-                                      key={agentKey}
-                                      className="relative flex items-start gap-3 border-l-2 border-slate-800 py-1 pl-4"
-                                    >
-                                      <div className="absolute top-2 -left-[5px] h-2.5 w-2.5 rounded-full bg-indigo-500" />
-                                      <div className="flex-1 space-y-1.5">
-                                        <div className="flex items-center justify-between">
-                                          <strong className="text-xs text-slate-200 capitalize">
-                                            {agentKey} Agent
-                                          </strong>
-                                          <span className="text-[10px] text-slate-500">
-                                            Step {idx + 1}
-                                          </span>
-                                        </div>
-                                        <div className="border-slate-850/80 rounded-lg border bg-slate-950/60 p-3 text-xs text-slate-400">
-                                          {agentKey === 'research' && (
-                                            <div>
-                                              <div className="font-semibold text-slate-200">
-                                                {val.company?.name || 'Company Profile'}
-                                              </div>
-                                              <p className="mt-1 line-clamp-2">{val.summary}</p>
-                                            </div>
-                                          )}
-                                          {agentKey === 'opportunity' && (
-                                            <div>
-                                              <div className="font-semibold text-slate-200">
-                                                Opportunities Scored
-                                              </div>
-                                              <p className="mt-1 line-clamp-2">
-                                                Total score: {val.overallFitScore || 'N/A'}
-                                              </p>
-                                            </div>
-                                          )}
-                                          {agentKey === 'outreach' && (
-                                            <div>
-                                              <div className="font-semibold text-slate-200">
-                                                Campaign Sequences
-                                              </div>
-                                              <p className="mt-1 line-clamp-2">
-                                                {val.emailVariants?.[0]?.subject ||
-                                                  'Variants generated'}
-                                              </p>
-                                            </div>
-                                          )}
-                                          {agentKey === 'crm' && (
-                                            <div>
-                                              <div className="font-semibold text-slate-200">
-                                                Log synced in CRM
-                                              </div>
-                                              <p className="mt-1 line-clamp-2">
-                                                {val.activityLogged?.description ||
-                                                  'Sync confirmation'}
-                                              </p>
-                                            </div>
-                                          )}
-                                          {agentKey === 'proposal' && (
-                                            <div>
-                                              <div className="font-semibold text-slate-200">
-                                                SOW Proposals
-                                              </div>
-                                              <p className="mt-1 line-clamp-2">
-                                                {val.sow?.scope || 'Scope of Work defined'}
-                                              </p>
-                                            </div>
-                                          )}
-                                        </div>
-                                        <button
-                                          onClick={() =>
-                                            handleOpenInspector(`${agentKey} output`, val)
-                                          }
-                                          className="flex items-center gap-0.5 text-[10px] text-indigo-400 hover:underline"
-                                        >
-                                          Inspect output <ChevronRight className="h-3 w-3" />
-                                        </button>
-                                      </div>
-                                    </div>
-                                  );
-                                },
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="border-t border-slate-800 pt-4 text-[10px] text-slate-500">
-                            Created: {new Date(selectedWorkflow.createdAt).toLocaleString()} |
-                            Updated: {new Date(selectedWorkflow.updatedAt).toLocaleString()}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-1 flex-col items-center justify-center p-6 text-center text-slate-500">
-                          <History className="mb-2 h-8 w-8 text-slate-600" />
-                          <p className="text-xs">
-                            Select an execution run from the left panel to inspect detailed agent
-                            step traces.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB 3: COMPANY MEMORY KNOWLEDGE BASE */}
-              {activeTab === 'companies' && (
-                <div className="flex flex-1 flex-col space-y-6">
-                  <div>
-                    <h2 className="flex items-center gap-2 text-xl font-bold text-white">
-                      <Building className="h-5 w-5 text-indigo-400" /> Account Knowledge Base
-                    </h2>
-                    <p className="mt-1 text-xs text-slate-400">
-                      Browse company profile memory records, CRM pipelines, and draft proposals
-                      history.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {companies.length === 0 ? (
-                      <p className="text-xs text-slate-500 italic">
-                        No account records found in company_memory.
-                      </p>
-                    ) : (
-                      companies.map((co) => (
-                        <div
-                          key={co.companyName}
-                          className="border-slate-850 flex flex-col justify-between space-y-4 rounded-2xl border bg-slate-950/30 p-5 transition-all duration-200 hover:border-slate-700"
-                        >
-                          <div>
-                            <div className="flex items-start justify-between">
-                              <h3 className="text-md font-bold text-white">{co.companyName}</h3>
-                              <span className="font-mono text-[10px] text-slate-500">
-                                {co.domain}
-                              </span>
-                            </div>
-                            <p className="mt-2 line-clamp-3 text-xs text-slate-400">
-                              {(co.profile?.description as string) ||
-                                'No descriptive overview generated.'}
-                            </p>
-                          </div>
-
-                          <div className="border-slate-850 grid grid-cols-2 gap-2 border-t pt-3 text-[10px] text-slate-500">
-                            <div>
-                              Opportunities:{' '}
-                              <span className="text-slate-350 font-semibold">
-                                {co.opportunities?.length || 0}
-                              </span>
-                            </div>
-                            <div>
-                              Outreach variant:{' '}
-                              <span className="text-slate-350 font-semibold">
-                                {co.outreachPlans?.length || 0}
-                              </span>
-                            </div>
-                            <div>
-                              SOW Proposal:{' '}
-                              <span className="text-slate-350 font-semibold">
-                                {co.proposals?.length || 0}
-                              </span>
-                            </div>
-                            <div>
-                              CRM updates:{' '}
-                              <span className="text-slate-350 font-semibold">
-                                {co.crmData ? 'Active' : 'Empty'}
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() =>
-                                handleOpenInspector(`Company memory: ${co.companyName}`, co)
-                              }
-                              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-800 bg-slate-950 py-2 text-xs font-semibold hover:border-slate-700"
-                            >
-                              <Eye className="h-3.5 w-3.5" /> View Memory
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* TAB 4: AGENT MESSAGING BUS LOGS */}
-              {activeTab === 'messages' && (
-                <div className="flex flex-1 flex-col space-y-6">
-                  <div className="flex flex-col justify-between gap-4 border-b border-slate-800 pb-4 sm:flex-row">
-                    <div>
-                      <h2 className="flex items-center gap-2 text-xl font-bold text-white">
-                        <MessageSquare className="h-5 w-5 text-indigo-400" /> Messaging Bus Event
-                        Logs
-                      </h2>
-                      <p className="mt-1 text-xs text-slate-400">
-                        Review the real-time messages exchanged and broadcasted between active
-                        agents.
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-slate-400">Topic Filter:</span>
-                      <select
-                        value={msgTopicFilter}
-                        onChange={(e) => setMsgTopicFilter(e.target.value)}
-                        className="rounded-xl border border-slate-800 bg-slate-950 px-3 py-1.5 text-xs text-slate-200 focus:border-indigo-500 focus:outline-none"
-                      >
-                        <option value="all">All Topics</option>
-                        <option value="broadcast">Broadcasts</option>
-                        <option value="market_insight">Market Insights</option>
-                        <option value="direct">Direct Messages</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="max-h-[450px] space-y-3 overflow-y-auto pr-1">
-                    {messages.length === 0 ? (
-                      <p className="text-xs text-slate-500 italic">
-                        No agent messages logged in database.
-                      </p>
-                    ) : (
-                      messages
-                        .filter((msg) => {
-                          if (msgTopicFilter === 'all') return true;
-                          if (msgTopicFilter === 'broadcast') return msg.topic === 'broadcast';
-                          if (msgTopicFilter === 'market_insight')
-                            return msg.topic === 'market_insight';
-                          if (msgTopicFilter === 'direct') return msg.topic.startsWith('direct:');
-                          return true;
-                        })
-                        .map((msg, idx) => (
-                          <div
-                            key={msg.id || idx}
-                            className="border-slate-850/80 space-y-2 rounded-xl border bg-slate-950/40 p-4 transition-all duration-200 hover:border-slate-700"
-                          >
-                            <div className="flex flex-wrap items-center justify-between gap-2">
-                              <div className="flex items-center gap-2 text-xs">
-                                <span className="font-bold text-slate-200">{msg.sender}</span>
-                                <ArrowRight className="h-3 w-3 text-slate-500" />
-                                <span
-                                  className={`rounded border px-2 py-0.5 font-mono text-[9px] ${getTopicBadgeColor(msg.topic)}`}
-                                >
-                                  {msg.topic}
-                                </span>
-                              </div>
-                              <span className="text-[10px] text-slate-500">
-                                {new Date(msg.timestamp).toLocaleTimeString()}
-                              </span>
-                            </div>
-
-                            <div className="border-slate-850 text-slate-350 max-h-[80px] truncate overflow-hidden rounded-lg border bg-slate-950/60 p-3 text-xs leading-relaxed">
-                              {JSON.stringify(msg.payload)}
-                            </div>
-
-                            <div className="flex justify-end">
-                              <button
-                                onClick={() =>
-                                  handleOpenInspector(`Agent Message Payload`, msg.payload)
-                                }
-                                className="flex items-center gap-0.5 text-[10px] text-indigo-400 hover:underline"
-                              >
-                                View full payload <ChevronRight className="h-3 w-3" />
-                              </button>
-                            </div>
-                          </div>
-                        ))
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* TAB 5: AGENT PERFORMANCE VIEWER */}
-              {activeTab === 'performance' && (
-                <div className="flex flex-1 flex-col space-y-6">
-                  <div>
-                    <h2 className="flex items-center gap-2 text-xl font-bold text-white">
-                      <Cpu className="h-5 w-5 text-indigo-400" /> Agent Metrics & Performance
-                    </h2>
-                    <p className="mt-1 text-xs text-slate-400">
-                      Check execution count limits, historical latency rates, and reliability stats.
-                    </p>
-                  </div>
-
-                  <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/40">
-                    <div className="overflow-x-auto">
-                      <table className="w-full border-collapse text-left text-xs">
-                        <thead>
-                          <tr className="border-b border-slate-800 bg-slate-900/60 font-semibold text-slate-400">
-                            <th className="p-4">Agent Name</th>
-                            <th className="p-4">Total Runs</th>
-                            <th className="p-4 text-center">Success Rate</th>
-                            <th className="p-4 text-center">Avg Latency</th>
-                            <th className="p-4">Discovered Competitors</th>
-                            <th className="p-4">Last Active</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800/80">
-                          {agents.length === 0 ? (
-                            <tr>
-                              <td colSpan={6} className="p-4 text-center text-slate-500 italic">
-                                No agent performance metrics registered.
-                              </td>
-                            </tr>
-                          ) : (
-                            agents.map((ag) => (
-                              <tr
-                                key={ag.agentName}
-                                className="text-slate-300 hover:bg-slate-900/20"
-                              >
-                                <td className="flex items-center gap-2 p-4 font-bold text-white">
-                                  <ShieldCheck className="h-4 w-4 text-indigo-400" />
-                                  {ag.agentName}
-                                </td>
-                                <td className="p-4 font-semibold text-slate-200">
-                                  {ag.executionsCount}
-                                </td>
-                                <td className="p-4 text-center">
-                                  <span
-                                    className={`inline-block rounded-full border px-2 py-0.5 text-[10px] font-bold ${
-                                      ag.performanceMetrics.successRate >= 0.9
-                                        ? 'border-emerald-900 bg-emerald-950/80 text-emerald-400'
-                                        : 'border-amber-900 bg-amber-950/80 text-amber-400'
-                                    }`}
-                                  >
-                                    {Math.round(ag.performanceMetrics.successRate * 100)}%
-                                  </span>
-                                </td>
-                                <td className="p-4 text-center font-mono font-medium text-slate-400">
-                                  {ag.performanceMetrics.averageLatencyMs}ms
-                                </td>
-                                <td
-                                  className="max-w-[200px] truncate p-4"
-                                  title={ag.discoveredCompetitors.join(', ')}
-                                >
-                                  {ag.discoveredCompetitors.length > 0 ? (
-                                    <span className="rounded bg-slate-950 px-2 py-1 text-slate-400">
-                                      {ag.discoveredCompetitors.slice(0, 3).join(', ')}
-                                      {ag.discoveredCompetitors.length > 3 && '...'}
-                                    </span>
-                                  ) : (
-                                    <span className="text-slate-600">-</span>
-                                  )}
-                                </td>
-                                <td className="p-4 text-[10px] text-slate-500">
-                                  {new Date(ag.performanceMetrics.lastExecutedAt).toLocaleString()}
-                                </td>
-                              </tr>
-                            ))
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              )}
+            <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/20 p-8 text-center">
+              <div className="mb-4 rounded-full border border-slate-800 bg-slate-900/60 p-4">
+                <Network className="h-8 w-8 text-slate-600" />
+              </div>
+              <Info className="mb-3 h-5 w-5 text-slate-600" />
+              <p className="text-sm text-slate-500">
+                Click any node on the graph to inspect its details and
+                relationships.
+              </p>
+              <p className="mt-2 text-xs text-slate-600">
+                Use the search and filter to find specific nodes.
+              </p>
             </div>
           )}
+
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/20 p-4">
+            <h4 className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+              Graph Summary
+            </h4>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-2.5 text-center">
+                <div className="text-lg font-bold text-white">
+                  {nodes.length}
+                </div>
+                <div className="text-[10px] text-slate-500">Nodes</div>
+              </div>
+              <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-2.5 text-center">
+                <div className="text-lg font-bold text-white">
+                  {edges.length}
+                </div>
+                <div className="text-[10px] text-slate-500">Edges</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Slide-out Context Inspector Drawer */}
-      {isInspectorOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
-            onClick={() => setIsInspectorOpen(false)}
-          />
-          <aside className="relative z-50 flex h-full w-full max-w-2xl flex-col border-l border-slate-800 bg-slate-900 shadow-2xl">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-800 bg-slate-950 p-5">
-              <div className="flex items-center gap-2">
-                <Database className="h-5 w-5 text-indigo-400" />
-                <h3 className="text-md font-bold text-white">{inspectorTitle}</h3>
-              </div>
-              <button
-                onClick={() => setIsInspectorOpen(false)}
-                className="hover:bg-slate-850 rounded-lg border border-slate-800 p-1 text-slate-400 hover:text-slate-200"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            {/* Code Content */}
-            <div className="flex-1 overflow-auto bg-slate-950/80 p-6 font-mono text-xs text-indigo-200">
-              <pre className="whitespace-pre-wrap">{JSON.stringify(inspectorData, null, 2)}</pre>
-            </div>
-
-            {/* Footer */}
-            <div className="flex justify-end border-t border-slate-800 bg-slate-900 p-4">
-              <button
-                onClick={() => setIsInspectorOpen(false)}
-                className="bg-slate-850 rounded-xl px-4 py-2 text-xs font-semibold hover:bg-slate-800"
-              >
-                Close Inspector
-              </button>
-            </div>
-          </aside>
-        </div>
-      )}
     </div>
   );
 }

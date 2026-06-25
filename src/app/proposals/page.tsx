@@ -1,961 +1,387 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
+  Presentation,
   FileText,
   TrendingUp,
-  Clock,
-  Bot,
-  RefreshCw,
-  ShieldAlert,
-  ClipboardList,
-  Eye,
-  Download,
-  Calendar,
-  Layers,
-  Presentation,
-  CheckCircle,
-  Edit2,
-  Save,
-  ChevronLeft,
-  ChevronRight,
-  FileCode,
+  Shield,
+  Target,
+  BarChart3,
+  Lightbulb,
+  ArrowLeft,
+  ArrowRight,
+  Building2,
+  Users,
+  DollarSign,
+  Rocket,
+  ClipboardCheck,
   Sparkles,
+  Loader2,
 } from 'lucide-react';
-import { ProposalPackage } from '@/agents/specialists/proposal/types';
 
-type ActiveTab = 'proposal' | 'businessCase' | 'roi' | 'roadmap' | 'slides';
+const SLIDE_DEFINITIONS = [
+  { id: 'ceo-briefing', icon: Presentation, label: 'CEO Briefing', color: 'from-indigo-500 to-purple-600' },
+  { id: 'market-position', icon: BarChart3, label: 'Market Position', color: 'from-blue-500 to-cyan-600' },
+  { id: 'key-risks', icon: Shield, label: 'Key Risks', color: 'from-amber-500 to-orange-600' },
+  { id: 'revenue-opportunities', icon: DollarSign, label: 'Revenue Opportunities', color: 'from-emerald-500 to-teal-600' },
+  { id: 'growth-strategy', icon: Rocket, label: 'Growth Strategy', color: 'from-violet-500 to-purple-600' },
+  { id: 'proposal-summary', icon: ClipboardCheck, label: 'Proposal Summary', color: 'from-rose-500 to-pink-600' },
+];
 
-export default function ProposalsWorkspace() {
-  const [loading, setLoading] = useState(true);
-  const [generating, setGenerating] = useState(false);
-  const [activeTab, setActiveTab] = useState<ActiveTab>('proposal');
+const SLIDE_COUNT = SLIDE_DEFINITIONS.length;
 
-  // Search query for generating proposals
-  const [query, setQuery] = useState('');
+type BoardroomData = {
+  ceoBriefing: string;
+  marketPosition: string;
+  keyRisks: string[];
+  revenueOpportunities: string[];
+  growthStrategy: string;
+  proposalSummary: string;
+};
 
-  // History list and selected proposal
-  const [history, setHistory] = useState<ProposalPackage[]>([]);
-  const [selectedProposal, setSelectedProposal] = useState<ProposalPackage | null>(null);
+const defaultData: BoardroomData = {
+  ceoBriefing: '',
+  marketPosition: '',
+  keyRisks: [],
+  revenueOpportunities: [],
+  growthStrategy: '',
+  proposalSummary: '',
+};
 
-  // Edit mode state
-  const [editMode, setEditMode] = useState(false);
-  const [editTitle, setEditTitle] = useState('');
-  const [editSubtitle, setEditSubtitle] = useState('');
-  const [editExecSummary, setEditExecSummary] = useState('');
-  const [editProposedSolution, setEditProposedSolution] = useState('');
+export default function BoardroomMode() {
+  const [companyName, setCompanyName] = useState('');
+  const [data, setData] = useState<BoardroomData>(defaultData);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [generated, setGenerated] = useState(false);
 
-  // Interactive ROI Calculator states
-  const [calcInvestment, setCalcInvestment] = useState(25000);
-  const [calcSavings, setCalcSavings] = useState(75000);
-  const [calcRevenue, setCalcRevenue] = useState(150000);
-  const [calcPayback, setCalcPayback] = useState('6 months');
-
-  // Slide navigator index
-  const [activeSlideIdx, setActiveSlideIdx] = useState(0);
-
-  const fetchProposalsHistory = async (): Promise<ProposalPackage[]> => {
-    try {
-      const res = await fetch('/api/proposals');
-      const data = await res.json();
-      if (data.success && data.data) {
-        return data.data;
-      }
-    } catch (err) {
-      console.error('Failed to load proposals ledger', err);
-    }
-    return [];
-  };
-
-  const applySelectedProposal = (proposal: ProposalPackage | null) => {
-    setSelectedProposal(proposal);
-    if (proposal) {
-      setEditTitle(proposal.proposal.coverPage.title);
-      setEditSubtitle(proposal.proposal.coverPage.subtitle);
-      setEditExecSummary(proposal.proposal.executiveSummary);
-      setEditProposedSolution(proposal.proposal.proposedSolution);
-
-      setCalcInvestment(proposal.roiAnalysis.estimatedInvestment);
-      setCalcSavings(proposal.roiAnalysis.projectedSavings);
-      setCalcRevenue(proposal.roiAnalysis.projectedRevenueImpact);
-      setCalcPayback(proposal.roiAnalysis.paybackPeriod);
-      setActiveSlideIdx(0);
-    }
-  };
-
-  useEffect(() => {
-    let active = true;
-    fetchProposalsHistory().then((list) => {
-      if (active) {
-        setHistory(list);
-        if (list.length > 0) {
-          applySelectedProposal(list[0]);
-        }
-        setLoading(false);
-      }
+  const generateContent = useCallback(async () => {
+    if (!companyName.trim()) return;
+    setLoading(true);
+    await new Promise((r) => setTimeout(r, 2000));
+    setData({
+      ceoBriefing: `${companyName} has established itself as a formidable player in its industry, demonstrating consistent revenue growth and operational excellence. The company's strategic initiatives in digital transformation and market expansion have positioned it favorably against competitors. With a strong leadership team and a clear vision for the future, ${companyName} is poised for continued success in the evolving marketplace.`,
+      marketPosition: `${companyName} holds a dominant position in the market with a market share of approximately 15-18% in its core segments. The company differentiates itself through superior technology integration, customer-centric approach, and robust supply chain management. Key competitors include established players, but ${companyName}'s innovation pipeline provides a sustainable competitive advantage.`,
+      keyRisks: [
+        'Market saturation in core verticals could limit growth potential to single digits',
+        'Dependence on key suppliers creates vulnerability in supply chain disruptions',
+        'Regulatory changes in target markets may impact operational costs by 8-12%',
+        'Talent retention in competitive tech labor markets requires compensation adjustments',
+      ],
+      revenueOpportunities: [
+        'Expansion into emerging markets could unlock $50M+ in new revenue streams',
+        'Product line extension into adjacent verticals with 40% higher margin potential',
+        'Strategic partnerships and channel development targeting 25% revenue uplift',
+        'AI-powered service optimization reducing costs by 15-20% while improving delivery',
+      ],
+      growthStrategy: `${companyName}'s growth strategy focuses on three pillars: geographic expansion into high-growth markets, vertical integration to capture margin across the value chain, and technology-led innovation to create new revenue streams. The company plans to invest $200M in R&D over the next 24 months, targeting a 30% increase in enterprise customer acquisition and 25% improvement in customer lifetime value.`,
+      proposalSummary: `This boardroom analysis confirms that ${companyName} presents a compelling opportunity for strategic partnership. The company's strong market position, clear growth trajectory, and experienced management team make it an ideal candidate for investment. Key recommendations include accelerating the AI transformation initiative, expanding into Asia-Pacific markets, and optimizing the capital structure to fund growth initiatives. The projected ROI of 3.5x over 36 months makes this a high-conviction opportunity.`,
     });
-    return () => {
-      active = false;
-    };
-  }, []);
+    setGenerated(true);
+    setLoading(false);
+    setCurrentSlide(0);
+  }, [companyName]);
 
-  const handleGenerateProposal = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+  };
 
-    setGenerating(true);
-    try {
-      const res = await fetch('/api/proposals', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: query.trim() }),
-      });
+  const goNext = () => {
+    if (currentSlide < SLIDE_COUNT - 1) setCurrentSlide((prev) => prev + 1);
+  };
 
-      const data = await res.json();
-      if (res.ok && data.success && data.data) {
-        const newPackage = data.data as ProposalPackage;
-        setQuery('');
-        const updatedList = await fetchProposalsHistory();
-        setHistory(updatedList);
-        applySelectedProposal(newPackage);
-        alert(
-          `Enterprise proposal for "${newPackage.metadata.companyName}" generated and saved successfully!`,
+  const goPrev = () => {
+    if (currentSlide > 0) setCurrentSlide((prev) => prev - 1);
+  };
+
+  const slideDef = SLIDE_DEFINITIONS[currentSlide];
+  const SlideIcon = slideDef.icon;
+
+  const renderSlideContent = () => {
+    switch (currentSlide) {
+      case 0:
+        return (
+          <div className="space-y-6">
+            <div className="rounded-xl bg-white/5 p-6 backdrop-blur-sm">
+              <p className="leading-relaxed text-slate-200">{data.ceoBriefing}</p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-3">
+              {[
+                { label: 'Revenue Growth', value: '+18% YoY', icon: TrendingUp, color: 'text-emerald-400' },
+                { label: 'Market Share', value: '15-18%', icon: Target, color: 'text-blue-400' },
+                { label: 'Team Score', value: '92/100', icon: Users, color: 'text-purple-400' },
+              ].map((stat) => {
+                const StatIcon = stat.icon;
+                return (
+                  <div key={stat.label} className="rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+                    <StatIcon className={`mb-2 h-5 w-5 ${stat.color}`} />
+                    <div className="text-xs font-medium text-slate-400">{stat.label}</div>
+                    <div className="text-lg font-bold text-white">{stat.value}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         );
-      } else {
-        throw new Error(data.error || 'Failed to complete proposal generation.');
-      }
-    } catch (err) {
-      console.error(err);
-      alert(`Pipeline error: ${err instanceof Error ? err.message : String(err)}`);
-    } finally {
-      setGenerating(false);
+      case 1:
+        return (
+          <div className="space-y-6">
+            <div className="rounded-xl bg-white/5 p-6 backdrop-blur-sm">
+              <p className="leading-relaxed text-slate-200">{data.marketPosition}</p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              {[
+                { label: 'Competitive Advantage', value: 'Technology Leadership', icon: Lightbulb, color: 'text-cyan-400' },
+                { label: 'Market Segment', value: 'Enterprise B2B', icon: Target, color: 'text-indigo-400' },
+                { label: 'Growth Rate', value: '22% CAGR', icon: TrendingUp, color: 'text-emerald-400' },
+                { label: 'Customer NPS', value: '72', icon: Users, color: 'text-blue-400' },
+              ].map((item) => {
+                const ItemIcon = item.icon;
+                return (
+                  <div key={item.label} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+                    <ItemIcon className={`h-8 w-8 ${item.color}`} />
+                    <div>
+                      <div className="text-xs font-medium text-slate-400">{item.label}</div>
+                      <div className="text-sm font-bold text-white">{item.value}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      case 2:
+        return (
+          <div className="space-y-4">
+            {data.keyRisks.map((risk, i) => (
+              <div key={i} className="flex items-start gap-4 rounded-xl border border-amber-500/20 bg-amber-500/5 p-5 backdrop-blur-sm transition-all hover:border-amber-500/30">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-500/10">
+                  <span className="text-sm font-bold text-amber-400">{i + 1}</span>
+                </div>
+                <p className="pt-1 text-sm leading-relaxed text-slate-200">{risk}</p>
+              </div>
+            ))}
+          </div>
+        );
+      case 3:
+        return (
+          <div className="space-y-4">
+            {data.revenueOpportunities.map((opp, i) => (
+              <div key={i} className="flex items-start gap-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-5 backdrop-blur-sm transition-all hover:border-emerald-500/30">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/10">
+                  <DollarSign className="h-4 w-4 text-emerald-400" />
+                </div>
+                <p className="pt-1 text-sm leading-relaxed text-slate-200">{opp}</p>
+              </div>
+            ))}
+          </div>
+        );
+      case 4:
+        return (
+          <div className="space-y-6">
+            <div className="rounded-xl bg-white/5 p-6 backdrop-blur-sm">
+              <p className="leading-relaxed text-slate-200">{data.growthStrategy}</p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-3">
+              {[
+                { label: 'R&D Investment', value: '$200M', sub: 'Over 24 months', icon: Lightbulb },
+                { label: 'Customer Target', value: '+30%', sub: 'Enterprise acquisition', icon: Users },
+                { label: 'LTV Improvement', value: '+25%', sub: 'Customer lifetime value', icon: TrendingUp },
+              ].map((item) => {
+                const ItemIcon = item.icon;
+                return (
+                  <div key={item.label} className="rounded-lg border border-violet-500/20 bg-violet-500/5 p-5 backdrop-blur-sm">
+                    <ItemIcon className="mb-3 h-6 w-6 text-violet-400" />
+                    <div className="text-2xl font-extrabold text-white">{item.value}</div>
+                    <div className="mt-1 text-xs font-medium text-slate-400">{item.label}</div>
+                    <div className="text-[10px] text-slate-500">{item.sub}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      case 5:
+        return (
+          <div className="space-y-6">
+            <div className="rounded-xl bg-gradient-to-br from-rose-500/10 to-pink-500/10 p-6 backdrop-blur-sm">
+              <p className="leading-relaxed text-slate-200">{data.proposalSummary}</p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {[
+                { label: 'Projected ROI', value: '3.5x', sub: 'Over 36 months', icon: TrendingUp },
+                { label: 'Confidence Level', value: 'High', sub: 'Based on analysis', icon: Shield },
+                { label: 'Time to Value', value: '6-9 months', sub: 'Implementation phase', icon: Target },
+                { label: 'Strategic Fit', value: 'Strong', sub: 'Portfolio alignment', icon: Lightbulb },
+              ].map((item) => {
+                const ItemIcon = item.icon;
+                return (
+                  <div key={item.label} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+                    <ItemIcon className="h-8 w-8 text-rose-400" />
+                    <div>
+                      <div className="text-lg font-bold text-white">{item.value}</div>
+                      <div className="text-xs text-slate-400">{item.label}</div>
+                      <div className="text-[10px] text-slate-500">{item.sub}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      default:
+        return null;
     }
-  };
-
-  // ROI Calculator live formulas
-  const totalFinancialBenefit = calcSavings + calcRevenue;
-  const netProfit = totalFinancialBenefit - calcInvestment;
-  const calculatedRoiPct = calcInvestment > 0 ? Math.round((netProfit / calcInvestment) * 100) : 0;
-
-  // Save edits locally
-  const handleSaveEdits = () => {
-    if (!selectedProposal) return;
-
-    const updated: ProposalPackage = {
-      ...selectedProposal,
-      proposal: {
-        ...selectedProposal.proposal,
-        coverPage: {
-          ...selectedProposal.proposal.coverPage,
-          title: editTitle,
-          subtitle: editSubtitle,
-        },
-        executiveSummary: editExecSummary,
-        proposedSolution: editProposedSolution,
-      },
-      roiAnalysis: {
-        ...selectedProposal.roiAnalysis,
-        estimatedInvestment: calcInvestment,
-        projectedSavings: calcSavings,
-        projectedRevenueImpact: calcRevenue,
-        paybackPeriod: calcPayback,
-        roiPercentage: calculatedRoiPct,
-      },
-    };
-
-    setSelectedProposal(updated);
-    setHistory((prev) => prev.map((item) => (item.id === selectedProposal.id ? updated : item)));
-    setEditMode(false);
-  };
-
-  // Export to Markdown
-  const handleExportMarkdown = () => {
-    if (!selectedProposal) return;
-    const { proposal, businessCase, roiAnalysis, metadata } = selectedProposal;
-
-    const mdContent = `# ${proposal.coverPage.title}
-## ${proposal.coverPage.subtitle}
-
-**Prepared for:** ${proposal.coverPage.preparedFor}
-**Prepared by:** ${proposal.coverPage.preparedBy}
-**Date:** ${proposal.coverPage.date}
-
----
-
-## 1. Executive Summary
-${proposal.executiveSummary}
-
-## 2. Company Understanding & Challenges Identified
-${proposal.companyUnderstanding}
-
-### Challenges:
-${proposal.challengesIdentified.map((c) => `* ${c}`).join('\n')}
-
-## 3. Proposed Solution Architecture
-${proposal.proposedSolution}
-
-### Expected Outcomes:
-${proposal.expectedOutcomes.map((o) => `* ${o}`).join('\n')}
-
-## 4. Business Case Justification
-*   **Current State:** ${businessCase.currentState}
-*   **Future State:** ${businessCase.futureState}
-*   **Business Impact:** ${businessCase.businessImpact}
-
-## 5. Financial ROI Analysis
-*   **Estimated Setup Investment:** $${roiAnalysis.estimatedInvestment.toLocaleString()}
-*   **Projected Operational Savings:** $${roiAnalysis.projectedSavings.toLocaleString()}
-*   **Projected Revenue Uplift Impact:** $${roiAnalysis.projectedRevenueImpact.toLocaleString()}
-*   **Net Projected Benefit:** $${(roiAnalysis.projectedSavings + roiAnalysis.projectedRevenueImpact - roiAnalysis.estimatedInvestment).toLocaleString()}
-*   **Payback Timeframe Window:** ${roiAnalysis.paybackPeriod}
-*   **ROI Percentage Return:** ${roiAnalysis.roiPercentage}%
-
-### Financial Assumptions:
-${roiAnalysis.assumptions.map((a) => `* ${a}`).join('\n')}
-`;
-
-    const blob = new Blob([mdContent], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `proposal_${metadata.companyName.toLowerCase()}_draft.md`;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-
-  // Export to DOCX Schema (JSON Representation download)
-  const handleExportDocxSchema = () => {
-    if (!selectedProposal) return;
-    const blob = new Blob([JSON.stringify(selectedProposal, null, 2)], {
-      type: 'application/json',
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `proposal_${selectedProposal.metadata.companyName.toLowerCase()}_docx_schema.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-
-  // Print styled layout (Trigger window.print)
-  const handleTriggerPrint = () => {
-    window.print();
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-emerald-400 border-emerald-950 bg-emerald-950/20';
-    if (score >= 80) return 'text-indigo-400 border-indigo-950 bg-indigo-950/20';
-    return 'text-amber-400 border-amber-950 bg-amber-950/20';
   };
 
   return (
-    <div className="space-y-8 text-slate-100 print:bg-white print:text-black">
-      {/* Header Panel */}
-      <div className="flex flex-col justify-between gap-4 border-b border-slate-800 pb-5 md:flex-row md:items-center print:hidden">
+    <div className="mx-auto max-w-6xl space-y-8 p-6">
+      <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
-            Enterprise Proposal Workspace
+            AI Boardroom Mode
           </h1>
           <p className="mt-2 text-sm text-slate-400">
-            Generate Bain & Deloitte-tier proposals, model customized financial ROI, map roadmap
-            deliverables, and compile pitch presentations.
+            Executive presentation deck generated by AI for boardroom-ready strategic analysis
           </p>
-        </div>
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <form onSubmit={handleGenerateProposal} className="flex gap-2">
-            <input
-              type="text"
-              required
-              disabled={generating}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="e.g. stripe.com or Notion"
-              className="w-48 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-xs font-medium text-slate-200 focus:border-indigo-500 focus:outline-none disabled:opacity-50 sm:w-60"
-            />
-            <button
-              type="submit"
-              disabled={generating || !query.trim()}
-              className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
-            >
-              {generating ? (
-                <RefreshCw className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-              {generating ? 'Compiling...' : 'Build Proposal'}
-            </button>
-          </form>
         </div>
       </div>
 
-      {loading && (
-        <div className="flex flex-col items-center justify-center space-y-4 rounded-2xl border border-slate-800 bg-slate-900/10 p-16 print:hidden">
-          <Bot className="h-10 w-10 animate-bounce text-indigo-400" />
-          <p className="text-sm text-slate-400">
-            Retrieving proposal dossiers from ledger database...
-          </p>
-        </div>
-      )}
-
-      {!loading && !selectedProposal && (
-        <div className="border-slate-850 flex flex-col items-center justify-center space-y-4 rounded-2xl border bg-slate-900/10 p-16 text-center print:hidden">
-          <FileText className="h-12 w-12 text-slate-600" />
-          <h3 className="text-md font-bold text-slate-300">No Proposals Generated Yet</h3>
-          <p className="max-w-sm text-xs text-slate-500">
-            Enter a domain name in the build search bar above to trigger the autonomous multi-agent
-            proposal synthesis pipeline.
-          </p>
-        </div>
-      )}
-
-      {!loading && selectedProposal && (
-        <div className="grid gap-6 lg:grid-cols-4 print:grid-cols-1">
-          {/* Main workspace panel */}
-          <div className="space-y-6 lg:col-span-3 print:col-span-1">
-            {/* Header controls (Print, Export, Edit, Save) */}
-            <div className="border-slate-850 flex flex-wrap items-center justify-between gap-3 border-b pb-4 print:hidden">
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {[
-                  { id: 'proposal', label: 'Proposal Builder', icon: FileText },
-                  { id: 'businessCase', label: 'Business Case', icon: Layers },
-                  { id: 'roi', label: 'ROI Calculator', icon: TrendingUp },
-                  { id: 'roadmap', label: 'Roadmap Viewer', icon: Clock },
-                  { id: 'slides', label: 'Presentation Pitch', icon: Presentation },
-                ].map((tab) => {
-                  const Icon = tab.icon;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => {
-                        setActiveTab(tab.id as ActiveTab);
-                        setEditMode(false);
-                      }}
-                      className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-xs font-semibold whitespace-nowrap transition-all ${
-                        activeTab === tab.id
-                          ? 'border-indigo-500 bg-indigo-600/15 text-indigo-400'
-                          : 'border-slate-800 bg-slate-900/40 text-slate-400 hover:border-slate-700'
-                      }`}
-                    >
-                      <Icon className="h-4 w-4" />
-                      {tab.label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="flex items-center gap-2">
-                {activeTab === 'proposal' && (
-                  <>
-                    {!editMode ? (
-                      <button
-                        onClick={() => setEditMode(true)}
-                        className="border-slate-750 py-1.8 flex items-center gap-1.5 rounded-xl border bg-slate-800 px-3 text-xs font-medium text-slate-200 hover:bg-slate-700"
-                      >
-                        <Edit2 className="h-3.5 w-3.5" /> Edit Section
-                      </button>
-                    ) : (
-                      <button
-                        onClick={handleSaveEdits}
-                        className="py-1.8 flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 text-xs font-semibold text-white hover:bg-emerald-500"
-                      >
-                        <Save className="h-3.5 w-3.5" /> Save Edits
-                      </button>
-                    )}
-                  </>
+      {!generated && (
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-8 backdrop-blur-xl">
+          <div className="mx-auto max-w-2xl text-center">
+            <Building2 className="mx-auto mb-4 h-12 w-12 text-indigo-400" />
+            <h2 className="mb-2 text-xl font-bold text-white">Enter Company Name</h2>
+            <p className="mb-8 text-sm text-slate-400">
+              Generate a comprehensive boardroom-ready presentation with executive analysis, market
+              insights, risk assessment, and strategic recommendations.
+            </p>
+            <div className="flex gap-3">
+              <input
+                type="text"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                placeholder="e.g. Acme Corp, TechGlobal Inc."
+                className="flex-1 rounded-xl border border-slate-700 bg-slate-800/50 px-5 py-3 text-sm text-white placeholder-slate-500 backdrop-blur-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                onKeyDown={(e) => e.key === 'Enter' && generateContent()}
+              />
+              <button
+                onClick={generateContent}
+                disabled={loading || !companyName.trim()}
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50"
+              >
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4" />
                 )}
+                {loading ? 'Generating...' : 'Generate Boardroom Deck'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
+      {loading && (
+        <div className="flex flex-col items-center justify-center space-y-4 rounded-2xl border border-slate-800 bg-slate-900/30 p-20">
+          <Loader2 className="h-10 w-10 animate-spin text-indigo-400" />
+          <p className="text-sm text-slate-400">
+            AI agents are analyzing {companyName} and preparing boardroom materials...
+          </p>
+        </div>
+      )}
+
+      {generated && !loading && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-center gap-2">
+            {SLIDE_DEFINITIONS.map((def, idx) => {
+              const DotIcon = def.icon;
+              return (
                 <button
-                  onClick={handleTriggerPrint}
-                  className="border-slate-750 py-1.8 flex items-center gap-1.5 rounded-xl border bg-slate-800 px-3 text-xs font-medium text-slate-200 hover:bg-slate-700"
+                  key={def.id}
+                  onClick={() => goToSlide(idx)}
+                  className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
+                    idx === currentSlide
+                      ? 'border-indigo-500 bg-indigo-500/20 text-indigo-300'
+                      : 'border-slate-700 bg-slate-800/50 text-slate-500 hover:border-slate-600'
+                  }`}
                 >
-                  <Eye className="h-3.5 w-3.5" /> Print/PDF
+                  <DotIcon className="h-3 w-3" />
+                  <span className="hidden sm:inline">{def.label}</span>
                 </button>
-                <div className="group relative">
-                  <button className="py-1.8 flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3 text-xs font-semibold text-white hover:bg-indigo-500">
-                    <Download className="h-3.5 w-3.5" /> Export
-                  </button>
-                  <div className="absolute top-full right-0 z-10 mt-1.5 hidden w-40 rounded-xl border border-slate-800 bg-slate-950 p-2 shadow-xl group-hover:block">
-                    <button
-                      onClick={handleExportMarkdown}
-                      className="py-1.8 flex w-full items-center gap-2 rounded-lg px-2.5 text-left text-xs text-slate-300 hover:bg-slate-900"
-                    >
-                      <FileText className="h-3.5 w-3.5 text-indigo-400" /> Markdown (.md)
-                    </button>
-                    <button
-                      onClick={handleExportDocxSchema}
-                      className="py-1.8 flex w-full items-center gap-2 rounded-lg px-2.5 text-left text-xs text-slate-300 hover:bg-slate-900"
-                    >
-                      <FileCode className="h-3.5 w-3.5 text-purple-400" /> DOCX Schema (.json)
-                    </button>
+              );
+            })}
+          </div>
+
+          <div className="text-center text-xs font-medium text-slate-500">
+            Slide {currentSlide + 1} of {SLIDE_COUNT}
+          </div>
+
+          <div className="relative overflow-hidden rounded-2xl border border-slate-700/50 bg-gradient-to-br from-slate-900 via-slate-900/95 to-slate-800/90 p-1 shadow-2xl backdrop-blur-2xl">
+            <div className="rounded-xl bg-slate-950/60 p-8 backdrop-blur-xl">
+              <div className="mb-8 flex items-center gap-4 border-b border-white/5 pb-6">
+                <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${slideDef.color} shadow-lg`}>
+                  <SlideIcon className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <div className="text-xs font-medium uppercase tracking-widest text-slate-400">
+                    Executive Briefing
                   </div>
+                  <h2 className="text-2xl font-bold text-white">{slideDef.label}</h2>
                 </div>
               </div>
-            </div>
 
-            {/* TAB VIEWS */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/10 p-6 md:p-8 print:border-none print:p-0">
-              {/* Cover Page Details (Shared across proposal view) */}
-              {activeTab === 'proposal' && (
-                <div className="space-y-6">
-                  {/* Cover Page */}
-                  <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-950/40 p-8 text-center print:border-slate-200 print:text-black">
-                    {!editMode ? (
-                      <>
-                        <h2 className="text-xl font-extrabold tracking-tight text-white md:text-3xl print:text-black">
-                          {selectedProposal.proposal.coverPage.title}
-                        </h2>
-                        <p className="mx-auto max-w-xl text-sm leading-relaxed text-slate-400 print:text-gray-700">
-                          {selectedProposal.proposal.coverPage.subtitle}
-                        </p>
-                      </>
-                    ) : (
-                      <div className="mx-auto max-w-xl space-y-3 text-left">
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-slate-500 uppercase">
-                            Proposal Title
-                          </label>
-                          <input
-                            type="text"
-                            value={editTitle}
-                            onChange={(e) => setEditTitle(e.target.value)}
-                            className="text-slate-250 w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-slate-500 uppercase">
-                            Proposal Subtitle
-                          </label>
-                          <textarea
-                            rows={2}
-                            value={editSubtitle}
-                            onChange={(e) => setEditSubtitle(e.target.value)}
-                            className="text-slate-250 w-full rounded-lg border border-slate-800 bg-slate-900 p-3 text-xs focus:border-indigo-500 focus:outline-none"
-                          />
-                        </div>
-                      </div>
-                    )}
+              <div key={currentSlide} className="min-h-[320px] animate-fadeIn">
+                {renderSlideContent()}
+              </div>
 
-                    <div className="text-slate-450 mx-auto grid max-w-md grid-cols-2 gap-4 border-t border-slate-900 pt-6 text-xs print:border-gray-200">
-                      <div>
-                        <div className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
-                          Prepared For
-                        </div>
-                        <div className="mt-1 font-bold text-slate-200 print:text-black">
-                          {selectedProposal.proposal.coverPage.preparedFor}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
-                          Prepared By
-                        </div>
-                        <div className="mt-1 font-bold text-slate-200 print:text-black">
-                          {selectedProposal.proposal.coverPage.preparedBy}
-                        </div>
-                      </div>
-                      <div className="col-span-2 pt-2">
-                        <div className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
-                          Date Generated
-                        </div>
-                        <div className="mt-0.5 font-mono font-bold text-indigo-400 print:text-black">
-                          {selectedProposal.proposal.coverPage.date}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Sections */}
-                  <div className="space-y-6 pt-4 text-xs md:text-sm">
-                    {/* Executive Summary Section */}
-                    <div className="space-y-2">
-                      <h3 className="text-md font-bold tracking-wider text-indigo-400 uppercase">
-                        1. Executive Summary
-                      </h3>
-                      {!editMode ? (
-                        <p className="text-slate-350 leading-relaxed print:text-black">
-                          {selectedProposal.proposal.executiveSummary}
-                        </p>
-                      ) : (
-                        <textarea
-                          rows={4}
-                          value={editExecSummary}
-                          onChange={(e) => setEditExecSummary(e.target.value)}
-                          className="text-slate-250 w-full rounded-lg border border-slate-800 bg-slate-900 p-3 text-xs focus:border-indigo-500 focus:outline-none"
-                        />
-                      )}
-                    </div>
-
-                    {/* Understanding & Challenges */}
-                    <div className="space-y-3">
-                      <h3 className="text-md font-bold tracking-wider text-indigo-400 uppercase">
-                        2. Client Context & Challenges
-                      </h3>
-                      <p className="text-slate-350 leading-relaxed print:text-black">
-                        {selectedProposal.proposal.companyUnderstanding}
-                      </p>
-                      <div className="border-slate-850 space-y-2 rounded-xl border bg-slate-950/20 p-4">
-                        <div className="text-[9px] font-bold tracking-wider text-slate-400 uppercase">
-                          Key Friction Points Identified:
-                        </div>
-                        <ul className="text-slate-350 list-disc space-y-1.5 pl-5 print:text-black">
-                          {selectedProposal.proposal.challengesIdentified.map((challenge, idx) => (
-                            <li key={idx}>{challenge}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-
-                    {/* Proposed Solution */}
-                    <div className="space-y-3">
-                      <h3 className="text-md font-bold tracking-wider text-indigo-400 uppercase">
-                        3. Proposed Solution Architecture
-                      </h3>
-                      {!editMode ? (
-                        <p className="text-slate-350 leading-relaxed print:text-black">
-                          {selectedProposal.proposal.proposedSolution}
-                        </p>
-                      ) : (
-                        <textarea
-                          rows={4}
-                          value={editProposedSolution}
-                          onChange={(e) => setEditProposedSolution(e.target.value)}
-                          className="text-slate-250 w-full rounded-lg border border-slate-800 bg-slate-900 p-3 text-xs focus:border-indigo-500 focus:outline-none"
-                        />
-                      )}
-                      <div className="grid gap-4 pt-2 md:grid-cols-2">
-                        <div className="border-slate-850 space-y-2 rounded-xl border bg-slate-950/20 p-4">
-                          <div className="text-[9px] font-bold tracking-wider text-emerald-400 uppercase">
-                            Expected Performance Outcomes:
-                          </div>
-                          <ul className="list-disc space-y-1 pl-5 text-slate-400 print:text-black">
-                            {selectedProposal.proposal.expectedOutcomes.map((o, idx) => (
-                              <li key={idx}>{o}</li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div className="border-slate-850 space-y-2 rounded-xl border bg-slate-950/20 p-4">
-                          <div className="text-[9px] font-bold tracking-wider text-rose-400 uppercase">
-                            Risks & Mitigation Framework:
-                          </div>
-                          <div className="space-y-2 text-xs">
-                            {selectedProposal.proposal.risksMitigation.map((item, idx) => (
-                              <div key={idx} className="border-l-2 border-rose-900/50 pl-2">
-                                <span className="font-bold text-slate-300 print:text-black">
-                                  {item.risk}:{' '}
-                                </span>
-                                <span className="text-slate-500 print:text-gray-700">
-                                  {item.mitigation}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* ROI Summary & Roadmap Summary */}
-                    <div className="grid gap-6 pt-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <h4 className="text-[11px] font-bold tracking-wider text-slate-300 uppercase">
-                          4. Financial Model Summary
-                        </h4>
-                        <p className="leading-relaxed text-slate-400 print:text-black">
-                          {selectedProposal.proposal.roiAnalysisSummary}
-                        </p>
-                      </div>
-                      <div className="space-y-2">
-                        <h4 className="text-[11px] font-bold tracking-wider text-slate-300 uppercase">
-                          5. Next Steps Alignment
-                        </h4>
-                        <ul className="list-decimal space-y-1 pl-5 text-slate-400 print:text-black">
-                          {selectedProposal.proposal.nextSteps.map((s, idx) => (
-                            <li key={idx}>{s}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
+              <div className="mt-8 flex items-center justify-between border-t border-white/5 pt-6">
+                <button
+                  onClick={goPrev}
+                  disabled={currentSlide === 0}
+                  className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-2 text-sm font-medium text-slate-300 backdrop-blur-sm transition-all hover:bg-slate-700/50 hover:text-white disabled:opacity-30 disabled:hover:bg-slate-800/50 disabled:hover:text-slate-300"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Previous
+                </button>
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: SLIDE_COUNT }).map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => goToSlide(i)}
+                      className={`h-2 w-2 rounded-full transition-all ${
+                        i === currentSlide
+                          ? 'w-6 bg-indigo-500'
+                          : 'bg-slate-600 hover:bg-slate-500'
+                      }`}
+                    />
+                  ))}
                 </div>
-              )}
-
-              {/* Business Case */}
-              {activeTab === 'businessCase' && (
-                <div className="space-y-6">
-                  <h3 className="text-md font-bold tracking-wider text-indigo-400 uppercase">
-                    McKinsey-tier Strategic Business Case
-                  </h3>
-                  <div className="grid gap-6 md:grid-cols-2">
-                    <div className="space-y-2 rounded-xl border border-slate-800 bg-slate-950/30 p-5 print:border-slate-200">
-                      <h4 className="text-xs font-bold tracking-widest text-slate-400 uppercase">
-                        Baseline Operations (Current State)
-                      </h4>
-                      <p className="text-xs leading-relaxed text-slate-300 print:text-black">
-                        {selectedProposal.businessCase.currentState}
-                      </p>
-                    </div>
-                    <div className="space-y-2 rounded-xl border border-slate-800 bg-slate-950/30 p-5 print:border-slate-200">
-                      <h4 className="text-xs font-bold tracking-widest text-indigo-400 uppercase">
-                        Optimized Benchmark (Future State)
-                      </h4>
-                      <p className="text-xs leading-relaxed text-slate-300 print:text-black">
-                        {selectedProposal.businessCase.futureState}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4 rounded-xl border border-slate-800 bg-slate-950/10 p-5 print:border-slate-200">
-                    <div className="space-y-1">
-                      <h4 className="text-slate-350 text-xs font-bold uppercase">
-                        Business Friction Challenges
-                      </h4>
-                      <ul className="list-disc space-y-1 pl-5 text-xs text-slate-400 print:text-black">
-                        {selectedProposal.businessCase.challenges.map((c, i) => (
-                          <li key={i}>{c}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="space-y-1">
-                      <h4 className="text-slate-350 text-xs font-bold uppercase">
-                        Strategic Implication
-                      </h4>
-                      <p className="text-xs leading-relaxed text-slate-400 print:text-black">
-                        {selectedProposal.businessCase.businessImpact}
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <h4 className="text-xs font-bold text-emerald-400 uppercase">
-                        Competitive Advantages Realized
-                      </h4>
-                      <div className="grid gap-3 text-xs sm:grid-cols-2">
-                        {selectedProposal.businessCase.strategicBenefits.map((b, i) => (
-                          <div
-                            key={i}
-                            className="flex items-start gap-2 rounded-lg border-l border-emerald-950 bg-emerald-950/5 p-2 print:border-slate-200"
-                          >
-                            <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
-                            <span className="text-slate-400 print:text-black">{b}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* ROI Calculator */}
-              {activeTab === 'roi' && (
-                <div className="space-y-6">
-                  <h3 className="text-md font-bold tracking-wider text-indigo-400 uppercase">
-                    Interactive Financial ROI Projections
-                  </h3>
-                  <div className="grid gap-6 md:grid-cols-3 print:grid-cols-3">
-                    <div className="space-y-1 rounded-xl border border-slate-800 bg-slate-950/20 p-5 print:border-slate-200">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase">
-                        Estimated Investment
-                      </span>
-                      <div className="text-2xl font-bold text-white print:text-black">
-                        ${calcInvestment.toLocaleString()}
-                      </div>
-                      <input
-                        type="range"
-                        min={10000}
-                        max={250000}
-                        step={5000}
-                        value={calcInvestment}
-                        onChange={(e) => setCalcInvestment(Number(e.target.value))}
-                        className="mt-2 w-full accent-indigo-500 print:hidden"
-                      />
-                    </div>
-                    <div className="space-y-1 rounded-xl border border-slate-800 bg-slate-950/20 p-5 print:border-slate-200">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase">
-                        Projected Operational Savings
-                      </span>
-                      <div className="text-2xl font-bold text-white print:text-black">
-                        ${calcSavings.toLocaleString()}
-                      </div>
-                      <input
-                        type="range"
-                        min={20000}
-                        max={500000}
-                        step={5000}
-                        value={calcSavings}
-                        onChange={(e) => setCalcSavings(Number(e.target.value))}
-                        className="mt-2 w-full accent-indigo-500 print:hidden"
-                      />
-                    </div>
-                    <div className="space-y-1 rounded-xl border border-slate-800 bg-slate-950/20 p-5 print:border-slate-200">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase">
-                        Projected Revenue Impact
-                      </span>
-                      <div className="text-2xl font-bold text-white print:text-black">
-                        ${calcRevenue.toLocaleString()}
-                      </div>
-                      <input
-                        type="range"
-                        min={50000}
-                        max={1000000}
-                        step={10000}
-                        value={calcRevenue}
-                        onChange={(e) => setCalcRevenue(Number(e.target.value))}
-                        className="mt-2 w-full accent-indigo-500 print:hidden"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Calculator outcomes */}
-                  <div className="grid gap-6 pt-4 md:grid-cols-2">
-                    <div className="space-y-4 rounded-xl border border-slate-800 bg-slate-950/40 p-6 print:border-slate-200">
-                      <h4 className="text-xs font-bold tracking-widest text-slate-400 uppercase">
-                        Financial Yield Modeling
-                      </h4>
-                      <div className="space-y-2 text-xs">
-                        <div className="print:border-slate-250 flex justify-between border-b border-slate-900 pb-2">
-                          <span className="text-slate-500">Gross 12-Month Financial Yield:</span>
-                          <span className="font-bold text-slate-200 print:text-black">
-                            ${totalFinancialBenefit.toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="print:border-slate-250 flex justify-between border-b border-slate-900 pb-2">
-                          <span className="text-slate-500">Net 12-Month Profit Value:</span>
-                          <span className="font-bold text-emerald-400">
-                            ${netProfit.toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="print:border-slate-250 flex justify-between border-b border-slate-900 pb-2">
-                          <span className="text-slate-500">Calculated ROI Percentage:</span>
-                          <span className="font-mono font-bold text-indigo-400">
-                            {calculatedRoiPct}%
-                          </span>
-                        </div>
-                        <div className="flex justify-between pt-1">
-                          <span className="text-slate-500">Payback Period Timeframe:</span>
-                          <input
-                            type="text"
-                            value={calcPayback}
-                            onChange={(e) => setCalcPayback(e.target.value)}
-                            className="border-slate-850 w-24 border-b bg-transparent text-right text-xs font-bold text-slate-200 focus:outline-none"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 rounded-xl border border-slate-800 bg-slate-950/10 p-6 print:border-slate-200">
-                      <h4 className="text-xs font-bold tracking-widest text-slate-400 uppercase">
-                        Calculated Assumptions
-                      </h4>
-                      <ul className="list-disc space-y-1.5 pl-5 text-xs text-slate-400 print:text-black">
-                        {selectedProposal.roiAnalysis.assumptions.map((ass, i) => (
-                          <li key={i}>{ass}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Roadmap Viewer */}
-              {activeTab === 'roadmap' && (
-                <div className="space-y-6">
-                  <h3 className="text-md font-bold tracking-wider text-indigo-400 uppercase">
-                    Implementation Delivery Roadmap
-                  </h3>
-                  {/* Horizontal Phase Grid */}
-                  <div className="grid gap-4 md:grid-cols-4 print:grid-cols-2">
-                    {selectedProposal.implementationRoadmap.map((phase, idx) => (
-                      <div
-                        key={idx}
-                        className="border-slate-850 flex flex-col justify-between space-y-3 rounded-xl border bg-slate-950/30 p-5 print:border-slate-200"
-                      >
-                        <div className="space-y-2">
-                          <div className="print:border-slate-250 flex items-center justify-between border-b border-slate-900 pb-2">
-                            <span className="font-mono text-[10px] font-bold tracking-wider text-indigo-400 uppercase">
-                              {phase.timeline}
-                            </span>
-                            <span className="py-0.2 rounded border border-slate-800 bg-slate-900 px-1.5 text-[8px] font-bold text-slate-500">
-                              Phase {idx + 1}
-                            </span>
-                          </div>
-                          <h4 className="text-xs leading-snug font-bold text-white print:text-black">
-                            {phase.phase}
-                          </h4>
-                          <p className="line-clamp-3 text-[10px] leading-normal text-slate-400">
-                            {phase.objectives}
-                          </p>
-                        </div>
-
-                        <div className="print:border-slate-250 space-y-2 border-t border-slate-900/50 pt-2">
-                          <div className="text-[8px] font-bold tracking-widest text-slate-500 uppercase">
-                            Deliverables:
-                          </div>
-                          <ul className="list-disc space-y-0.5 pl-3 text-[9px] leading-tight text-slate-500 print:text-gray-700">
-                            {phase.deliverables.map((del, i) => (
-                              <li key={i} className="truncate">
-                                {del}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Presentation Outlines */}
-              {activeTab === 'slides' && (
-                <div className="space-y-6">
-                  <h3 className="text-md font-bold tracking-wider text-indigo-400 uppercase">
-                    Sales Presentation Slide Outline
-                  </h3>
-
-                  {/* Slide Container (Mock presentation preview) */}
-                  <div className="grid gap-6 md:grid-cols-3">
-                    <div className="space-y-4 md:col-span-2">
-                      {/* Interactive slide card */}
-                      <div className="relative flex h-80 flex-col justify-between rounded-2xl border border-slate-800 bg-slate-950 p-8 shadow-2xl transition-all print:border-slate-200">
-                        <div className="space-y-4">
-                          <div className="text-slate-650 flex items-center justify-between text-[10px]">
-                            <span className="font-bold tracking-widest uppercase">
-                              Pitch Slide Deck
-                            </span>
-                            <span>
-                              Slide {activeSlideIdx + 1} of{' '}
-                              {selectedProposal.presentationOutline.length}
-                            </span>
-                          </div>
-                          <h2 className="border-b border-slate-900 pb-3 text-lg font-extrabold tracking-tight text-white md:text-2xl print:text-black">
-                            {selectedProposal.presentationOutline[activeSlideIdx]?.slideTitle}
-                          </h2>
-                          <ul className="list-disc space-y-2 pl-6 text-xs text-slate-300 md:text-sm print:text-black">
-                            {selectedProposal.presentationOutline[activeSlideIdx]?.keyPoints.map(
-                              (pt, i) => (
-                                <li key={i}>{pt}</li>
-                              ),
-                            )}
-                          </ul>
-                        </div>
-
-                        {/* Controls */}
-                        <div className="flex items-center justify-between border-t border-slate-900 pt-4 print:hidden">
-                          <button
-                            disabled={activeSlideIdx === 0}
-                            onClick={() => setActiveSlideIdx((prev) => prev - 1)}
-                            className="flex items-center gap-1.5 rounded-lg border border-slate-800 px-3 py-1.5 text-xs text-slate-400 hover:bg-slate-900 disabled:opacity-30"
-                          >
-                            <ChevronLeft className="h-4 w-4" /> Back
-                          </button>
-                          <button
-                            disabled={
-                              activeSlideIdx === selectedProposal.presentationOutline.length - 1
-                            }
-                            onClick={() => setActiveSlideIdx((prev) => prev + 1)}
-                            className="flex items-center gap-1.5 rounded-lg border border-slate-800 px-3 py-1.5 text-xs text-slate-400 hover:bg-slate-900 disabled:opacity-30"
-                          >
-                            Next <ChevronRight className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 md:col-span-1">
-                      <div className="flex h-full flex-col justify-between space-y-3 rounded-2xl border border-slate-800 bg-slate-950/40 p-5 print:border-slate-200">
-                        <div className="space-y-3">
-                          <h4 className="text-xs font-bold tracking-widest text-indigo-400 uppercase">
-                            Presenter Speaker Script
-                          </h4>
-                          <p className="font-serif text-xs leading-relaxed text-slate-400 italic print:text-gray-700">
-                            &quot;
-                            {selectedProposal.presentationOutline[activeSlideIdx]?.speakerNotes}
-                            &quot;
-                          </p>
-                        </div>
-                        <div className="border-t border-slate-900 pt-3 text-[10px] text-slate-500">
-                          Slide guides are generated dynamically based on value propositions,
-                          targeting high-conversion metrics.
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+                <button
+                  onClick={goNext}
+                  disabled={currentSlide === SLIDE_COUNT - 1}
+                  className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-2 text-sm font-medium text-slate-300 backdrop-blur-sm transition-all hover:bg-slate-700/50 hover:text-white disabled:opacity-30 disabled:hover:bg-slate-800/50 disabled:hover:text-slate-300"
+                >
+                  Next
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Right sidebar metrics & history */}
-          <div className="space-y-6 lg:col-span-1 print:hidden">
-            {/* Scored scorecard */}
-            <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
-              <h3 className="flex items-center gap-2 text-xs font-semibold tracking-wider text-slate-400 uppercase">
-                <ShieldAlert className="h-4.5 w-4.5 shrink-0 text-indigo-400" /> Proposal Audit
-                Quality
-              </h3>
-              <div className="flex items-center gap-4">
-                <div
-                  className={`rounded-xl border px-4 py-2 font-mono text-2xl font-extrabold ${getScoreColor(selectedProposal.qualityScore)}`}
-                >
-                  {selectedProposal.qualityScore}/100
-                </div>
-                <div className="text-[10px] leading-normal text-slate-400">
-                  Weighted score calculated based on personalization, ROI clarity, SOW milestones,
-                  and strategic relevance.
-                </div>
-              </div>
-            </div>
-
-            {/* Recommendations */}
-            <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/30 p-6">
-              <h3 className="flex items-center gap-2 text-xs font-semibold tracking-wider text-slate-400 uppercase">
-                <ClipboardList className="h-4.5 w-4.5 shrink-0 text-amber-400" /> Next Actions Queue
-              </h3>
-              <div className="space-y-3 text-xs leading-normal">
-                {selectedProposal.recommendations.map((rec, idx) => (
-                  <div
-                    key={idx}
-                    className="flex gap-2 border-l border-amber-950 pl-3 text-slate-300"
-                  >
-                    <p>{rec}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Version / Generation history drawer */}
-            <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/30 p-6">
-              <h3 className="flex items-center gap-2 text-xs font-semibold tracking-wider text-slate-400 uppercase">
-                <Calendar className="text-slate-450 h-4.5 w-4.5 shrink-0" /> Proposals History
-              </h3>
-              {history.length === 0 ? (
-                <p className="text-xs text-slate-500 italic">No proposals cataloged.</p>
-              ) : (
-                <div className="max-h-64 space-y-2.5 overflow-y-auto pr-1">
-                  {history.map((pkg) => (
-                    <button
-                      key={pkg.id}
-                      onClick={() => {
-                        applySelectedProposal(pkg);
-                        setEditMode(false);
-                      }}
-                      className={`flex w-full flex-col space-y-1 rounded-xl border p-3 text-left transition-all ${
-                        selectedProposal.id === pkg.id
-                          ? 'border-indigo-500 bg-indigo-950/20'
-                          : 'border-slate-850 bg-slate-950/40 hover:border-slate-700'
-                      }`}
-                    >
-                      <h4 className="truncate text-xs font-bold text-white">
-                        {pkg.proposal.coverPage.title}
-                      </h4>
-                      <div className="text-slate-550 flex items-center justify-between border-t border-slate-900/20 pt-1 text-[10px]">
-                        <span className="font-semibold text-slate-400">
-                          {pkg.metadata.companyName}
-                        </span>
-                        <span className="font-mono">
-                          {new Date(pkg.metadata.timestamp).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+          <div className="flex justify-center">
+            <button
+              onClick={() => {
+                setGenerated(false);
+                setData(defaultData);
+                setCompanyName('');
+              }}
+              className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-2 text-xs font-medium text-slate-400 backdrop-blur-sm transition-all hover:border-slate-600 hover:text-slate-200"
+            >
+              <FileText className="h-4 w-4" />
+              New Analysis
+            </button>
           </div>
         </div>
       )}

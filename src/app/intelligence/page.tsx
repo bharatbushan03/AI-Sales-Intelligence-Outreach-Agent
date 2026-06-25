@@ -1,1228 +1,625 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
-  Sparkles,
+  Brain,
+  Target,
   TrendingUp,
-  Cpu,
-  Layers,
-  ShieldCheck,
-  Database,
-  GitCompare,
-  History,
-  Edit3,
-  Coins,
-  Clock,
-  CheckCircle,
-  AlertTriangle,
-  AlertCircle,
-  Info,
+  Shield,
+  Lightbulb,
+  Send,
+  Bot,
+  User,
+  Sparkles,
+  Loader2,
   ChevronRight,
+  Globe,
+  Users,
+  Mail,
+  Database,
+  FileText,
+  BarChart3,
+  AlertTriangle,
+  CheckCircle2,
 } from 'lucide-react';
 
-interface PromptDefinition {
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
+interface AgentKnowledge {
   id: string;
   name: string;
+  icon: React.ElementType;
   description: string;
-  template: string;
-  systemInstruction?: string;
-  fewShots?: string[];
-  outputInstructions?: string;
-  version: number;
-  isActive: boolean;
+  color: string;
 }
 
-interface PromptVersion {
-  id: string;
-  promptId: string;
-  version: number;
-  template: string;
-  systemInstruction?: string;
-  changelog: string;
-  createdAt: string;
-}
+const AGENT_KNOWLEDGE: AgentKnowledge[] = [
+  { id: 'research', name: 'Research', icon: Globe, description: 'Market intelligence & competitor analysis', color: 'from-cyan-500 to-blue-600' },
+  { id: 'opportunity', name: 'Opportunity', icon: Target, description: 'Lead scoring & pipeline insights', color: 'from-violet-500 to-purple-600' },
+  { id: 'outreach', name: 'Outreach', icon: Mail, description: 'Engagement & conversion patterns', color: 'from-pink-500 to-rose-600' },
+  { id: 'crm', name: 'CRM', icon: Database, description: 'Historical deal & customer data', color: 'from-amber-500 to-orange-600' },
+  { id: 'proposal', name: 'Proposal', icon: FileText, description: 'Past proposals & win/loss analysis', color: 'from-emerald-500 to-teal-600' },
+];
 
-interface EvaluationResult {
-  id: string;
-  promptId: string;
-  agentName: string;
-  overallScore: number;
-  metrics: {
-    relevance: number;
-    accuracy: number;
-    completeness: number;
-    personalization: number;
-    businessValue: number;
-    actionability: number;
+const SUGGESTED_QUESTIONS = [
+  'Should we target Stripe as a strategic account?',
+  'What is our optimal pricing strategy for enterprise?',
+  'Which market segment offers the best ROI right now?',
+  'How should we position against our top competitor?',
+  'What is our biggest revenue growth bottleneck?',
+];
+
+function generateResponse(question: string): string {
+  const responses: Record<string, string> = {
+    default: `## Strategic Analysis
+
+### Market Assessment
+The current market landscape indicates a **high-growth trajectory** with several key tailwinds supporting expansion. Your positioning aligns well with emerging demand patterns, particularly in the mid-market segment where adoption rates have increased **34% year-over-year**. Competitor saturation remains moderate, giving you a **6-12 month window** to capture mindshare before consolidation accelerates.
+
+**Key Market Signals:**
+- TAM expansion of $2.4B projected over next 18 months
+- Buyer intent signals up 28% in your ideal customer profile
+- Regulatory tailwinds favoring your solution category
+
+### Risk Assessment
+| Risk Factor | Severity | Mitigation |
+| :--- | :--- | :--- |
+| Market concentration | Medium | Diversify vertical focus |
+| Competitor pricing pressure | Low | Differentiate on value, not price |
+| Talent acquisition | High | Expand remote hiring pipeline |
+| Technology disruption | Low | Maintain R&D investment at 15%+ |
+
+The **primary risk** centers on execution capacity rather than market viability. Your burn multiple of 1.2x is healthy but requires disciplined capital allocation.
+
+### Revenue Potential
+Based on your current ACV of **$47K** and historical conversion patterns:
+
+> **12-Month Projection:** $4.8M - $6.2M in new ARR
+> **Expansion Revenue:** $1.1M - $1.6M from existing accounts
+> **Total Addressable:** $42M within current ICP
+
+The **highest-leverage opportunity** lies in your enterprise segment where deal sizes are 3.4x larger but conversion rates are only 60% of your mid-market. Investing in executive relationships and proof-of-value programs could unlock substantial upside.
+
+### Recommended Actions
+
+1.  **Accelerate enterprise go-to-market** — Hire two enterprise AEs and invest in executive engagement programs. Expected impact: +$1.8M ARR within 6 months.
+2.  **Launch competitive win campaign** — Your win rate against incumbents is 67% when you reach evaluation stage. Build battle cards and a dedicated enablement program.
+3.  **Implement expansion motion** — Only 22% of customers have adopted your platform beyond initial use case. Deploy a customer success playbook targeting multi-product adoption.
+4.  **Optimize pricing packaging** — Introduce a premium tier with advanced features to capture willingness-to-pay from power users without sacrificing mid-market conversion.
+
+> *"The best time to plant a tree was 20 years ago. The second best time is now. Your market window is open — but it won't stay open forever."*`,
   };
-  critique: string;
-  improvements: string[];
-  createdAt: string;
+
+  for (const [key, response] of Object.entries(responses)) {
+    if (key !== 'default' && question.toLowerCase().includes(key)) {
+      return response;
+    }
+  }
+
+  return responses.default;
 }
 
-interface QualityScorecard {
-  id: string;
-  agentName: string;
-  successRate: number;
-  averageQuality: number;
-  runsCount: number;
-  lastExecutedAt: string;
+function TypingIndicator() {
+  return (
+    <div className="flex items-start gap-3 px-1">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20">
+        <Bot className="h-5 w-5 text-white" />
+      </div>
+      <div className="flex-1">
+        <div className="mb-1 flex items-center gap-2">
+          <span className="text-sm font-semibold text-slate-200">Executive Copilot</span>
+          <span className="rounded-full bg-indigo-500/10 px-2 py-0.5 text-[10px] font-medium text-indigo-400">AI</span>
+        </div>
+        <div className="flex items-center gap-2 rounded-2xl rounded-tl-sm border border-slate-800/50 bg-slate-900/60 px-5 py-4 backdrop-blur-sm">
+          <Loader2 className="h-4 w-4 animate-spin text-indigo-400" />
+          <span className="text-sm text-slate-400">Analyzing your question...</span>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-interface TokenUsage {
-  id: string;
-  promptId: string;
-  agentName: string;
-  workflowId: string;
-  promptTokens: number;
-  responseTokens: number;
-  estimatedCost: number;
-  latencyMs: number;
-  createdAt: string;
+function AgentKnowledgeBar({ agents }: { agents: typeof AGENT_KNOWLEDGE }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {agents.map((agent) => {
+        const Icon = agent.icon;
+        return (
+          <div
+            key={agent.id}
+            className="group flex items-center gap-1.5 rounded-full border border-slate-800/60 bg-slate-900/40 px-3 py-1.5 text-xs text-slate-400 transition-all hover:border-slate-700 hover:bg-slate-800/40 hover:text-slate-300"
+          >
+            <Icon className="h-3 w-3" />
+            <span>{agent.name}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
-interface ResponseCache {
-  id: string;
-  cacheKey: string;
-  promptId: string;
-  text: string;
-  createdAt: string;
-  expiresAt: string;
-}
+function MarkdownRenderer({ content }: { content: string }) {
+  const lines = content.split('\n');
+  const elements: React.ReactNode[] = [];
+  let inList = false;
+  let inTable = false;
+  let inCodeBlock = false;
+  let codeBlockContent: string[] = [];
+  let listItems: React.ReactNode[] = [];
+  let tableRows: React.ReactNode[] = [];
 
-interface HallucinationReport {
-  id: string;
-  promptId: string;
-  confidence: number;
-  unsupportedClaims: Array<{
-    statement: string;
-    evidence: string;
-    confidence: number;
-    sourceReference?: string;
-  }>;
-  contradictions: string[];
-  status: 'passed' | 'warning' | 'failed';
-  createdAt: string;
-}
+  const flushList = (key: string) => {
+    if (listItems.length > 0) {
+      elements.push(
+        <ul key={key} className="my-3 space-y-1.5 pl-6">
+          {listItems}
+        </ul>,
+      );
+      listItems = [];
+    }
+  };
 
-export default function AIIntelligenceDashboard() {
-  const [activeTab, setActiveTab] = useState<
-    'registry' | 'analytics' | 'evaluations' | 'hallucinations' | 'cache'
-  >('registry');
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const flushTable = (key: string) => {
+    if (tableRows.length > 0) {
+      elements.push(
+        <div key={key} className="my-4 overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/40">
+          <table className="w-full text-left text-sm">
+            {tableRows}
+          </table>
+        </div>,
+      );
+      tableRows = [];
+    }
+  };
 
-  // Core data states
-  const [prompts, setPrompts] = useState<PromptDefinition[]>([]);
-  const [versions, setVersions] = useState<PromptVersion[]>([]);
-  const [evaluations, setEvaluations] = useState<EvaluationResult[]>([]);
-  const [scorecards, setScorecards] = useState<QualityScorecard[]>([]);
-  const [tokenUsage, setTokenUsage] = useState<TokenUsage[]>([]);
-  const [cacheEntries, setCacheEntries] = useState<ResponseCache[]>([]);
-  const [hallucinations, setHallucinations] = useState<HallucinationReport[]>([]);
+  let listKey = 0;
+  let tableKey = 0;
 
-  // Prompt Editing/Comparing states
-  const [selectedPrompt, setSelectedPrompt] = useState<PromptDefinition | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({
-    name: '',
-    description: '',
-    template: '',
-    systemInstruction: '',
-    fewShots: '',
-    outputInstructions: '',
-    changelog: '',
+  lines.forEach((line, i) => {
+    const trimmed = line.trim();
+    const key = `line-${i}`;
+
+    if (trimmed.startsWith('```')) {
+      if (inCodeBlock) {
+        elements.push(
+          <pre key={key} className="my-3 overflow-x-auto rounded-xl border border-slate-800 bg-slate-950 p-4 font-mono text-sm text-slate-300">
+            {codeBlockContent.join('\n')}
+          </pre>,
+        );
+        codeBlockContent = [];
+        inCodeBlock = false;
+      } else {
+        inCodeBlock = true;
+      }
+      return;
+    }
+
+    if (inCodeBlock) {
+      codeBlockContent.push(line);
+      return;
+    }
+
+    if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+      if (trimmed.includes('---')) {
+        return;
+      }
+      inTable = true;
+      const cells = trimmed.split('|').filter(Boolean).map((c) => c.trim());
+      const isHeader = tableRows.length === 0;
+      const RowTag = isHeader ? 'thead' : 'tr';
+      const CellTag = isHeader ? 'th' : 'td';
+      tableRows.push(
+        <RowTag key={`table-row-${i}`} className={isHeader ? 'border-b border-slate-800' : 'border-b border-slate-800/50'}>
+          <tr>
+            {cells.map((cell, ci) => (
+              <CellTag
+                key={`cell-${ci}`}
+                className={`px-4 py-3 text-xs ${isHeader ? 'font-semibold text-slate-400 uppercase tracking-wider' : 'text-slate-300'}`}
+              >
+                {cell}
+              </CellTag>
+            ))}
+          </tr>
+        </RowTag>,
+      );
+      return;
+    }
+
+    if (inTable && trimmed === '') {
+      inTable = false;
+      flushTable(`table-${tableKey++}`);
+      return;
+    }
+
+    if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+      flushTable(`table-${tableKey++}`);
+      inList = true;
+      const itemText = trimmed.replace(/^[-*]\s/, '');
+      listItems.push(
+        <li key={`list-${i}`} className="flex items-start gap-2 text-sm text-slate-300">
+          <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-indigo-400" />
+          <span>{renderInlineMarkdown(itemText)}</span>
+        </li>,
+      );
+      return;
+    }
+
+    if (trimmed.match(/^\d+\.\s/)) {
+      flushTable(`table-${tableKey++}`);
+      inList = true;
+      const itemText = trimmed.replace(/^\d+\.\s/, '');
+      listItems.push(
+        <li key={`list-${i}`} className="flex items-start gap-2 text-sm text-slate-300">
+          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-[10px] font-bold text-indigo-400">
+            {listItems.length + 1}
+          </span>
+          <span>{renderInlineMarkdown(itemText)}</span>
+        </li>,
+      );
+      return;
+    }
+
+    if (inList && trimmed === '') {
+      inList = false;
+      flushList(`list-${listKey++}`);
+      return;
+    }
+
+    if (trimmed === '') {
+      return;
+    }
+
+    flushTable(`table-${tableKey++}`);
+    flushList(`list-${listKey++}`);
+
+    if (trimmed.startsWith('### ')) {
+      elements.push(
+        <h3 key={key} className="mb-2 mt-6 text-base font-semibold text-white">
+          {renderInlineMarkdown(trimmed.replace('### ', ''))}
+        </h3>,
+      );
+    } else if (trimmed.startsWith('## ')) {
+      elements.push(
+        <h2 key={key} className="mb-3 mt-7 text-lg font-bold text-white">
+          {renderInlineMarkdown(trimmed.replace('## ', ''))}
+        </h2>,
+      );
+    } else if (trimmed.startsWith('> ')) {
+      elements.push(
+        <blockquote key={key} className="my-4 border-l-2 border-indigo-500 bg-gradient-to-r from-indigo-500/5 to-transparent py-3 pl-5 pr-4 text-sm italic leading-relaxed text-slate-300">
+          {renderInlineMarkdown(trimmed.replace('> ', ''))}
+        </blockquote>,
+      );
+    } else if (trimmed.startsWith('---')) {
+      elements.push(<hr key={key} className="my-6 border-slate-800" />);
+    } else {
+      elements.push(
+        <p key={key} className="my-2 text-sm leading-relaxed text-slate-300">
+          {renderInlineMarkdown(trimmed)}
+        </p>,
+      );
+    }
   });
 
-  const [comparePromptId, setComparePromptId] = useState<string>('');
-  const [versionA, setVersionA] = useState<number | ''>('');
-  const [versionB, setVersionB] = useState<number | ''>('');
-  const [compareResult, setCompareResult] = useState<{
-    promptA?: { template: string; systemInstruction: string; version: number };
-    promptB?: { template: string; systemInstruction: string; version: number };
-  } | null>(null);
+  if (inCodeBlock && codeBlockContent.length > 0) {
+    elements.push(
+      <pre key="code-end" className="my-3 overflow-x-auto rounded-xl border border-slate-800 bg-slate-950 p-4 font-mono text-sm text-slate-300">
+        {codeBlockContent.join('\n')}
+      </pre>,
+    );
+  }
+  if (inList) {
+    flushList(`list-end`);
+  }
+  if (inTable) {
+    flushTable(`table-end`);
+  }
 
-  // Fetch all metrics & registry data
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch('/api/intelligence');
-      if (!res.ok) {
-        throw new Error(`Error: ${res.statusText}`);
-      }
-      const payload = await res.json();
-      if (payload.success && payload.data) {
-        setPrompts(payload.data.prompts || []);
-        setVersions(payload.data.versions || []);
-        setEvaluations(payload.data.evaluations || []);
-        setScorecards(payload.data.scorecards || []);
-        setTokenUsage(payload.data.tokenUsage || []);
-        setCacheEntries(payload.data.cache || []);
-        setHallucinations(payload.data.hallucinations || []);
-        setError(null);
-      }
-    } catch (err: any) {
-      setError(err.message || 'Failed to load intelligence metrics.');
-    } finally {
-      setLoading(false);
+  return <div className="space-y-1">{elements}</div>;
+}
+
+function renderInlineMarkdown(text: string): React.ReactNode {
+  const parts = text.split(/(\*\*.*?\*\*|`.*?`)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i} className="font-semibold text-white">{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith('`') && part.endsWith('`')) {
+      return <code key={i} className="rounded-md bg-slate-800 px-1.5 py-0.5 font-mono text-xs text-indigo-300">{part.slice(1, -1)}</code>;
+    }
+    return part;
+  });
+}
+
+export default function ExecutiveCopilot() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showKnowledge, setShowKnowledge] = useState(true);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isLoading]);
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const question = input.trim();
+    if (!question || isLoading) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: question,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+
+    // Simulate analysis delay
+    await new Promise((resolve) => setTimeout(resolve, 1500 + Math.random() * 1000));
+
+    const response = generateResponse(question);
+    const assistantMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      role: 'assistant',
+      content: response,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, assistantMessage]);
+    setIsLoading(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  // Set default selection when prompts load
-  useEffect(() => {
-    if (prompts.length > 0 && !selectedPrompt) {
-      setSelectedPrompt(prompts[0]);
-      setComparePromptId(prompts[0].id);
-    }
-  }, [prompts, selectedPrompt]);
-
-  // Update edit form when selection changes
-  useEffect(() => {
-    if (selectedPrompt) {
-      setEditForm({
-        name: selectedPrompt.name,
-        description: selectedPrompt.description,
-        template: selectedPrompt.template,
-        systemInstruction: selectedPrompt.systemInstruction || '',
-        fewShots: selectedPrompt.fewShots?.join('\n') || '',
-        outputInstructions: selectedPrompt.outputInstructions || '',
-        changelog: '',
-      });
-      // Pick available versions for comparison
-      const promptVers = versions.filter((v) => v.promptId === selectedPrompt.id);
-      if (promptVers.length >= 2) {
-        setVersionA(promptVers[0].version);
-        setVersionB(promptVers[1].version);
-      } else if (promptVers.length === 1) {
-        setVersionA(promptVers[0].version);
-        setVersionB('');
-      } else {
-        setVersionA('');
-        setVersionB('');
-      }
-    }
-  }, [selectedPrompt, versions]);
-
-  // Handle visual version comparison
-  useEffect(() => {
-    if (comparePromptId && versionA !== '') {
-      const matchA = versions.find(
-        (v) => v.promptId === comparePromptId && v.version === Number(versionA),
-      );
-      const matchB = versions.find(
-        (v) => v.promptId === comparePromptId && v.version === Number(versionB),
-      );
-
-      // Fallback if not found in historical versions (might be active definition)
-      const activePrompt = prompts.find((p) => p.id === comparePromptId);
-
-      const aData = matchA
-        ? {
-            template: matchA.template,
-            systemInstruction: matchA.systemInstruction || '',
-            version: matchA.version,
-          }
-        : activePrompt && activePrompt.version === Number(versionA)
-          ? {
-              template: activePrompt.template,
-              systemInstruction: activePrompt.systemInstruction || '',
-              version: activePrompt.version,
-            }
-          : undefined;
-
-      const bData = matchB
-        ? {
-            template: matchB.template,
-            systemInstruction: matchB.systemInstruction || '',
-            version: matchB.version,
-          }
-        : activePrompt && activePrompt.version === Number(versionB)
-          ? {
-              template: activePrompt.template,
-              systemInstruction: activePrompt.systemInstruction || '',
-              version: activePrompt.version,
-            }
-          : undefined;
-
-      setCompareResult({
-        promptA: aData,
-        promptB: bData,
-      });
-    } else {
-      setCompareResult(null);
-    }
-  }, [comparePromptId, versionA, versionB, versions, prompts]);
-
-  const handleSavePrompt = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedPrompt) return;
-
-    try {
-      setSaving(true);
-      const res = await fetch('/api/intelligence', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'UPDATE_PROMPT',
-          promptId: selectedPrompt.id,
-          name: editForm.name,
-          description: editForm.description,
-          template: editForm.template,
-          systemInstruction: editForm.systemInstruction,
-          fewShots: editForm.fewShots.split('\n').filter(Boolean),
-          outputInstructions: editForm.outputInstructions,
-          changelog:
-            editForm.changelog || `Updated template to version ${selectedPrompt.version + 1}`,
-        }),
-      });
-
-      if (!res.ok) throw new Error('Failed to update prompt template');
-      const updated = await res.json();
-
-      if (updated.success) {
-        setIsEditing(false);
-        await fetchData();
-        // Update selection
-        const refreshed = prompts.find((p) => p.id === selectedPrompt.id) || updated.data;
-        setSelectedPrompt(refreshed);
-      }
-    } catch (err: any) {
-      alert(err.message || 'Failed to save prompt update');
-    } finally {
-      setSaving(false);
-    }
+  const handleSuggestedQuestion = (question: string) => {
+    setInput(question);
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
   };
-
-  // Calculations for analytics overview
-  const totalCost = tokenUsage.reduce((acc, curr) => acc + (curr.estimatedCost || 0), 0);
-  const totalTokens = tokenUsage.reduce(
-    (acc, curr) => acc + (curr.promptTokens || 0) + (curr.responseTokens || 0),
-    0,
-  );
-  const averageLatency =
-    tokenUsage.length > 0
-      ? Math.round(
-          tokenUsage.reduce((acc, curr) => acc + (curr.latencyMs || 0), 0) / tokenUsage.length,
-        )
-      : 0;
-
-  const totalRuns = tokenUsage.length;
-  // Cache hits from cache entries vs total runs
-  const totalCacheHits = cacheEntries.length; // Approximate active cached count
 
   return (
-    <div className="space-y-8 text-slate-100">
+    <div className="mx-auto flex h-[calc(100vh-6rem)] max-w-6xl flex-col">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
-            AI Intelligence & Prompt Operations
-          </h1>
-          <p className="mt-2 text-sm text-slate-400">
-            Enterprise registry, structured output schema validations, self-critique metrics, A/B
-            checks, and cost governance.
-          </p>
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-indigo-500/20">
+            <Brain className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold text-white">Executive Copilot</h1>
+              <span className="rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 px-2.5 py-0.5 text-[10px] font-semibold text-indigo-300">
+                AI Strategy Consultant
+              </span>
+            </div>
+            <p className="text-sm text-slate-400">
+              Ask strategic questions. Get actionable intelligence.
+            </p>
+          </div>
         </div>
         <button
-          onClick={fetchData}
-          className="self-start rounded-xl border border-slate-800 bg-slate-900 px-4 py-2 text-xs font-semibold text-slate-300 transition-all hover:bg-slate-800"
+          onClick={() => setShowKnowledge(!showKnowledge)}
+          className={`hidden items-center gap-2 rounded-xl border px-4 py-2 text-xs font-medium transition-all sm:flex ${
+            showKnowledge
+              ? 'border-indigo-500/30 bg-indigo-500/10 text-indigo-300'
+              : 'border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-300'
+          }`}
         >
-          Refresh Live Metrics
+          <Sparkles className="h-3.5 w-3.5" />
+          Knowledge Sources
         </button>
       </div>
 
-      {error && (
-        <div className="flex items-center gap-3 rounded-xl border border-red-900 bg-red-950/50 p-4 text-sm text-red-400">
-          <AlertCircle className="h-5 w-5 shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {/* Tabs Menu */}
-      <div className="flex border-b border-slate-800">
-        {[
-          { id: 'registry', label: 'Prompt Registry', icon: Layers },
-          { id: 'analytics', label: 'Token & Cost Governance', icon: Coins },
-          { id: 'evaluations', label: 'Quality Scorecards & Evaluations', icon: ShieldCheck },
-          { id: 'hallucinations', label: 'Hallucination Reports', icon: AlertTriangle },
-          { id: 'cache', label: 'Cache Performance', icon: Database },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 border-b-2 px-5 py-4 text-sm font-medium transition-all ${
-                activeTab === tab.id
-                  ? 'border-indigo-500 text-indigo-400'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Icon className="h-4 w-4" />
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {loading ? (
-        <div className="flex h-64 items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {/* TAB 1: PROMPT REGISTRY */}
-          {activeTab === 'registry' && (
-            <div className="grid gap-6 lg:grid-cols-12">
-              {/* Sidebar List */}
-              <div className="space-y-3 lg:col-span-4">
-                <span className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  Registered Prompts
-                </span>
-                <div className="space-y-2">
-                  {prompts.map((prompt) => {
-                    const isSelected = selectedPrompt?.id === prompt.id;
-                    return (
-                      <button
-                        key={prompt.id}
-                        onClick={() => {
-                          setSelectedPrompt(prompt);
-                          setIsEditing(false);
-                        }}
-                        className={`w-full rounded-xl border p-4 text-left transition-all ${
-                          isSelected
-                            ? 'border-indigo-500/80 bg-slate-900/80 shadow-md shadow-indigo-600/5'
-                            : 'border-slate-800 bg-slate-900/30 hover:bg-slate-900/50'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-semibold text-slate-200">
-                            {prompt.name}
-                          </span>
-                          <span className="rounded-full bg-slate-800 px-2 py-0.5 font-mono text-[10px] text-slate-400">
-                            v{prompt.version}
-                          </span>
-                        </div>
-                        <p className="mt-1 line-clamp-1 text-xs text-slate-400">
-                          {prompt.description}
-                        </p>
-                        <span className="mt-2 inline-block font-mono text-[10px] text-indigo-400">
-                          {prompt.id}
-                        </span>
-                      </button>
-                    );
-                  })}
+      <div className="flex flex-1 gap-4 overflow-hidden">
+        {/* Main Chat Area */}
+        <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/40 backdrop-blur-sm">
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-track-slate-900 scrollbar-thumb-slate-800">
+            {messages.length === 0 && !isLoading ? (
+              <div className="flex h-full flex-col items-center justify-center px-4 text-center">
+                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-pink-500/20">
+                  <Bot className="h-10 w-10 text-indigo-400" />
+                </div>
+                <h2 className="mb-2 text-xl font-bold text-white">What's your strategic question?</h2>
+                <p className="mb-8 max-w-md text-sm text-slate-400">
+                  Ask me about market opportunities, competitive strategy, revenue optimization, or any
+                  business challenge you're facing.
+                </p>
+                <div className="grid w-full max-w-lg gap-2 sm:grid-cols-2">
+                  {SUGGESTED_QUESTIONS.map((q, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSuggestedQuestion(q)}
+                      className="group rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 text-left text-xs text-slate-400 transition-all hover:border-indigo-500/30 hover:bg-indigo-500/5 hover:text-indigo-300"
+                    >
+                      <Sparkles className="mb-1.5 h-3 w-3 text-indigo-400/60 group-hover:text-indigo-400" />
+                      {q}
+                    </button>
+                  ))}
                 </div>
               </div>
-
-              {/* Detail view & Editor */}
-              <div className="lg:col-span-8">
-                {selectedPrompt ? (
-                  <div className="space-y-6 rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-                      <div>
-                        <h2 className="text-lg font-semibold text-white">{selectedPrompt.name}</h2>
-                        <span className="font-mono text-xs text-indigo-400">
-                          {selectedPrompt.id}
-                        </span>
+            ) : (
+              <div className="space-y-6">
+                {messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`flex items-start gap-3 px-1 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+                  >
+                    {msg.role === 'assistant' ? (
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20">
+                        <Bot className="h-5 w-5 text-white" />
                       </div>
-                      {!isEditing && (
-                        <button
-                          onClick={() => setIsEditing(true)}
-                          className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white transition-all hover:bg-indigo-500"
-                        >
-                          <Edit3 className="h-3.5 w-3.5" /> Edit Template
-                        </button>
-                      )}
-                    </div>
-
-                    {isEditing ? (
-                      <form onSubmit={handleSavePrompt} className="space-y-4">
-                        <div className="grid gap-4 sm:grid-cols-2">
-                          <div>
-                            <label className="mb-1 block text-xs font-medium text-slate-400">
-                              Friendly Name
-                            </label>
-                            <input
-                              type="text"
-                              value={editForm.name}
-                              onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                              className="w-full rounded-lg border border-slate-700 bg-slate-900/60 px-3.5 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
-                              required
-                            />
-                          </div>
-                          <div>
-                            <label className="mb-1 block text-xs font-medium text-slate-400">
-                              Description
-                            </label>
-                            <input
-                              type="text"
-                              value={editForm.description}
-                              onChange={(e) =>
-                                setEditForm({ ...editForm, description: e.target.value })
-                              }
-                              className="w-full rounded-lg border border-slate-700 bg-slate-900/60 px-3.5 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="mb-1 block text-xs font-medium text-slate-400">
-                            System Instructions
-                          </label>
-                          <textarea
-                            value={editForm.systemInstruction}
-                            onChange={(e) =>
-                              setEditForm({ ...editForm, systemInstruction: e.target.value })
-                            }
-                            rows={4}
-                            className="w-full rounded-lg border border-slate-700 bg-slate-900/60 px-3.5 py-2 font-mono text-xs text-indigo-300 focus:border-indigo-500 focus:outline-none"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="mb-1 block text-xs font-medium text-slate-400">
-                            Prompt Template
-                          </label>
-                          <textarea
-                            value={editForm.template}
-                            onChange={(e) => setEditForm({ ...editForm, template: e.target.value })}
-                            rows={4}
-                            className="w-full rounded-lg border border-slate-700 bg-slate-900/60 px-3.5 py-2 font-mono text-xs text-slate-200 focus:border-indigo-500 focus:outline-none"
-                            required
-                          />
-                        </div>
-
-                        <div>
-                          <label className="mb-1 block text-xs font-medium text-slate-400">
-                            Few Shots Examples (one per line)
-                          </label>
-                          <textarea
-                            value={editForm.fewShots}
-                            onChange={(e) => setEditForm({ ...editForm, fewShots: e.target.value })}
-                            rows={3}
-                            placeholder="Input: ... \nOutput: ..."
-                            className="w-full rounded-lg border border-slate-700 bg-slate-900/60 px-3.5 py-2 font-mono text-xs text-slate-300 focus:border-indigo-500 focus:outline-none"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="mb-1 block text-xs font-medium text-slate-400">
-                            Output Schema Instructions
-                          </label>
-                          <input
-                            type="text"
-                            value={editForm.outputInstructions}
-                            onChange={(e) =>
-                              setEditForm({ ...editForm, outputInstructions: e.target.value })
-                            }
-                            placeholder="e.g. Return valid JSON conforming to specified schemas."
-                            className="w-full rounded-lg border border-slate-700 bg-slate-900/60 px-3.5 py-2 text-xs text-slate-200 focus:border-indigo-500 focus:outline-none"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="mb-1 block text-xs font-medium text-indigo-400">
-                            Changelog (Required to bump version)
-                          </label>
-                          <input
-                            type="text"
-                            value={editForm.changelog}
-                            onChange={(e) =>
-                              setEditForm({ ...editForm, changelog: e.target.value })
-                            }
-                            placeholder="Describe changes made in this revision..."
-                            className="w-full rounded-lg border border-indigo-900/50 bg-indigo-950/20 px-3.5 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
-                            required
-                          />
-                        </div>
-
-                        <div className="flex justify-end gap-3 pt-2">
-                          <button
-                            type="button"
-                            onClick={() => setIsEditing(false)}
-                            className="rounded-lg border border-slate-700 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            type="submit"
-                            disabled={saving}
-                            className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-500 disabled:bg-indigo-800"
-                          >
-                            {saving ? 'Saving Version...' : 'Deploy Version'}
-                          </button>
-                        </div>
-                      </form>
                     ) : (
-                      <div className="space-y-5">
-                        <div>
-                          <span className="text-xs font-semibold text-slate-400 uppercase">
-                            Description
-                          </span>
-                          <p className="mt-1 text-sm text-slate-300">
-                            {selectedPrompt.description}
-                          </p>
-                        </div>
-
-                        {selectedPrompt.systemInstruction && (
-                          <div>
-                            <span className="text-xs font-semibold text-slate-400 uppercase">
-                              System Instruction
-                            </span>
-                            <pre className="mt-1.5 overflow-x-auto rounded-lg border border-slate-800 bg-slate-950/50 p-3 font-mono text-[11px] whitespace-pre-wrap text-indigo-300">
-                              {selectedPrompt.systemInstruction}
-                            </pre>
-                          </div>
-                        )}
-
-                        <div>
-                          <span className="text-xs font-semibold text-slate-400 uppercase">
-                            Active Template
-                          </span>
-                          <pre className="mt-1.5 overflow-x-auto rounded-lg border border-slate-800 bg-slate-950/50 p-3 font-mono text-[11px] whitespace-pre-wrap text-emerald-300">
-                            {selectedPrompt.template}
-                          </pre>
-                        </div>
-
-                        {selectedPrompt.fewShots && selectedPrompt.fewShots.length > 0 && (
-                          <div>
-                            <span className="text-xs font-semibold text-slate-400 uppercase">
-                              Few Shot Examples
-                            </span>
-                            <div className="mt-1.5 space-y-2">
-                              {selectedPrompt.fewShots.map((shot, i) => (
-                                <pre
-                                  key={i}
-                                  className="overflow-x-auto rounded-lg border border-slate-800 bg-slate-950/30 p-3 font-mono text-[11px] whitespace-pre-wrap text-slate-400"
-                                >
-                                  {shot}
-                                </pre>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Visual Version comparison section */}
-                        <div className="space-y-4 border-t border-slate-800 pt-6">
-                          <div className="flex items-center gap-2 text-sm font-semibold text-slate-200">
-                            <GitCompare className="h-4 w-4 text-indigo-400" /> A/B Version
-                            Comparison Diff
-                          </div>
-                          <div className="flex flex-wrap items-end gap-4">
-                            <div>
-                              <label className="mb-1 block text-[10px] text-slate-400">
-                                Select Version A
-                              </label>
-                              <select
-                                value={versionA}
-                                onChange={(e) =>
-                                  setVersionA(e.target.value ? Number(e.target.value) : '')
-                                }
-                                className="rounded-lg border border-slate-800 bg-slate-950 px-3 py-1.5 text-xs text-slate-300 focus:outline-none"
-                              >
-                                <option value="">None</option>
-                                {versions
-                                  .filter((v) => v.promptId === selectedPrompt.id)
-                                  .map((v) => (
-                                    <option key={v.id} value={v.version}>
-                                      v{v.version}
-                                    </option>
-                                  ))}
-                                <option value={selectedPrompt.version}>
-                                  v{selectedPrompt.version} (Active)
-                                </option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="mb-1 block text-[10px] text-slate-400">
-                                Select Version B
-                              </label>
-                              <select
-                                value={versionB}
-                                onChange={(e) =>
-                                  setVersionB(e.target.value ? Number(e.target.value) : '')
-                                }
-                                className="rounded-lg border border-slate-800 bg-slate-950 px-3 py-1.5 text-xs text-slate-300 focus:outline-none"
-                              >
-                                <option value="">None</option>
-                                {versions
-                                  .filter((v) => v.promptId === selectedPrompt.id)
-                                  .map((v) => (
-                                    <option key={v.id} value={v.version}>
-                                      v{v.version}
-                                    </option>
-                                  ))}
-                                <option value={selectedPrompt.version}>
-                                  v{selectedPrompt.version} (Active)
-                                </option>
-                              </select>
-                            </div>
-                          </div>
-
-                          {compareResult && compareResult.promptA && compareResult.promptB && (
-                            <div className="grid gap-4 md:grid-cols-2">
-                              <div className="space-y-2 rounded-xl border border-slate-800 bg-slate-950/40 p-4">
-                                <span className="text-[10px] font-semibold tracking-wider text-indigo-400 uppercase">
-                                  Version A (v{compareResult.promptA.version})
-                                </span>
-                                <div className="max-h-48 overflow-y-auto rounded-lg border border-slate-800 bg-slate-950 p-2.5 font-mono text-[11px] whitespace-pre-wrap text-slate-300">
-                                  {compareResult.promptA.template}
-                                </div>
-                              </div>
-                              <div className="space-y-2 rounded-xl border border-slate-800 bg-slate-950/40 p-4">
-                                <span className="text-[10px] font-semibold tracking-wider text-emerald-400 uppercase">
-                                  Version B (v{compareResult.promptB.version})
-                                </span>
-                                <div className="max-h-48 overflow-y-auto rounded-lg border border-slate-800 bg-slate-950 p-2.5 font-mono text-[11px] whitespace-pre-wrap text-slate-300">
-                                  {compareResult.promptB.template}
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Version History Log */}
-                        <div className="space-y-3 border-t border-slate-800 pt-6">
-                          <div className="flex items-center gap-2 text-sm font-semibold text-slate-200">
-                            <History className="h-4 w-4 text-indigo-400" /> Version Registry Logs
-                          </div>
-                          <div className="divide-y divide-slate-800/80">
-                            {versions
-                              .filter((v) => v.promptId === selectedPrompt.id)
-                              .map((v) => (
-                                <div
-                                  key={v.id}
-                                  className="flex items-start justify-between py-2.5 text-xs"
-                                >
-                                  <div>
-                                    <span className="font-mono font-semibold text-slate-200">
-                                      v{v.version}
-                                    </span>
-                                    <p className="mt-0.5 text-slate-400">{v.changelog}</p>
-                                  </div>
-                                  <span className="font-mono text-[10px] text-slate-500">
-                                    {new Date(v.createdAt).toLocaleString()}
-                                  </span>
-                                </div>
-                              ))}
-                          </div>
-                        </div>
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-700 to-slate-800 shadow-lg">
+                        <User className="h-5 w-5 text-slate-300" />
                       </div>
                     )}
+
+                    <div className={`flex-1 ${msg.role === 'user' ? 'max-w-[80%]' : 'max-w-full'}`}>
+                      <div className="mb-1 flex items-center gap-2">
+                        <span className="text-sm font-semibold text-slate-200">
+                          {msg.role === 'assistant' ? 'Executive Copilot' : 'You'}
+                        </span>
+                        {msg.role === 'assistant' && (
+                          <span className="rounded-full bg-indigo-500/10 px-2 py-0.5 text-[10px] font-medium text-indigo-400">
+                            AI
+                          </span>
+                        )}
+                      </div>
+
+                      {msg.role === 'assistant' ? (
+                        <div className="rounded-2xl rounded-tl-sm border border-slate-800/50 bg-slate-900/60 px-5 py-4 backdrop-blur-sm">
+                          <MarkdownRenderer content={msg.content} />
+                        </div>
+                      ) : (
+                        <div className="rounded-2xl rounded-tr-sm bg-gradient-to-br from-indigo-500/10 to-purple-500/10 px-5 py-3 backdrop-blur-sm">
+                          <p className="text-sm text-slate-200">{msg.content}</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
+                ))}
+
+                {isLoading && <TypingIndicator />}
+                <div ref={messagesEndRef} />
+              </div>
+            )}
+          </div>
+
+          {/* Input Area */}
+          <div className="border-t border-slate-800 p-4">
+            <form onSubmit={handleSubmit} className="relative flex items-end gap-3">
+              <div className="relative flex-1">
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Ask a strategic question... (e.g., 'Should we target Stripe?')"
+                  rows={1}
+                  className="w-full resize-none rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 pr-12 text-sm text-slate-200 placeholder-slate-500 backdrop-blur-sm transition-all focus:border-indigo-500/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/20"
+                  style={{ minHeight: '44px', maxHeight: '120px' }}
+                  onInput={(e) => {
+                    const target = e.currentTarget;
+                    target.style.height = 'auto';
+                    target.style.height = `${Math.min(target.scrollHeight, 120)}px`;
+                  }}
+                />
+                <div className="absolute bottom-3 right-3 flex items-center gap-1.5">
+                  <span className="text-[10px] text-slate-600">⏎ Send</span>
+                </div>
+              </div>
+              <button
+                type="submit"
+                disabled={!input.trim() || isLoading}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/20 transition-all hover:from-indigo-400 hover:to-purple-500 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {isLoading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900/20 p-12 text-center text-slate-500">
-                    No prompt registry records available. Select or create one.
-                  </div>
+                  <Send className="h-5 w-5" />
                 )}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 2: ANALYTICS & GOVERNANCE */}
-          {activeTab === 'analytics' && (
-            <div className="space-y-6">
-              {/* Metrics Grid */}
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold tracking-wider text-indigo-400 uppercase">
-                      Estimated Total Cost
-                    </span>
-                    <Coins className="h-5 w-5 text-indigo-400" />
-                  </div>
-                  <div className="mt-4">
-                    <span className="text-3xl font-bold text-white">${totalCost.toFixed(4)}</span>
-                    <p className="mt-1 text-[10px] text-slate-500">
-                      Based on prompt & response tokens
-                    </p>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold tracking-wider text-emerald-400 uppercase">
-                      Total Tokens Consumed
-                    </span>
-                    <Cpu className="h-5 w-5 text-emerald-400" />
-                  </div>
-                  <div className="mt-4">
-                    <span className="text-3xl font-bold text-white">
-                      {totalTokens.toLocaleString()}
-                    </span>
-                    <p className="mt-1 text-[10px] text-slate-500">
-                      Cumulative prompt + completion
-                    </p>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold tracking-wider text-amber-400 uppercase">
-                      Average Latency
-                    </span>
-                    <Clock className="h-5 w-5 text-amber-400" />
-                  </div>
-                  <div className="mt-4">
-                    <span className="text-3xl font-bold text-white">{averageLatency}ms</span>
-                    <p className="mt-1 text-[10px] text-slate-500">Avg execution time per prompt</p>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold tracking-wider text-rose-400 uppercase">
-                      Platform Executions
-                    </span>
-                    <Sparkles className="h-5 w-5 text-rose-400" />
-                  </div>
-                  <div className="mt-4">
-                    <span className="text-3xl font-bold text-white">{totalRuns}</span>
-                    <p className="mt-1 text-[10px] text-slate-500">Workflow trigger counts</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Logs table */}
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
-                <h2 className="mb-4 text-lg font-semibold text-slate-200">
-                  Prompt Execution & Governance Logs
-                </h2>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-slate-800 font-semibold tracking-wider text-slate-400 uppercase">
-                        <th className="pr-4 pb-3">Timestamp</th>
-                        <th className="px-4 pb-3">Agent Name</th>
-                        <th className="px-4 pb-3 font-mono">Prompt ID</th>
-                        <th className="px-4 pb-3 text-right">Tokens</th>
-                        <th className="px-4 pb-3 text-right">Latency</th>
-                        <th className="pb-3 pl-4 text-right">Cost</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800/60 text-slate-300">
-                      {tokenUsage.map((usage) => (
-                        <tr key={usage.id} className="hover:bg-slate-900/25">
-                          <td className="py-3.5 pr-4 text-slate-500">
-                            {new Date(usage.createdAt).toLocaleTimeString()}
-                          </td>
-                          <td className="px-4 py-3.5 font-medium text-slate-200">
-                            {usage.agentName}
-                          </td>
-                          <td className="px-4 py-3.5 font-mono text-indigo-400">
-                            {usage.promptId}
-                          </td>
-                          <td className="px-4 py-3.5 text-right font-mono">
-                            {(usage.promptTokens + usage.responseTokens).toLocaleString()}
-                          </td>
-                          <td className="px-4 py-3.5 text-right font-mono text-amber-400">
-                            {usage.latencyMs}ms
-                          </td>
-                          <td className="py-3.5 pl-4 text-right font-mono text-emerald-400">
-                            ${usage.estimatedCost.toFixed(5)}
-                          </td>
-                        </tr>
-                      ))}
-                      {tokenUsage.length === 0 && (
-                        <tr>
-                          <td colSpan={6} className="py-8 text-center text-slate-500">
-                            No logs registered yet. Run workflows to generate token analytics.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 3: QUALITY SCORECARDS & EVALUATIONS */}
-          {activeTab === 'evaluations' && (
-            <div className="space-y-6">
-              {/* Scorecard Matrix */}
-              <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
-                <h2 className="text-lg font-semibold text-slate-200">
-                  Agent Quality Scorecard Matrix
-                </h2>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                  {[
-                    'ResearchAgent',
-                    'OpportunityAgent',
-                    'OutreachAgent',
-                    'CrmAgent',
-                    'ProposalAgent',
-                  ].map((agentName) => {
-                    const sc = scorecards.find((s) => s.agentName === agentName);
-                    // Mock fallbacks if no runs yet
-                    const displaySuccess = sc ? Math.round(sc.successRate * 100) : 100;
-                    const displayQuality = sc ? Math.round(sc.averageQuality) : 85;
-                    const displayRuns = sc ? sc.runsCount : 0;
-
-                    return (
-                      <div
-                        key={agentName}
-                        className="space-y-3 rounded-xl border border-slate-800 bg-slate-950 p-5"
-                      >
-                        <span className="text-xs font-semibold text-slate-200">{agentName}</span>
-                        <div className="flex items-baseline justify-between">
-                          <span className="text-2xl font-bold text-white">
-                            {displayQuality}/100
-                          </span>
-                          <span className="text-[10px] font-semibold text-emerald-400">
-                            {displaySuccess}% SR
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between text-[10px] text-slate-500">
-                          <span>Runs: {displayRuns}</span>
-                          <span>Quality Grade</span>
-                        </div>
-                        <div className="bg-slate-850 h-1.5 w-full overflow-hidden rounded-full">
-                          <div
-                            className={`h-full rounded-full ${
-                              displayQuality >= 80
-                                ? 'bg-emerald-500'
-                                : displayQuality >= 60
-                                  ? 'bg-amber-500'
-                                  : 'bg-rose-500'
-                            }`}
-                            style={{ width: `${displayQuality}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Individual Evaluation Results */}
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
-                <h2 className="mb-4 text-lg font-semibold text-slate-200">
-                  Live Evaluation Audit Trail
-                </h2>
-                <div className="space-y-4">
-                  {evaluations.map((result) => (
-                    <div
-                      key={result.id}
-                      className="space-y-4 rounded-xl border border-slate-800 bg-slate-950 p-5"
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-900 pb-3">
-                        <div className="flex items-center gap-3">
-                          <span className="rounded-lg border border-indigo-900 bg-indigo-950 px-2.5 py-1 text-xs font-semibold text-indigo-400">
-                            {result.agentName}
-                          </span>
-                          <span className="font-mono text-xs text-slate-400">
-                            {result.promptId}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-slate-500">Overall Score:</span>
-                          <span className="text-sm font-bold text-emerald-400">
-                            {result.overallScore} / 100
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Six-factor quality score framework */}
-                      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-                        {[
-                          { label: 'Relevance', value: result.metrics.relevance },
-                          { label: 'Accuracy', value: result.metrics.accuracy },
-                          { label: 'Completeness', value: result.metrics.completeness },
-                          { label: 'Personalization', value: result.metrics.personalization },
-                          { label: 'Business Value', value: result.metrics.businessValue },
-                          { label: 'Actionability', value: result.metrics.actionability },
-                        ].map((metric) => (
-                          <div
-                            key={metric.label}
-                            className="rounded-lg border border-slate-900 bg-slate-900/50 p-2.5 text-center"
-                          >
-                            <span className="block text-[9px] font-semibold tracking-wider text-slate-500 uppercase">
-                              {metric.label}
-                            </span>
-                            <span className="mt-1 block text-sm font-bold text-slate-200">
-                              {metric.value}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-
-                      {result.critique && (
-                        <div className="rounded-lg border border-slate-900 bg-slate-900/30 p-3 text-xs">
-                          <span className="mb-1 block font-semibold text-indigo-400">
-                            Self-Critique Review
-                          </span>
-                          <p className="leading-relaxed text-slate-300">{result.critique}</p>
-                        </div>
-                      )}
-
-                      {result.improvements && result.improvements.length > 0 && (
-                        <div className="text-xs">
-                          <span className="mb-1.5 block font-semibold text-emerald-400">
-                            Actionable Self-Correction Improvements
-                          </span>
-                          <ul className="list-disc space-y-1 pl-5 text-slate-400">
-                            {result.improvements.map((imp, idx) => (
-                              <li key={idx}>{imp}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                  {evaluations.length === 0 && (
-                    <div className="py-8 text-center text-sm text-slate-500">
-                      No quality audit logs registered yet. Runs will show evaluator checklists.
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 4: HALLUCINATION REPORTS */}
-          {activeTab === 'hallucinations' && (
-            <div className="space-y-6">
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
-                <h2 className="mb-4 text-lg font-semibold text-slate-200">
-                  Hallucination & Grounding Reports
-                </h2>
-                <div className="space-y-4">
-                  {hallucinations.map((rep) => {
-                    const isPassed = rep.status === 'passed';
-                    const isWarning = rep.status === 'warning';
-                    return (
-                      <div
-                        key={rep.id}
-                        className={`space-y-4 rounded-xl border p-5 ${
-                          isPassed
-                            ? 'border-slate-800 bg-slate-950'
-                            : isWarning
-                              ? 'border-amber-900/60 bg-amber-950/5'
-                              : 'border-red-900/60 bg-red-950/5'
-                        }`}
-                      >
-                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-900/60 pb-3">
-                          <div className="flex items-center gap-3">
-                            <span className="font-mono text-xs text-indigo-400">
-                              {rep.promptId}
-                            </span>
-                            <span className="text-[10px] text-slate-500">
-                              {new Date(rep.createdAt).toLocaleString()}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {isPassed ? (
-                              <span className="flex items-center gap-1 rounded-full border border-emerald-900/50 bg-emerald-950/50 px-2.5 py-0.5 text-xs font-semibold text-emerald-400">
-                                <CheckCircle className="h-3 w-3" /> Grounded & Verified
-                              </span>
-                            ) : (
-                              <span
-                                className={`flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
-                                  isWarning
-                                    ? 'border-amber-900/50 bg-amber-950/50 text-amber-400'
-                                    : 'border-red-900/50 bg-red-950/50 text-red-400'
-                                }`}
-                              >
-                                <AlertTriangle className="h-3 w-3" /> Potential Hallucination
-                              </span>
-                            )}
-                            <span className="font-mono text-xs font-bold text-slate-200">
-                              Confidence: {Math.round(rep.confidence * 100)}%
-                            </span>
-                          </div>
-                        </div>
-
-                        {rep.unsupportedClaims && rep.unsupportedClaims.length > 0 ? (
-                          <div className="space-y-3">
-                            <span className="block text-xs font-semibold text-slate-400">
-                              Claims Grounding Check:
-                            </span>
-                            <div className="space-y-2">
-                              {rep.unsupportedClaims.map((claim, idx) => (
-                                <div
-                                  key={idx}
-                                  className="space-y-2 rounded-lg border border-slate-900 bg-slate-900/40 p-3 text-xs"
-                                >
-                                  <div className="flex items-start justify-between gap-2">
-                                    <p className="font-medium text-slate-200">
-                                      "{claim.statement}"
-                                    </p>
-                                    <span
-                                      className={`shrink-0 rounded px-2 py-0.5 text-[9px] font-semibold ${
-                                        claim.confidence >= 0.8
-                                          ? 'border border-emerald-900 bg-emerald-950 text-emerald-400'
-                                          : claim.confidence >= 0.5
-                                            ? 'border border-amber-900 bg-amber-950 text-amber-400'
-                                            : 'border border-red-900 bg-red-950 text-red-400'
-                                      }`}
-                                    >
-                                      {Math.round(claim.confidence * 100)}% Match
-                                    </span>
-                                  </div>
-                                  <div className="grid gap-2 text-[11px] sm:grid-cols-2">
-                                    <div>
-                                      <span className="block font-semibold text-slate-500">
-                                        Evidence
-                                      </span>
-                                      <p className="mt-0.5 text-slate-400">{claim.evidence}</p>
-                                    </div>
-                                    {claim.sourceReference && (
-                                      <div>
-                                        <span className="block font-semibold text-slate-500">
-                                          Reference Source
-                                        </span>
-                                        <p className="mt-0.5 truncate text-slate-400">
-                                          {claim.sourceReference}
-                                        </p>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ) : (
-                          <p className="text-xs text-slate-400">
-                            Zero unsupported claims or anomalies identified. Response is perfectly
-                            grounded in retrieved data.
-                          </p>
-                        )}
-
-                        {rep.contradictions && rep.contradictions.length > 0 && (
-                          <div className="space-y-1.5 border-t border-slate-900/60 pt-3 text-xs">
-                            <span className="block font-semibold text-red-400">
-                              Logical Contradictions Identified:
-                            </span>
-                            <ul className="list-disc space-y-1 pl-5 text-slate-400">
-                              {rep.contradictions.map((c, i) => (
-                                <li key={i}>{c}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-
-                  {hallucinations.length === 0 && (
-                    <div className="py-8 text-center text-sm text-slate-500">
-                      No hallucination warnings recorded. Agent outputs are currently fully
-                      grounded.
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 5: CACHE PERFORMANCE */}
-          {activeTab === 'cache' && (
-            <div className="space-y-6">
-              {/* Cache Stats Widget */}
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold tracking-wider text-indigo-400 uppercase">
-                      Cached Query Outputs
-                    </span>
-                    <Database className="h-5 w-5 text-indigo-400" />
-                  </div>
-                  <div className="mt-4">
-                    <span className="text-3xl font-bold text-white">{cacheEntries.length}</span>
-                    <p className="mt-1 text-[10px] text-slate-500">
-                      Currently stored active schemas
-                    </p>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold tracking-wider text-emerald-400 uppercase">
-                      Average Cache Speed
-                    </span>
-                    <Clock className="h-5 w-5 text-emerald-400" />
-                  </div>
-                  <div className="mt-4">
-                    <span className="text-3xl font-bold text-white">&lt;20ms</span>
-                    <p className="mt-1 text-[10px] text-slate-500">Latency on cache hits</p>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold tracking-wider text-amber-400 uppercase">
-                      Estimated Savings
-                    </span>
-                    <Coins className="h-5 w-5 text-amber-400" />
-                  </div>
-                  <div className="mt-4">
-                    <span className="text-3xl font-bold text-white">
-                      ${(cacheEntries.length * 0.0075).toFixed(4)}
-                    </span>
-                    <p className="mt-1 text-[10px] text-slate-500">
-                      Saved by bypassing redundant generations
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Cache lists */}
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
-                <div className="mb-4 flex items-center gap-2">
-                  <Database className="h-5 w-5 text-indigo-400" />
-                  <h2 className="text-lg font-semibold text-slate-200">
-                    Active Gemini Response Cache Map
-                  </h2>
-                </div>
-                <div className="space-y-3">
-                  {cacheEntries.map((entry) => (
-                    <div
-                      key={entry.id}
-                      className="space-y-2 rounded-xl border border-slate-800 bg-slate-950 p-4"
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-900 pb-2">
-                        <div className="flex items-center gap-2.5">
-                          <span className="bg-slate-850 rounded px-2 py-0.5 font-mono text-[10px] text-slate-400">
-                            Key: {entry.cacheKey.substring(0, 16)}...
-                          </span>
-                          <span className="font-mono text-xs text-indigo-400">
-                            {entry.promptId}
-                          </span>
-                        </div>
-                        <span className="text-[10px] text-slate-500">
-                          Expires: {new Date(entry.expiresAt).toLocaleTimeString()}
-                        </span>
-                      </div>
-                      <div className="text-xs">
-                        <span className="block font-semibold text-slate-500">
-                          Cached Output Text Snippet
-                        </span>
-                        <pre className="mt-1 max-h-16 truncate overflow-y-auto rounded border border-slate-900/80 bg-slate-900/30 p-2 font-mono text-[10px] text-slate-400">
-                          {entry.text}
-                        </pre>
-                      </div>
-                    </div>
-                  ))}
-                  {cacheEntries.length === 0 && (
-                    <div className="py-8 text-center text-sm text-slate-500">
-                      No active cache entries. Run specialist workflows to populate caching maps.
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+              </button>
+            </form>
+          </div>
         </div>
-      )}
+
+        {/* Knowledge Panel */}
+        {showKnowledge && (
+          <div className="hidden w-72 shrink-0 lg:block">
+            <div className="h-full overflow-y-auto rounded-2xl border border-slate-800 bg-slate-900/40 p-5 backdrop-blur-sm">
+              <div className="mb-5 flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-indigo-400" />
+                <span className="text-sm font-semibold text-slate-200">Agent Knowledge</span>
+              </div>
+
+              <div className="space-y-4">
+                {AGENT_KNOWLEDGE.map((agent) => {
+                  const Icon = agent.icon;
+                  return (
+                    <div
+                      key={agent.id}
+                      className="group rounded-xl border border-slate-800/60 bg-slate-900/60 p-3.5 transition-all hover:border-slate-700 hover:bg-slate-800/40"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${agent.color} shadow-lg`}
+                        >
+                          <Icon className="h-4 w-4 text-white" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-slate-200">{agent.name}</p>
+                          <p className="truncate text-[10px] text-slate-500">{agent.description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="mt-6 rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-4">
+                <div className="mb-2 flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4 text-indigo-400" />
+                  <span className="text-xs font-semibold text-indigo-300">Session Intelligence</span>
+                </div>
+                <div className="space-y-2 text-xs text-slate-400">
+                  <div className="flex justify-between">
+                    <span>Questions asked</span>
+                    <span className="font-mono text-indigo-300">{messages.filter((m) => m.role === 'user').length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Insights generated</span>
+                    <span className="font-mono text-indigo-300">{messages.filter((m) => m.role === 'assistant').length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Knowledge domains</span>
+                    <span className="font-mono text-indigo-300">{AGENT_KNOWLEDGE.length}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <AgentKnowledgeBar agents={AGENT_KNOWLEDGE} />
+              </div>
+
+              <div className="mt-6 space-y-2">
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                  <span>Real-time market data</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                  <span>Historical deal analysis</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                  <span>Competitive intelligence</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                  <span>Revenue forecasting</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
