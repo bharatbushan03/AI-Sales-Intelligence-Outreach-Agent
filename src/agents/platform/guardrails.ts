@@ -48,7 +48,9 @@ export class GuardrailsManager {
           }
         } else if (expectedType === 'object') {
           if (val === null || typeof val !== 'object' || Array.isArray(val)) {
-            errors.push(`Field "${key}" must be of type "object", got "${val === null ? 'null' : typeof val}"`);
+            errors.push(
+              `Field "${key}" must be of type "object", got "${val === null ? 'null' : typeof val}"`,
+            );
           }
         } else {
           if (typeof val !== expectedType) {

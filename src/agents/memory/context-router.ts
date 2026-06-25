@@ -2,10 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { SharedMemoryModel, WorkflowMemory, CompanyMemory } from './types';
 import { MemoryRetrievalEngine } from './retrieval-engine';
 import { CONTEXT_SUMMARIZATION_PROMPT } from '../prompts/memory-prompts';
-import {
-  workflowMemoryRepository,
-  companyMemoryRepository,
-} from '../../lib/repositories';
+import { workflowMemoryRepository, companyMemoryRepository } from '../../lib/repositories';
 import { logger } from '../../utils/logger';
 
 export class ContextRouter {
@@ -49,16 +46,18 @@ export class ContextRouter {
       if (priorWorkflows.length > 0) {
         // Rank and fetch most relevant memories matching current goal
         const rankedWorkflows = await this.retrievalEngine.retrieve(userGoal, priorWorkflows, 3);
-        
+
         if (rankedWorkflows.length > 0) {
-          logger.info(`ContextRouter found ${rankedWorkflows.length} relevant historical workflows`);
-          
+          logger.info(
+            `ContextRouter found ${rankedWorkflows.length} relevant historical workflows`,
+          );
+
           if (this.genAI) {
             // Compress prior workflows into concise context block using Gemini
             const textToCompress = rankedWorkflows
               .map((w) => `Goal: ${w.userGoal}, Results: ${JSON.stringify(w.agentOutputs)}`)
               .join('\n\n');
-            
+
             priorOutputs = await this.compressHistory(textToCompress);
           } else {
             // Heuristic fallback compression
@@ -134,10 +133,10 @@ export class ContextRouter {
         const companyRecord: CompanyMemory = {
           companyName,
           domain: companyName.toLowerCase().replace(/\s+/g, '') + '.com',
-          profile: memory.research as any || null,
+          profile: (memory.research as any) || null,
           opportunities: memory.opportunityAnalysis ? [memory.opportunityAnalysis as any] : [],
           outreachPlans: memory.outreach ? [memory.outreach as any] : [],
-          crmData: memory.crm as any || null,
+          crmData: (memory.crm as any) || null,
           proposals: memory.proposal ? [memory.proposal as any] : [],
           lastUpdated: timestamp,
         };

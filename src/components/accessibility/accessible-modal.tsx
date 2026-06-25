@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { X } from 'lucide-react';
 import { focusTrap, SrOnly } from './accessibility-utils';
 
 interface AccessibleModalProps {
@@ -28,33 +29,39 @@ export function AccessibleModal({
   closeButton = true,
   preventScroll = true,
   className = '',
-  children
+  children,
 }: AccessibleModalProps) {
   const [isMounted, setIsMounted] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
-  const focusTrapCallback = useRef<(() => void) | null>(null);
+  const focusTrapCallback = useRef<((e: KeyboardEvent) => void) | null>(null);
 
   // Size configurations
   const sizeConfig: Record<string, { maxWidth: string }> = {
     sm: { maxWidth: 'max-w-sm' },
     md: { maxWidth: 'max-w-md' },
     lg: { maxWidth: 'max-w-lg' },
-    full: { maxWidth: 'max-w-full' }
+    full: { maxWidth: 'max-w-full' },
   };
 
   // Handle escape key
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      onClose();
-    }
-  }, [onClose]);
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    },
+    [onClose],
+  );
 
   // Handle backdrop click
-  const handleBackdropClick = useCallback((e: MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  }, [onClose]);
+  const handleBackdropClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (e.target === e.currentTarget) {
+        onClose();
+      }
+    },
+    [onClose],
+  );
 
   // Open modal
   useEffect(() => {
@@ -109,21 +116,14 @@ export function AccessibleModal({
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm
-          ${isOpen && !isMounted ? 'opacity-0' : ''}
-          ${!isOpen && isMounted ? 'opacity-100' : ''}
-          transition-opacity duration-300`}
+        className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm ${isOpen && !isMounted ? 'opacity-0' : ''} ${!isOpen && isMounted ? 'opacity-100' : ''} transition-opacity duration-300`}
         onClick={handleBackdropClick}
       >
         {/* Modal container */}
         <div
           ref={modalRef}
           tabIndex={-1}
-          className={`relative w-full max-w-xl p-4 ${sizeConfig[size].maxWidth}
-            bg-slate-900/50 backdrop-blur-md border border-slate-800 rounded-xl shadow-lg
-            transform scale-95 opacity-0
-            ${isOpen && isMounted ? 'scale-100 opacity-100' : ''}
-            transition-transform duration-300 transition-opacity duration-300`}
+          className={`relative w-full max-w-xl p-4 ${sizeConfig[size].maxWidth} scale-95 transform rounded-xl border border-slate-800 bg-slate-900/50 opacity-0 shadow-lg backdrop-blur-md ${isOpen && isMounted ? 'scale-100 opacity-100' : ''} transition-opacity transition-transform duration-300`}
         >
           {/* Close button */}
           {closeButton && (
@@ -142,26 +142,22 @@ export function AccessibleModal({
           <div className="space-y-4">
             {/* Header */}
             {title && (
-              <div className="flex items-start gap-3 mb-4">
-                <div className="flex-shrink-0 h-8 w-8 flex items-center justify-center bg-indigo-900/30 rounded-full">
-                  <span className="text-indigo-400 font-medium text-sm">
+              <div className="mb-4 flex items-start gap-3">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-900/30">
+                  <span className="text-sm font-medium text-indigo-400">
                     {title.match(/^[A-Z]/) ? title.charAt(0) : '📄'}
                   </span>
                 </div>
                 <div className="flex-1 space-y-1">
                   <h2 className="text-lg font-medium text-slate-100">{title}</h2>
-                  {SrOnly}
-                  <span className="text-xs text-slate-400">
-                    Press Escape to close
-                  </span>
+                  <SrOnly>Dialog. Press Escape to close.</SrOnly>
+                  <span className="text-xs text-slate-400">Press Escape to close</span>
                 </div>
               </div>
             )}
 
             {/* Body */}
-            <div className="divide-y divide-slate-800">
-              {children}
-            </div>
+            <div className="divide-y divide-slate-800">{children}</div>
           </div>
         </div>
       </div>
@@ -177,12 +173,12 @@ export function AccessibleAlertDialog({
   onClose,
   title,
   message,
-  confirmLabel = "OK",
-  cancelLabel = "Cancel",
+  confirmLabel = 'OK',
+  cancelLabel = 'Cancel',
   showCancel = false,
   className = '',
   onConfirm,
-  onCancel
+  onCancel,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -196,21 +192,16 @@ export function AccessibleAlertDialog({
   onCancel?: () => void;
 }) {
   return (
-    <AccessibleModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={title}
-      className={className}
-    >
+    <AccessibleModal isOpen={isOpen} onClose={onClose} title={title} className={className}>
       <div className="space-y-4">
         <p className="text-slate-400">{message}</p>
 
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+        <div className="flex items-center justify-end gap-3 border-t border-slate-800 pt-4">
           {showCancel && (
             <button
               type="button"
               onClick={onCancel || onClose}
-              className="px-4 py-2 text-sm font-medium text-slate-400 bg-slate-900/50 hover:bg-slate-800/50 rounded-lg"
+              className="rounded-lg bg-slate-900/50 px-4 py-2 text-sm font-medium text-slate-400 hover:bg-slate-800/50"
             >
               {cancelLabel}
             </button>
@@ -218,7 +209,7 @@ export function AccessibleAlertDialog({
           <button
             type="button"
             onClick={onConfirm || onClose}
-            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg"
+            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
           >
             {confirmLabel}
           </button>
@@ -236,11 +227,11 @@ export function AccessibleConfirmDialog({
   onClose,
   title,
   message,
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
+  confirmLabel = 'Confirm',
+  cancelLabel = 'Cancel',
   className = '',
   onConfirm,
-  onCancel
+  onCancel,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -267,9 +258,3 @@ export function AccessibleConfirmDialog({
     />
   );
 }
-
-export {
-  AccessibleModal,
-  AccessibleAlertDialog,
-  AccessibleConfirmDialog
-};

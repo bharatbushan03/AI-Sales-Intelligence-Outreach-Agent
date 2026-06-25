@@ -1,64 +1,46 @@
-import { Mail, MessageCircle, LinkedIn, Clock, Users, Target, Edit, TrendingUp } from 'lucide-react';
+import { Mail, MessageCircle, Clock, Users, Target, Edit, TrendingUp } from 'lucide-react';
 
 export default function CampaignBuilder() {
   return (
-    <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-800">
+    <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-4">
       <div className="space-y-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-slate-100">
-            Campaign Builder
-          </h2>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-slate-100">Campaign Builder</h2>
           <button className="text-sm text-indigo-400 hover:text-indigo-300">
             <Mail className="h-3 w-3" /> New Campaign
-          </div>
+          </button>
         </div>
 
         {/* Campaign Form */}
         <form className="space-y-4">
           {/* Campaign Name */}
           <div className="space-y-2">
-            <label className="block text-xs font-medium text-slate-100 mb-1">
-              Campaign Name
-            </label>
+            <label className="mb-1 block text-xs font-medium text-slate-100">Campaign Name</label>
             <input
               type="text"
               placeholder="Enter campaign name..."
-              className="w-full pl-3 py-2 text-sm text-slate-900 bg-slate-50 border border-slate-200 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-600"
+              className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pl-3 text-sm text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
             />
           </div>
 
           {/* Target Audience */}
           <div className="space-y-2">
-            <label className="block text-xs font-medium text-slate-100 mb-1">
-              Target Audience
-            </label>
+            <label className="mb-1 block text-xs font-medium text-slate-100">Target Audience</label>
             <div className="flex flex-wrap gap-2">
               <label className="flex items-center gap-1 text-xs">
-                <input
-                  type="checkbox"
-                  className="h-3 w-3 text-indigo-600 focus:ring-indigo-500"
-                />
+                <input type="checkbox" className="h-3 w-3 text-indigo-600 focus:ring-indigo-500" />
                 Enterprise Tech
               </label>
               <label className="flex items-center gap-1 text-xs">
-                <input
-                  type="checkbox"
-                  className="h-3 w-3 text-indigo-600 focus:ring-indigo-500"
-                />
+                <input type="checkbox" className="h-3 w-3 text-indigo-600 focus:ring-indigo-500" />
                 FinTech Startups
               </label>
               <label className="flex items-center gap-1 text-xs">
-                <input
-                  type="checkbox"
-                  className="h-3 w-3 text-indigo-600 focus:ring-indigo-500"
-                />
+                <input type="checkbox" className="h-3 w-3 text-indigo-600 focus:ring-indigo-500" />
                 Healthcare Providers
               </label>
               <label className="flex items-center gap-1 text-xs">
-                <input
-                  type="checkbox"
-                  className="h-3 w-3 text-indigo-600 focus:ring-indigo-500"
-                />
+                <input type="checkbox" className="h-3 w-3 text-indigo-600 focus:ring-indigo-500" />
                 Retail & E-commerce
               </label>
             </div>
@@ -66,36 +48,24 @@ export default function CampaignBuilder() {
 
           {/* Channel Selection */}
           <div className="space-y-2">
-            <label className="block text-xs font-medium text-slate-100 mb-1">
+            <label className="mb-1 block text-xs font-medium text-slate-100">
               Outreach Channels
             </label>
             <div className="flex space-x-4">
               <label className="flex items-center gap-2 text-xs">
-                <input
-                  type="checkbox"
-                  className="h-3 w-3 text-indigo-600 focus:ring-indigo-500"
-                />
+                <input type="checkbox" className="h-3 w-3 text-indigo-600 focus:ring-indigo-500" />
                 Email
               </label>
               <label className="flex items-center gap-2 text-xs">
-                <input
-                  type="checkbox"
-                  className="h-3 w-3 text-indigo-600 focus:ring-indigo-500"
-                />
+                <input type="checkbox" className="h-3 w-3 text-indigo-600 focus:ring-indigo-500" />
                 LinkedIn
               </label>
               <label className="flex items-center gap-2 text-xs">
-                <input
-                  type="checkbox"
-                  className="h-3 w-3 text-indigo-600 focus:ring-indigo-500"
-                />
+                <input type="checkbox" className="h-3 w-3 text-indigo-600 focus:ring-indigo-500" />
                 Phone
               </label>
               <label className="flex items-center gap-2 text-xs">
-                <input
-                  type="checkbox"
-                  className="h-3 w-3 text-indigo-600 focus:ring-indigo-500"
-                />
+                <input type="checkbox" className="h-3 w-3 text-indigo-600 focus:ring-indigo-500" />
                 Video
               </label>
             </div>
@@ -103,9 +73,7 @@ export default function CampaignBuilder() {
 
           {/* Schedule */}
           <div className="space-y-2">
-            <label className="block text-xs font-medium text-slate-100 mb-1">
-              Schedule
-            </label>
+            <label className="mb-1 block text-xs font-medium text-slate-100">Schedule</label>
             <div className="flex space-x-2">
               <label className="flex items-center gap-1 text-xs">
                 <input
@@ -138,17 +106,17 @@ export default function CampaignBuilder() {
           </div>
 
           {/* Action Buttons */}
-          <div className="mt-4 pt-3 border-t border-slate-800">
+          <div className="mt-4 border-t border-slate-800 pt-3">
             <div className="flex flex-wrap gap-2">
               <button
                 type="submit"
-                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 text-white text-xs font-medium rounded hover:bg-indigo-700 transition-colors"
+                className="flex flex-1 items-center justify-center gap-2 rounded bg-indigo-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-indigo-700"
               >
                 <Target className="h-3 w-3" /> Launch Campaign
               </button>
               <button
                 type="button"
-                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-slate-800/20 text-slate-300 text-xs font-medium rounded hover:bg-slate-800/30 transition-colors"
+                className="flex flex-1 items-center justify-center gap-2 rounded bg-slate-800/20 px-3 py-2 text-xs font-medium text-slate-300 transition-colors hover:bg-slate-800/30"
               >
                 <Edit className="h-3 w-3" /> Save as Draft
               </button>

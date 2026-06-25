@@ -93,7 +93,9 @@ export default function AdminDataConsolePage() {
 
       // If a workflow is selected, refresh its reference
       if (selectedWorkflow) {
-        const updatedWf = (data.workflows || []).find((w: any) => w.workflowId === selectedWorkflow.workflowId);
+        const updatedWf = (data.workflows || []).find(
+          (w: any) => w.workflowId === selectedWorkflow.workflowId,
+        );
         if (updatedWf) setSelectedWorkflow(updatedWf);
       }
     } catch (err: any) {
@@ -110,7 +112,10 @@ export default function AdminDataConsolePage() {
     setVersions([]);
     setErrorMessage(null);
     try {
-      const response = await fetch(`/api/admin/data?type=versions&collectionName=${inspectorColName}&documentId=${inspectorDocId}`, { headers });
+      const response = await fetch(
+        `/api/admin/data?type=versions&collectionName=${inspectorColName}&documentId=${inspectorDocId}`,
+        { headers },
+      );
       const resData = await response.json();
       if (!response.ok) {
         throw new Error(resData.message || 'Failed to fetch document versions');
@@ -166,7 +171,8 @@ export default function AdminDataConsolePage() {
   };
 
   const handleRestore = async (collection: string, id: string) => {
-    if (!confirm(`Are you sure you want to restore document ${id} in collection ${collection}?`)) return;
+    if (!confirm(`Are you sure you want to restore document ${id} in collection ${collection}?`))
+      return;
     try {
       const response = await fetch('/api/admin/data', {
         method: 'POST',
@@ -184,7 +190,12 @@ export default function AdminDataConsolePage() {
   };
 
   const handleRollback = async (collection: string, id: string, version: number) => {
-    if (!confirm(`Rollback document ${id} to version ${version}? Current state will be snapshotted as a new version.`)) return;
+    if (
+      !confirm(
+        `Rollback document ${id} to version ${version}? Current state will be snapshotted as a new version.`,
+      )
+    )
+      return;
     try {
       const response = await fetch('/api/admin/data', {
         method: 'POST',
@@ -202,7 +213,12 @@ export default function AdminDataConsolePage() {
   };
 
   const handlePurge = async () => {
-    if (!confirm(`WARNING: This will permanently delete all workflows and audit logs older than ${retentionDays} days. This action is irreversible. Proceed?`)) return;
+    if (
+      !confirm(
+        `WARNING: This will permanently delete all workflows and audit logs older than ${retentionDays} days. This action is irreversible. Proceed?`,
+      )
+    )
+      return;
     setPurging(true);
     try {
       const response = await fetch('/api/admin/data', {
@@ -212,7 +228,9 @@ export default function AdminDataConsolePage() {
       });
       const resData = await response.json();
       if (!response.ok) throw new Error(resData.message);
-      showToast(`Purge complete. Workflows deleted: ${resData.data.purgedWorkflows}, Audits deleted: ${resData.data.purgedAudits}.`);
+      showToast(
+        `Purge complete. Workflows deleted: ${resData.data.purgedWorkflows}, Audits deleted: ${resData.data.purgedAudits}.`,
+      );
       fetchData(false);
     } catch (err: any) {
       showToast(err.message, true);
@@ -274,24 +292,28 @@ export default function AdminDataConsolePage() {
 
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
-      case 'completed': return 'bg-emerald-950/80 text-emerald-400 border-emerald-900/50';
-      case 'failed': return 'bg-rose-950/80 text-rose-400 border-rose-900/50';
-      case 'running': return 'bg-indigo-950/80 text-indigo-400 border-indigo-900/50';
-      default: return 'bg-slate-900 text-slate-400 border-slate-800';
+      case 'completed':
+        return 'bg-emerald-950/80 text-emerald-400 border-emerald-900/50';
+      case 'failed':
+        return 'bg-rose-950/80 text-rose-400 border-rose-900/50';
+      case 'running':
+        return 'bg-indigo-950/80 text-indigo-400 border-indigo-900/50';
+      default:
+        return 'bg-slate-900 text-slate-400 border-slate-800';
     }
   };
 
   return (
-    <div className="space-y-8 text-slate-100 pb-16">
+    <div className="space-y-8 pb-16 text-slate-100">
       {/* Messages */}
       {successMessage && (
-        <div className="fixed top-6 right-6 z-50 rounded-xl border border-emerald-900 bg-emerald-950/90 p-4 text-emerald-300 shadow-2xl backdrop-blur flex items-center gap-3">
+        <div className="fixed top-6 right-6 z-50 flex items-center gap-3 rounded-xl border border-emerald-900 bg-emerald-950/90 p-4 text-emerald-300 shadow-2xl backdrop-blur">
           <ShieldCheck className="h-5 w-5" />
           <span>{successMessage}</span>
         </div>
       )}
       {errorMessage && (
-        <div className="fixed top-6 right-6 z-50 rounded-xl border border-rose-900 bg-rose-950/90 p-4 text-rose-300 shadow-2xl backdrop-blur flex items-center gap-3 animate-bounce">
+        <div className="fixed top-6 right-6 z-50 flex animate-bounce items-center gap-3 rounded-xl border border-rose-900 bg-rose-950/90 p-4 text-rose-300 shadow-2xl backdrop-blur">
           <AlertTriangle className="h-5 w-5" />
           <span>{errorMessage}</span>
         </div>
@@ -300,12 +322,13 @@ export default function AdminDataConsolePage() {
       {/* Header Panel */}
       <div className="flex flex-col justify-between gap-4 border-b border-slate-800 pb-5 md:flex-row md:items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl flex items-center gap-3">
+          <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-white md:text-4xl">
             <ShieldCheck className="h-9 w-9 text-indigo-500" />
             Admin Data Console
           </h1>
           <p className="mt-2 text-sm text-slate-400">
-            Audit trailing, tenant control, event stream inspector, and soft-delete recovery framework.
+            Audit trailing, tenant control, event stream inspector, and soft-delete recovery
+            framework.
           </p>
         </div>
         <button
@@ -320,30 +343,38 @@ export default function AdminDataConsolePage() {
 
       {/* Metrics Row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 flex items-center justify-between">
+        <div className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
           <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Workflows</span>
+            <span className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+              Total Workflows
+            </span>
             <div className="text-2xl font-bold text-white">{workflows.length}</div>
           </div>
           <History className="h-8 w-8 text-indigo-500 opacity-60" />
         </div>
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 flex items-center justify-between">
+        <div className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
           <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tenants Managed</span>
+            <span className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+              Tenants Managed
+            </span>
             <div className="text-2xl font-bold text-white">{organizations.length}</div>
           </div>
           <Building className="h-8 w-8 text-emerald-500 opacity-60" />
         </div>
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 flex items-center justify-between">
+        <div className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
           <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Audit Events</span>
+            <span className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+              Audit Events
+            </span>
             <div className="text-2xl font-bold text-white">{auditLogs.length}</div>
           </div>
           <Database className="h-8 w-8 text-cyan-500 opacity-60" />
         </div>
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 flex items-center justify-between">
+        <div className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
           <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">User Count</span>
+            <span className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+              User Count
+            </span>
             <div className="text-2xl font-bold text-white">{usersList.length}</div>
           </div>
           <Users className="h-8 w-8 text-violet-500 opacity-60" />
@@ -354,13 +385,15 @@ export default function AdminDataConsolePage() {
       <div className="grid gap-8 lg:grid-cols-4">
         <div className="lg:col-span-1">
           <div className="flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-            <span className="px-3 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-850">
+            <span className="border-slate-850 border-b px-3 pb-2 text-xs font-semibold tracking-wider text-slate-500 uppercase">
               Admin Views
             </span>
             <button
               onClick={() => setActiveTab('workflows')}
               className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
-                activeTab === 'workflows' ? 'bg-indigo-650 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                activeTab === 'workflows'
+                  ? 'bg-indigo-650 text-white'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
               }`}
             >
               <History className="h-4 w-4" />
@@ -369,7 +402,9 @@ export default function AdminDataConsolePage() {
             <button
               onClick={() => setActiveTab('audits')}
               className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
-                activeTab === 'audits' ? 'bg-indigo-650 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                activeTab === 'audits'
+                  ? 'bg-indigo-650 text-white'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
               }`}
             >
               <Database className="h-4 w-4" />
@@ -378,7 +413,9 @@ export default function AdminDataConsolePage() {
             <button
               onClick={() => setActiveTab('inspector')}
               className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
-                activeTab === 'inspector' ? 'bg-indigo-650 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                activeTab === 'inspector'
+                  ? 'bg-indigo-650 text-white'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
               }`}
             >
               <RotateCcw className="h-4 w-4" />
@@ -387,7 +424,9 @@ export default function AdminDataConsolePage() {
             <button
               onClick={() => setActiveTab('organizations')}
               className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
-                activeTab === 'organizations' ? 'bg-indigo-650 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                activeTab === 'organizations'
+                  ? 'bg-indigo-650 text-white'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
               }`}
             >
               <Building className="h-4 w-4" />
@@ -396,7 +435,9 @@ export default function AdminDataConsolePage() {
             <button
               onClick={() => setActiveTab('retention')}
               className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
-                activeTab === 'retention' ? 'bg-indigo-650 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                activeTab === 'retention'
+                  ? 'bg-indigo-650 text-white'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
               }`}
             >
               <Sliders className="h-4 w-4" />
@@ -406,29 +447,31 @@ export default function AdminDataConsolePage() {
         </div>
 
         {/* Tab Contents */}
-        <div className="lg:col-span-3 space-y-6">
+        <div className="space-y-6 lg:col-span-3">
           {loading ? (
-            <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-slate-850 bg-slate-900/20">
+            <div className="border-slate-850 flex h-64 flex-col items-center justify-center gap-3 rounded-2xl border bg-slate-900/20">
               <RefreshCw className="h-8 w-8 animate-spin text-indigo-500" />
-              <span className="text-sm font-medium text-slate-400">Loading Firestore console metrics...</span>
+              <span className="text-sm font-medium text-slate-400">
+                Loading Firestore console metrics...
+              </span>
             </div>
           ) : (
             <>
               {/* Tab 1: Workflows */}
               {activeTab === 'workflows' && (
                 <div className="space-y-6">
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900/20 overflow-hidden">
-                    <div className="border-b border-slate-800 bg-slate-900/60 px-6 py-4 flex items-center justify-between">
+                  <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/20">
+                    <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/60 px-6 py-4">
                       <h2 className="text-lg font-bold text-white">Workflow Run History</h2>
-                      <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-400 border border-slate-705">
+                      <span className="border-slate-705 rounded-full border bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-400">
                         Showing {workflows.length} Records
                       </span>
                     </div>
 
                     <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse">
+                      <table className="w-full border-collapse text-left">
                         <thead>
-                          <tr className="border-b border-slate-800 bg-slate-900/30 text-xs font-bold uppercase tracking-wider text-slate-400">
+                          <tr className="border-b border-slate-800 bg-slate-900/30 text-xs font-bold tracking-wider text-slate-400 uppercase">
                             <th className="px-6 py-3.5">Workflow ID</th>
                             <th className="px-6 py-3.5">Goal</th>
                             <th className="px-6 py-3.5">Tenant Org</th>
@@ -448,20 +491,30 @@ export default function AdminDataConsolePage() {
                             workflows.map((wf) => (
                               <tr
                                 key={wf.id}
-                                className={`transition-all duration-150 hover:bg-slate-800/40 cursor-pointer ${
-                                  selectedWorkflow?.workflowId === wf.workflowId ? 'bg-slate-850/80 border-l-2 border-l-indigo-500' : ''
+                                className={`cursor-pointer transition-all duration-150 hover:bg-slate-800/40 ${
+                                  selectedWorkflow?.workflowId === wf.workflowId
+                                    ? 'bg-slate-850/80 border-l-2 border-l-indigo-500'
+                                    : ''
                                 }`}
                                 onClick={() => setSelectedWorkflow(wf)}
                               >
-                                <td className="px-6 py-4 font-mono font-medium text-slate-100">{wf.workflowId}</td>
-                                <td className="px-6 py-4 max-w-xs truncate" title={wf.goal}>{wf.goal}</td>
-                                <td className="px-6 py-4 text-xs font-medium text-slate-400">{wf.organizationId}</td>
+                                <td className="px-6 py-4 font-mono font-medium text-slate-100">
+                                  {wf.workflowId}
+                                </td>
+                                <td className="max-w-xs truncate px-6 py-4" title={wf.goal}>
+                                  {wf.goal}
+                                </td>
+                                <td className="px-6 py-4 text-xs font-medium text-slate-400">
+                                  {wf.organizationId}
+                                </td>
                                 <td className="px-6 py-4">
-                                  <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${getStatusColor(wf.status)}`}>
+                                  <span
+                                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${getStatusColor(wf.status)}`}
+                                  >
                                     {wf.status}
                                   </span>
                                 </td>
-                                <td className="px-6 py-4 text-slate-400 text-xs">
+                                <td className="px-6 py-4 text-xs text-slate-400">
                                   {new Date(wf.createdAt).toLocaleString()}
                                 </td>
                                 <td className="px-6 py-4 text-right">
@@ -477,28 +530,32 @@ export default function AdminDataConsolePage() {
 
                   {/* Selected Workflow Inspection Panel */}
                   {selectedWorkflow && (
-                    <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 space-y-6">
-                      <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-800 pb-4 gap-4">
+                    <div className="space-y-6 rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
+                      <div className="flex flex-col justify-between gap-4 border-b border-slate-800 pb-4 md:flex-row md:items-center">
                         <div>
-                          <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                          <h3 className="flex items-center gap-2 text-xl font-bold text-white">
                             <span>Inspection Details:</span>
-                            <span className="font-mono text-indigo-400">{selectedWorkflow.workflowId}</span>
+                            <span className="font-mono text-indigo-400">
+                              {selectedWorkflow.workflowId}
+                            </span>
                           </h3>
-                          <p className="text-slate-400 text-sm mt-1">{selectedWorkflow.goal}</p>
+                          <p className="mt-1 text-sm text-slate-400">{selectedWorkflow.goal}</p>
                         </div>
                         <div className="flex gap-2">
                           <button
                             onClick={() => {
-                              showToast(`Replaying workflow "${selectedWorkflow.workflowId}"... (Mock Trigger)`);
+                              showToast(
+                                `Replaying workflow "${selectedWorkflow.workflowId}"... (Mock Trigger)`,
+                              );
                             }}
-                            className="flex items-center gap-2 rounded-xl bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2"
+                            className="bg-indigo-650 flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold text-white hover:bg-indigo-700"
                           >
                             <Play className="h-3.5 w-3.5" />
                             Replay Run
                           </button>
                           <button
                             onClick={() => setSelectedWorkflow(null)}
-                            className="rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 px-3.5 py-2 text-xs text-slate-300"
+                            className="rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs text-slate-300 hover:bg-slate-700"
                           >
                             Close
                           </button>
@@ -507,46 +564,67 @@ export default function AdminDataConsolePage() {
 
                       {/* Detail Widgets */}
                       <div className="grid gap-4 md:grid-cols-3">
-                        <div className="rounded-xl border border-slate-800 bg-slate-950 p-4 space-y-1">
-                          <div className="text-xs text-slate-500 uppercase font-semibold">User Actor</div>
+                        <div className="space-y-1 rounded-xl border border-slate-800 bg-slate-950 p-4">
+                          <div className="text-xs font-semibold text-slate-500 uppercase">
+                            User Actor
+                          </div>
                           <div className="text-sm font-semibold">{selectedWorkflow.userId}</div>
                         </div>
-                        <div className="rounded-xl border border-slate-800 bg-slate-950 p-4 space-y-1">
-                          <div className="text-xs text-slate-500 uppercase font-semibold">Execution Time</div>
-                          <div className="text-sm font-semibold">{(selectedWorkflow.metadata?.durationMs / 1000).toFixed(2)}s</div>
+                        <div className="space-y-1 rounded-xl border border-slate-800 bg-slate-950 p-4">
+                          <div className="text-xs font-semibold text-slate-500 uppercase">
+                            Execution Time
+                          </div>
+                          <div className="text-sm font-semibold">
+                            {(selectedWorkflow.metadata?.durationMs / 1000).toFixed(2)}s
+                          </div>
                         </div>
-                        <div className="rounded-xl border border-slate-800 bg-slate-950 p-4 space-y-1">
-                          <div className="text-xs text-slate-500 uppercase font-semibold">Agents Executed</div>
-                          <div className="text-sm font-semibold">{selectedWorkflow.agentsExecuted?.join(', ') || 'None'}</div>
+                        <div className="space-y-1 rounded-xl border border-slate-800 bg-slate-950 p-4">
+                          <div className="text-xs font-semibold text-slate-500 uppercase">
+                            Agents Executed
+                          </div>
+                          <div className="text-sm font-semibold">
+                            {selectedWorkflow.agentsExecuted?.join(', ') || 'None'}
+                          </div>
                         </div>
                       </div>
 
                       {/* Timeline & Outputs */}
                       <div className="grid gap-6 md:grid-cols-2">
                         <div className="space-y-3">
-                          <h4 className="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                          <h4 className="flex items-center gap-2 text-sm font-bold tracking-wider text-slate-300 uppercase">
                             <Calendar className="h-4 w-4 text-indigo-400" />
                             Execution Timeline
                           </h4>
-                          <div className="rounded-xl border border-slate-800 bg-slate-950 p-4 max-h-80 overflow-y-auto space-y-4">
+                          <div className="max-h-80 space-y-4 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950 p-4">
                             {selectedWorkflow.executionTimeline?.map((evt: any, idx: number) => (
-                              <div key={evt.id || idx} className="relative pl-6 border-l border-slate-800 last:pb-0 pb-4">
-                                <div className="absolute -left-1.5 top-1 h-3 w-3 rounded-full bg-slate-800 border-2 border-indigo-400" />
-                                <div className="text-xs text-slate-400">{new Date(evt.timestamp).toLocaleTimeString()}</div>
-                                <div className="text-sm font-medium text-slate-200 mt-0.5">{evt.message}</div>
-                                {evt.durationMs && <div className="text-xs text-indigo-400 font-semibold mt-0.5">Took {evt.durationMs}ms</div>}
+                              <div
+                                key={evt.id || idx}
+                                className="relative border-l border-slate-800 pb-4 pl-6 last:pb-0"
+                              >
+                                <div className="absolute top-1 -left-1.5 h-3 w-3 rounded-full border-2 border-indigo-400 bg-slate-800" />
+                                <div className="text-xs text-slate-400">
+                                  {new Date(evt.timestamp).toLocaleTimeString()}
+                                </div>
+                                <div className="mt-0.5 text-sm font-medium text-slate-200">
+                                  {evt.message}
+                                </div>
+                                {evt.durationMs && (
+                                  <div className="mt-0.5 text-xs font-semibold text-indigo-400">
+                                    Took {evt.durationMs}ms
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>
                         </div>
 
                         <div className="space-y-3">
-                          <h4 className="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                          <h4 className="flex items-center gap-2 text-sm font-bold tracking-wider text-slate-300 uppercase">
                             <Database className="h-4 w-4 text-emerald-400" />
                             Result Payload
                           </h4>
-                          <div className="rounded-xl border border-slate-800 bg-slate-950 p-4 max-h-80 overflow-y-auto">
-                            <pre className="text-xs text-slate-300 font-mono overflow-x-auto whitespace-pre-wrap">
+                          <div className="max-h-80 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950 p-4">
+                            <pre className="overflow-x-auto font-mono text-xs whitespace-pre-wrap text-slate-300">
                               {JSON.stringify(selectedWorkflow.outputs || {}, null, 2)}
                             </pre>
                           </div>
@@ -560,18 +638,20 @@ export default function AdminDataConsolePage() {
               {/* Tab 2: Audit Logs */}
               {activeTab === 'audits' && (
                 <div className="space-y-6">
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900/20 overflow-hidden">
-                    <div className="border-b border-slate-800 bg-slate-900/60 px-6 py-4 flex items-center justify-between">
-                      <h2 className="text-lg font-bold text-white">Immutable Security Audit Trail</h2>
-                      <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-400 border border-slate-705">
+                  <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/20">
+                    <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/60 px-6 py-4">
+                      <h2 className="text-lg font-bold text-white">
+                        Immutable Security Audit Trail
+                      </h2>
+                      <span className="border-slate-705 rounded-full border bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-400">
                         {auditLogs.length} Entries Logged
                       </span>
                     </div>
 
                     <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse">
+                      <table className="w-full border-collapse text-left">
                         <thead>
-                          <tr className="border-b border-slate-800 bg-slate-900/30 text-xs font-bold uppercase tracking-wider text-slate-400">
+                          <tr className="border-b border-slate-800 bg-slate-900/30 text-xs font-bold tracking-wider text-slate-400 uppercase">
                             <th className="px-6 py-3.5">Actor</th>
                             <th className="px-6 py-3.5">Action</th>
                             <th className="px-6 py-3.5">Entity</th>
@@ -591,26 +671,38 @@ export default function AdminDataConsolePage() {
                             auditLogs.map((log) => (
                               <tr
                                 key={log.id}
-                                className="transition-all duration-150 hover:bg-slate-800/40 cursor-pointer"
+                                className="cursor-pointer transition-all duration-150 hover:bg-slate-800/40"
                                 onClick={() => setSelectedAuditLog(log)}
                               >
                                 <td className="px-6 py-4">
                                   <div className="flex flex-col">
-                                    <span className="font-semibold text-slate-100">{log.actor?.email}</span>
-                                    <span className="text-xs text-slate-400">{log.actor?.role}</span>
+                                    <span className="font-semibold text-slate-100">
+                                      {log.actor?.email}
+                                    </span>
+                                    <span className="text-xs text-slate-400">
+                                      {log.actor?.role}
+                                    </span>
                                   </div>
                                 </td>
                                 <td className="px-6 py-4">
-                                  <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-bold ${
-                                    log.action === 'RESTORE' || log.action === 'CREATE' ? 'bg-emerald-950/80 text-emerald-400 border-emerald-900/30' :
-                                    log.action === 'ROLLBACK' || log.action === 'UPDATE' ? 'bg-amber-950/80 text-amber-400 border-amber-900/30' :
-                                    'bg-rose-950/80 text-rose-400 border-rose-900/30'
-                                  }`}>
+                                  <span
+                                    className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-bold ${
+                                      log.action === 'RESTORE' || log.action === 'CREATE'
+                                        ? 'border-emerald-900/30 bg-emerald-950/80 text-emerald-400'
+                                        : log.action === 'ROLLBACK' || log.action === 'UPDATE'
+                                          ? 'border-amber-900/30 bg-amber-950/80 text-amber-400'
+                                          : 'border-rose-900/30 bg-rose-950/80 text-rose-400'
+                                    }`}
+                                  >
                                     {log.action}
                                   </span>
                                 </td>
-                                <td className="px-6 py-4 font-medium text-slate-300">{log.entityType}</td>
-                                <td className="px-6 py-4 font-mono text-xs text-slate-400">{log.entityId}</td>
+                                <td className="px-6 py-4 font-medium text-slate-300">
+                                  {log.entityType}
+                                </td>
+                                <td className="px-6 py-4 font-mono text-xs text-slate-400">
+                                  {log.entityId}
+                                </td>
                                 <td className="px-6 py-4 text-xs text-slate-400">
                                   {new Date(log.timestamp).toLocaleString()}
                                 </td>
@@ -627,32 +719,42 @@ export default function AdminDataConsolePage() {
 
                   {/* Audit Details Modal Overlay */}
                   {selectedAuditLog && (
-                    <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 space-y-4">
-                      <div className="flex items-center justify-between border-b border-slate-850 pb-3">
-                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
+                      <div className="border-slate-850 flex items-center justify-between border-b pb-3">
+                        <h3 className="flex items-center gap-2 text-lg font-bold text-white">
                           <Shield className="h-5 w-5 text-indigo-400" />
                           Audit Metadata Inspector
                         </h3>
                         <button
                           onClick={() => setSelectedAuditLog(null)}
-                          className="rounded-xl border border-slate-700 bg-slate-850 hover:bg-slate-800 px-3 py-1.5 text-xs"
+                          className="bg-slate-850 rounded-xl border border-slate-700 px-3 py-1.5 text-xs hover:bg-slate-800"
                         >
                           Dismiss
                         </button>
                       </div>
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div>
-                          <div className="text-xs text-slate-500 uppercase font-semibold">Event UUID</div>
-                          <div className="text-sm font-mono text-slate-200 mt-0.5">{selectedAuditLog.id}</div>
+                          <div className="text-xs font-semibold text-slate-500 uppercase">
+                            Event UUID
+                          </div>
+                          <div className="mt-0.5 font-mono text-sm text-slate-200">
+                            {selectedAuditLog.id}
+                          </div>
                         </div>
                         <div>
-                          <div className="text-xs text-slate-500 uppercase font-semibold">Organization / Tenant</div>
-                          <div className="text-sm font-mono text-slate-200 mt-0.5">{selectedAuditLog.organizationId}</div>
+                          <div className="text-xs font-semibold text-slate-500 uppercase">
+                            Organization / Tenant
+                          </div>
+                          <div className="mt-0.5 font-mono text-sm text-slate-200">
+                            {selectedAuditLog.organizationId}
+                          </div>
                         </div>
                       </div>
                       <div className="rounded-xl border border-slate-800 bg-slate-950 p-4">
-                        <div className="text-xs text-slate-500 uppercase font-semibold mb-2">Event Metadata Context</div>
-                        <pre className="text-xs text-indigo-300 font-mono overflow-x-auto whitespace-pre-wrap">
+                        <div className="mb-2 text-xs font-semibold text-slate-500 uppercase">
+                          Event Metadata Context
+                        </div>
+                        <pre className="overflow-x-auto font-mono text-xs whitespace-pre-wrap text-indigo-300">
                           {JSON.stringify(selectedAuditLog.metadata || {}, null, 2)}
                         </pre>
                       </div>
@@ -665,9 +767,9 @@ export default function AdminDataConsolePage() {
               {activeTab === 'inspector' && (
                 <div className="space-y-6">
                   {/* Soft Delete Framework Restorations */}
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900/20 overflow-hidden">
+                  <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/20">
                     <div className="border-b border-slate-800 bg-slate-900/60 px-6 py-4">
-                      <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                      <h2 className="flex items-center gap-2 text-lg font-bold text-white">
                         <Trash2 className="h-5 w-5 text-rose-500" />
                         Soft Deleted Documents Pool
                       </h2>
@@ -677,9 +779,9 @@ export default function AdminDataConsolePage() {
                       <div className="p-8 text-center text-slate-400">Loading trash bin...</div>
                     ) : (
                       <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
+                        <table className="w-full border-collapse text-left">
                           <thead>
-                            <tr className="border-b border-slate-800 bg-slate-900/30 text-xs font-bold uppercase tracking-wider text-slate-400">
+                            <tr className="border-b border-slate-800 bg-slate-900/30 text-xs font-bold tracking-wider text-slate-400 uppercase">
                               <th className="px-6 py-3.5">Collection</th>
                               <th className="px-6 py-3.5">Document ID</th>
                               <th className="px-6 py-3.5">Deleted By</th>
@@ -697,16 +799,22 @@ export default function AdminDataConsolePage() {
                             ) : (
                               softDeletedItems.map((item) => (
                                 <tr key={item.id} className="hover:bg-slate-800/20">
-                                  <td className="px-6 py-4 font-semibold text-indigo-400">{item.collectionName}</td>
+                                  <td className="px-6 py-4 font-semibold text-indigo-400">
+                                    {item.collectionName}
+                                  </td>
                                   <td className="px-6 py-4 font-mono text-xs">{item.id}</td>
-                                  <td className="px-6 py-4 text-slate-400">{item.deletedBy || 'system'}</td>
+                                  <td className="px-6 py-4 text-slate-400">
+                                    {item.deletedBy || 'system'}
+                                  </td>
                                   <td className="px-6 py-4 text-xs text-slate-400">
-                                    {item.deletedAt ? new Date(item.deletedAt).toLocaleString() : 'N/A'}
+                                    {item.deletedAt
+                                      ? new Date(item.deletedAt).toLocaleString()
+                                      : 'N/A'}
                                   </td>
                                   <td className="px-6 py-4 text-right">
                                     <button
                                       onClick={() => handleRestore(item.collectionName, item.id)}
-                                      className="rounded-xl border border-emerald-900 bg-emerald-950/60 hover:bg-emerald-900 text-emerald-400 text-xs font-bold px-3.5 py-1.5"
+                                      className="rounded-xl border border-emerald-900 bg-emerald-950/60 px-3.5 py-1.5 text-xs font-bold text-emerald-400 hover:bg-emerald-900"
                                     >
                                       Restore
                                     </button>
@@ -721,15 +829,17 @@ export default function AdminDataConsolePage() {
                   </div>
 
                   {/* Document Version Control Snapshots */}
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900/20 p-6 space-y-6">
-                    <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <div className="space-y-6 rounded-2xl border border-slate-800 bg-slate-900/20 p-6">
+                    <h2 className="flex items-center gap-2 text-lg font-bold text-white">
                       <History className="h-5 w-5 text-indigo-400" />
                       Document Version History Inspector
                     </h2>
 
-                    <div className="grid gap-4 md:grid-cols-3 items-end">
+                    <div className="grid items-end gap-4 md:grid-cols-3">
                       <div className="space-y-2">
-                        <label className="text-xs text-slate-400 font-semibold uppercase">Collection Name</label>
+                        <label className="text-xs font-semibold text-slate-400 uppercase">
+                          Collection Name
+                        </label>
                         <select
                           value={inspectorColName}
                           onChange={(e) => setInspectorColName(e.target.value)}
@@ -744,7 +854,9 @@ export default function AdminDataConsolePage() {
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-xs text-slate-400 font-semibold uppercase">Document ID</label>
+                        <label className="text-xs font-semibold text-slate-400 uppercase">
+                          Document ID
+                        </label>
                         <input
                           type="text"
                           value={inspectorDocId}
@@ -757,18 +869,18 @@ export default function AdminDataConsolePage() {
                       <button
                         onClick={fetchVersions}
                         disabled={loadingVersions || !inspectorDocId}
-                        className="rounded-xl bg-indigo-650 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 text-sm transition disabled:opacity-50"
+                        className="bg-indigo-650 rounded-xl px-5 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-700 disabled:opacity-50"
                       >
                         {loadingVersions ? 'Loading...' : 'Inspect Versions'}
                       </button>
                     </div>
 
                     {versions.length > 0 && (
-                      <div className="rounded-xl border border-slate-800 bg-slate-950/80 overflow-hidden mt-4">
+                      <div className="mt-4 overflow-hidden rounded-xl border border-slate-800 bg-slate-950/80">
                         <div className="overflow-x-auto">
-                          <table className="w-full text-left border-collapse text-sm">
+                          <table className="w-full border-collapse text-left text-sm">
                             <thead>
-                              <tr className="border-b border-slate-800 bg-slate-900/40 text-xs font-bold uppercase tracking-wider text-slate-400">
+                              <tr className="border-b border-slate-800 bg-slate-900/40 text-xs font-bold tracking-wider text-slate-400 uppercase">
                                 <th className="px-6 py-3.5">Version</th>
                                 <th className="px-6 py-3.5">Changelog</th>
                                 <th className="px-6 py-3.5">Created By</th>
@@ -779,16 +891,26 @@ export default function AdminDataConsolePage() {
                             <tbody className="divide-y divide-slate-800 text-slate-200">
                               {versions.map((ver) => (
                                 <tr key={ver.id} className="hover:bg-slate-800/10">
-                                  <td className="px-6 py-4 font-bold text-indigo-400">v{ver.version}</td>
-                                  <td className="px-6 py-4 max-w-sm truncate" title={ver.changelog}>{ver.changelog}</td>
+                                  <td className="px-6 py-4 font-bold text-indigo-400">
+                                    v{ver.version}
+                                  </td>
+                                  <td className="max-w-sm truncate px-6 py-4" title={ver.changelog}>
+                                    {ver.changelog}
+                                  </td>
                                   <td className="px-6 py-4 text-slate-400">{ver.createdBy}</td>
                                   <td className="px-6 py-4 text-xs text-slate-400">
                                     {new Date(ver.createdAt).toLocaleString()}
                                   </td>
                                   <td className="px-6 py-4 text-right">
                                     <button
-                                      onClick={() => handleRollback(inspectorColName, inspectorDocId, ver.version)}
-                                      className="rounded-xl border border-amber-900 bg-amber-950/60 hover:bg-amber-900 text-amber-400 text-xs font-bold px-3 py-1.5"
+                                      onClick={() =>
+                                        handleRollback(
+                                          inspectorColName,
+                                          inspectorDocId,
+                                          ver.version,
+                                        )
+                                      }
+                                      className="rounded-xl border border-amber-900 bg-amber-950/60 px-3 py-1.5 text-xs font-bold text-amber-400 hover:bg-amber-900"
                                     >
                                       Rollback
                                     </button>
@@ -809,14 +931,16 @@ export default function AdminDataConsolePage() {
                 <div className="space-y-6">
                   <div className="grid gap-6 md:grid-cols-2">
                     {/* Add Org Form */}
-                    <div className="rounded-2xl border border-slate-800 bg-slate-900/20 p-6 space-y-4">
-                      <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/20 p-6">
+                      <h2 className="flex items-center gap-2 text-lg font-bold text-white">
                         <Building className="h-5 w-5 text-indigo-400" />
                         Create Organization
                       </h2>
                       <form onSubmit={handleCreateOrg} className="space-y-3">
                         <div className="space-y-1">
-                          <label className="text-xs text-slate-400 font-medium">Organization ID</label>
+                          <label className="text-xs font-medium text-slate-400">
+                            Organization ID
+                          </label>
                           <input
                             type="text"
                             value={newOrgId}
@@ -827,7 +951,7 @@ export default function AdminDataConsolePage() {
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs text-slate-400 font-medium">Display Name</label>
+                          <label className="text-xs font-medium text-slate-400">Display Name</label>
                           <input
                             type="text"
                             value={newOrgName}
@@ -840,7 +964,7 @@ export default function AdminDataConsolePage() {
                         <button
                           type="submit"
                           disabled={creatingOrg}
-                          className="w-full rounded-xl bg-indigo-650 hover:bg-indigo-700 text-white font-bold py-2 text-sm transition"
+                          className="bg-indigo-650 w-full rounded-xl py-2 text-sm font-bold text-white transition hover:bg-indigo-700"
                         >
                           {creatingOrg ? 'Creating...' : 'Register Org'}
                         </button>
@@ -848,14 +972,16 @@ export default function AdminDataConsolePage() {
                     </div>
 
                     {/* Update Role Form */}
-                    <div className="rounded-2xl border border-slate-800 bg-slate-900/20 p-6 space-y-4">
-                      <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/20 p-6">
+                      <h2 className="flex items-center gap-2 text-lg font-bold text-white">
                         <UserCheck className="h-5 w-5 text-violet-500" />
                         Assign Role & Tenant
                       </h2>
                       <form onSubmit={handleUpdateRole} className="space-y-3">
                         <div className="space-y-1">
-                          <label className="text-xs text-slate-400 font-medium">Target User ID</label>
+                          <label className="text-xs font-medium text-slate-400">
+                            Target User ID
+                          </label>
                           <input
                             type="text"
                             value={targetUserId}
@@ -866,7 +992,9 @@ export default function AdminDataConsolePage() {
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs text-slate-400 font-medium">Organization Tenant</label>
+                          <label className="text-xs font-medium text-slate-400">
+                            Organization Tenant
+                          </label>
                           <select
                             value={targetOrgId}
                             onChange={(e) => setTargetOrgId(e.target.value)}
@@ -874,12 +1002,16 @@ export default function AdminDataConsolePage() {
                           >
                             <option value="">Select Tenant Organization</option>
                             {organizations.map((org) => (
-                              <option key={org.id} value={org.id}>{org.name || org.id}</option>
+                              <option key={org.id} value={org.id}>
+                                {org.name || org.id}
+                              </option>
                             ))}
                           </select>
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs text-slate-400 font-medium">Role Designation</label>
+                          <label className="text-xs font-medium text-slate-400">
+                            Role Designation
+                          </label>
                           <select
                             value={targetRole}
                             onChange={(e) => setTargetRole(e.target.value)}
@@ -894,7 +1026,7 @@ export default function AdminDataConsolePage() {
                         <button
                           type="submit"
                           disabled={updatingRole}
-                          className="w-full rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold py-2 text-sm transition"
+                          className="w-full rounded-xl bg-violet-600 py-2 text-sm font-bold text-white transition hover:bg-violet-700"
                         >
                           {updatingRole ? 'Updating...' : 'Update Settings'}
                         </button>
@@ -903,14 +1035,16 @@ export default function AdminDataConsolePage() {
                   </div>
 
                   {/* Registered Users List */}
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900/20 overflow-hidden">
+                  <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/20">
                     <div className="border-b border-slate-800 bg-slate-900/60 px-6 py-4">
-                      <h2 className="text-lg font-bold text-white">Registered Users & Role Matrix</h2>
+                      <h2 className="text-lg font-bold text-white">
+                        Registered Users & Role Matrix
+                      </h2>
                     </div>
                     <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse">
+                      <table className="w-full border-collapse text-left">
                         <thead>
-                          <tr className="border-b border-slate-800 bg-slate-900/30 text-xs font-bold uppercase tracking-wider text-slate-400">
+                          <tr className="border-b border-slate-800 bg-slate-900/30 text-xs font-bold tracking-wider text-slate-400 uppercase">
                             <th className="px-6 py-3.5">User ID</th>
                             <th className="px-6 py-3.5">Email</th>
                             <th className="px-6 py-3.5">Tenant Org ID</th>
@@ -927,16 +1061,25 @@ export default function AdminDataConsolePage() {
                           ) : (
                             usersList.map((user) => (
                               <tr key={user.id} className="hover:bg-slate-800/10">
-                                <td className="px-6 py-4 font-mono font-medium text-slate-100">{user.id}</td>
-                                <td className="px-6 py-4 text-slate-450">{user.email || 'N/A'}</td>
-                                <td className="px-6 py-4 font-medium text-slate-400">{user.organizationId || 'System'}</td>
+                                <td className="px-6 py-4 font-mono font-medium text-slate-100">
+                                  {user.id}
+                                </td>
+                                <td className="text-slate-450 px-6 py-4">{user.email || 'N/A'}</td>
+                                <td className="px-6 py-4 font-medium text-slate-400">
+                                  {user.organizationId || 'System'}
+                                </td>
                                 <td className="px-6 py-4 text-right">
-                                  <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
-                                    user.role === 'Admin' ? 'bg-indigo-950 text-indigo-400 border-indigo-900/50' :
-                                    user.role === 'Manager' ? 'bg-emerald-950 text-emerald-400 border-emerald-900/50' :
-                                    user.role === 'Sales Rep' ? 'bg-cyan-950 text-cyan-400 border-cyan-900/50' :
-                                    'bg-slate-900 text-slate-450 border-slate-800'
-                                  }`}>
+                                  <span
+                                    className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+                                      user.role === 'Admin'
+                                        ? 'border-indigo-900/50 bg-indigo-950 text-indigo-400'
+                                        : user.role === 'Manager'
+                                          ? 'border-emerald-900/50 bg-emerald-950 text-emerald-400'
+                                          : user.role === 'Sales Rep'
+                                            ? 'border-cyan-900/50 bg-cyan-950 text-cyan-400'
+                                            : 'text-slate-450 border-slate-800 bg-slate-900'
+                                    }`}
+                                  >
                                     {user.role || 'Sales Rep'}
                                   </span>
                                 </td>
@@ -953,33 +1096,38 @@ export default function AdminDataConsolePage() {
               {/* Tab 5: Data Retention Manager */}
               {activeTab === 'retention' && (
                 <div className="space-y-6">
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900/20 p-6 space-y-6">
-                    <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <div className="space-y-6 rounded-2xl border border-slate-800 bg-slate-900/20 p-6">
+                    <h2 className="flex items-center gap-2 text-lg font-bold text-white">
                       <Sliders className="h-5 w-5 text-indigo-400" />
                       Retention Policies & Archival Controls
                     </h2>
 
                     <div className="grid gap-6 md:grid-cols-2">
                       <div className="space-y-4">
-                        <p className="text-slate-400 text-sm leading-relaxed">
-                          Define standard retention limits for system event streams and analytics workflows.
-                          Manual trigger purges delete audit records and workflow histories older than the specified limit.
+                        <p className="text-sm leading-relaxed text-slate-400">
+                          Define standard retention limits for system event streams and analytics
+                          workflows. Manual trigger purges delete audit records and workflow
+                          histories older than the specified limit.
                         </p>
 
                         <div className="space-y-2">
-                          <label className="text-xs text-slate-400 font-semibold uppercase">Retention Range (Days)</label>
+                          <label className="text-xs font-semibold text-slate-400 uppercase">
+                            Retention Range (Days)
+                          </label>
                           <div className="flex gap-3">
                             <input
                               type="number"
                               value={retentionDays}
-                              onChange={(e) => setRetentionDays(Math.max(0, parseInt(e.target.value) || 0))}
+                              onChange={(e) =>
+                                setRetentionDays(Math.max(0, parseInt(e.target.value) || 0))
+                              }
                               className="w-32 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200"
                               min={1}
                             />
                             <button
                               onClick={handlePurge}
                               disabled={purging}
-                              className="rounded-xl bg-rose-650 hover:bg-rose-700 text-white font-bold px-5 py-2 text-sm flex items-center gap-2 transition disabled:opacity-50"
+                              className="bg-rose-650 flex items-center gap-2 rounded-xl px-5 py-2 text-sm font-bold text-white transition hover:bg-rose-700 disabled:opacity-50"
                             >
                               <Trash2 className="h-4 w-4" />
                               {purging ? 'Purging...' : 'Execute Manual Purge'}
@@ -988,15 +1136,20 @@ export default function AdminDataConsolePage() {
                         </div>
                       </div>
 
-                      <div className="rounded-xl border border-slate-800 bg-slate-950 p-4 space-y-3">
-                        <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      <div className="space-y-3 rounded-xl border border-slate-800 bg-slate-950 p-4">
+                        <h3 className="flex items-center gap-2 text-sm font-bold text-white">
                           <Info className="h-4 w-4 text-indigo-400" />
                           Retention Strategy Rules
                         </h3>
-                        <ul className="text-xs text-slate-400 space-y-2 list-disc list-inside">
+                        <ul className="list-inside list-disc space-y-2 text-xs text-slate-400">
                           <li>Audit logs have a legal compliance window of 365 days.</li>
-                          <li>Intermediate workflow execution step inputs/outputs can be archived after 30 days.</li>
-                          <li>Soft-deleted objects remain restoreable indefinitely unless purged.</li>
+                          <li>
+                            Intermediate workflow execution step inputs/outputs can be archived
+                            after 30 days.
+                          </li>
+                          <li>
+                            Soft-deleted objects remain restoreable indefinitely unless purged.
+                          </li>
                           <li>Purges are immutable, hard deletions from Firestore collections.</li>
                         </ul>
                       </div>

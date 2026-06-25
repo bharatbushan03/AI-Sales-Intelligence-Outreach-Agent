@@ -22,7 +22,8 @@ export class ResearchAgent implements IAgent {
 
   constructor() {
     const key = env.GEMINI_API_KEY;
-    const genAI = key && key !== 'mock-gemini-key' ? new AIPlatformGenerativeAI(key) as any : null;
+    const genAI =
+      key && key !== 'mock-gemini-key' ? (new AIPlatformGenerativeAI(key) as any) : null;
 
     this.profiler = new CompanyProfiler(genAI);
     this.webAnalyzer = new WebsiteAnalyzer(genAI);

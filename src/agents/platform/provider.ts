@@ -161,7 +161,11 @@ export class MockProvider implements AIProvider {
       ]);
     }
     // 4. Opportunity Discovery
-    else if (p.includes('discover') || p.includes('scroed sales hooks') || p.includes('opportunities')) {
+    else if (
+      p.includes('discover') ||
+      p.includes('scroed sales hooks') ||
+      p.includes('opportunities')
+    ) {
       text = JSON.stringify({
         opportunities: [
           {
@@ -195,7 +199,11 @@ export class MockProvider implements AIProvider {
         intent: 'Research and analyze Stripe opportunities',
         steps: [
           { id: 'step_research', agentCapability: 'research' },
-          { id: 'step_opportunity', agentCapability: 'opportunity-analysis', dependsOn: ['step_research'] },
+          {
+            id: 'step_opportunity',
+            agentCapability: 'opportunity-analysis',
+            dependsOn: ['step_research'],
+          },
           { id: 'step_crm', agentCapability: 'crm', dependsOn: ['step_opportunity'] },
         ],
       });
@@ -217,18 +225,39 @@ export class MockProvider implements AIProvider {
       });
     }
     // 9. Strategic recommendations
-    else if (p.includes('strategic recommendations') || p.includes('trigger') || p.includes('pain points')) {
+    else if (
+      p.includes('strategic recommendations') ||
+      p.includes('trigger') ||
+      p.includes('pain points')
+    ) {
       text = JSON.stringify({
-        painPoints: [{ title: 'Sync Lag', description: 'Enterprise Data latency', severity: 'high' }],
-        recommendations: [{ title: 'Sync pipeline', description: 'High-speed sync integration', valueScore: 90 }],
-        triggers: [{ eventType: 'expansion', description: 'Enterprise expansion detected', triggerFitScore: 85 }],
+        painPoints: [
+          { title: 'Sync Lag', description: 'Enterprise Data latency', severity: 'high' },
+        ],
+        recommendations: [
+          { title: 'Sync pipeline', description: 'High-speed sync integration', valueScore: 90 },
+        ],
+        triggers: [
+          {
+            eventType: 'expansion',
+            description: 'Enterprise expansion detected',
+            triggerFitScore: 85,
+          },
+        ],
       });
     }
     // 10. Outreach Campaign email templates
-    else if (p.includes('outreach') || p.includes('email variant') || p.includes('campaign planner')) {
+    else if (
+      p.includes('outreach') ||
+      p.includes('email variant') ||
+      p.includes('campaign planner')
+    ) {
       text = JSON.stringify({
         emailVariants: [
-          { subject: 'Optimizing Stripe Payments decline rates', body: 'Hi Stripe team, let us chat.' },
+          {
+            subject: 'Optimizing Stripe Payments decline rates',
+            body: 'Hi Stripe team, let us chat.',
+          },
         ],
         linkedinMessage: 'Hi Stripe, let us connect.',
         discoveryCallScript: { opener: 'Hello, is this Stripe?', questions: [] },
@@ -259,7 +288,14 @@ export class MockProvider implements AIProvider {
         summary: 'Mock synthesis response details.',
         recommendations: ['Mock recommendation details'],
         results: { content: 'mock' },
-        scores: { relevance: 85, accuracy: 80, completeness: 90, personalization: 85, businessValue: 90, actionability: 85 },
+        scores: {
+          relevance: 85,
+          accuracy: 80,
+          completeness: 90,
+          personalization: 85,
+          businessValue: 90,
+          actionability: 85,
+        },
         overallScore: 86,
         confidence: 0.85,
         unsupportedClaims: [],

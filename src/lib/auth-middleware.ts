@@ -49,7 +49,7 @@ export async function authenticateUser(request: NextRequest): Promise<{
 
     // Verify Firebase ID token
     const decodedToken = await adminAuth.verifyIdToken(idToken);
-    
+
     // Get user profile from Firestore
     const userDoc = await adminDb.collection('users').doc(decodedToken.uid).get();
     if (!userDoc.exists) {
@@ -57,7 +57,7 @@ export async function authenticateUser(request: NextRequest): Promise<{
     }
 
     const userProfile = { id: userDoc.id, ...userDoc.data() } as User;
-    
+
     // Check if user is active
     if (userProfile.status !== 'active') {
       return { success: false, error: 'User account is not active' };
@@ -87,7 +87,7 @@ export async function authenticateUser(request: NextRequest): Promise<{
     return { success: true, user: authenticatedUser };
   } catch (error) {
     logger.error('Authentication failed', error);
-    
+
     if (error instanceof Error) {
       if (error.message.includes('expired')) {
         return { success: false, error: 'Token expired' };
@@ -96,7 +96,7 @@ export async function authenticateUser(request: NextRequest): Promise<{
         return { success: false, error: 'Invalid token' };
       }
     }
-    
+
     return { success: false, error: 'Authentication failed' };
   }
 }
@@ -112,7 +112,7 @@ export function withAuth(
     requireEmailVerification?: boolean;
     requireOrganizationAccess?: boolean;
     requireWorkspaceAccess?: boolean;
-  } = {}
+  } = {},
 ) {
   return async (request: NextRequest): Promise<NextResponse> => {
     try {
@@ -132,16 +132,16 @@ export function withAuth(
       // Check role requirements
       if (options.requiredRole && user.role !== options.requiredRole) {
         const roleHierarchy = {
-          'Owner': 5,
-          'Admin': 4,
-          'Manager': 3,
+          Owner: 5,
+          Admin: 4,
+          Manager: 3,
           'Sales Rep': 2,
-          'Viewer': 1,
+          Viewer: 1,
         };
-        
+
         const userLevel = roleHierarchy[user.role] || 0;
         const requiredLevel = roleHierarchy[options.requiredRole] || 0;
-        
+
         if (userLevel < requiredLevel) {
           return ApiResponse.permissionDenied(`Role '${options.requiredRole}' or higher required`);
         }
@@ -169,7 +169,7 @@ export function withAuth(
       if (orgIndex !== -1 && pathSegments[orgIndex + 1]) {
         organizationId = pathSegments[orgIndex + 1];
       }
-      
+
       if (workspaceIndex !== -1 && pathSegments[workspaceIndex + 1]) {
         workspaceId = pathSegments[workspaceIndex + 1];
       }
@@ -187,7 +187,9 @@ export function withAuth(
 
       // Check workspace access
       if (options.requireWorkspaceAccess && workspaceId) {
-        if (!canAccessWorkspace(user.organizationId, user.workspaceIds, workspaceId, organizationId)) {
+        if (
+          !canAccessWorkspace(user.organizationId, user.workspaceIds, workspaceId, organizationId)
+        ) {
           return ApiResponse.permissionDenied('Workspace access denied');
         }
       }
@@ -211,31 +213,33 @@ export function withAuth(
 /**
  * Role-based middleware factories
  */
-export const withOwnerAuth = (handler: (request: NextRequest, context: AuthContext) => Promise<NextResponse>) =>
-  withAuth(handler, { requiredRole: 'Owner', requireEmailVerification: true });
+export const withOwnerAuth = (
+  handler: (request: NextRequest, context: AuthContext) => Promise<NextResponse>,
+) => withAuth(handler, { requiredRole: 'Owner', requireEmailVerification: true });
 
-export const withAdminAuth = (handler: (request: NextRequest, context: AuthContext) => Promise<NextResponse>) =>
-  withAuth(handler, { requiredRole: 'Admin', requireEmailVerification: true });
+export const withAdminAuth = (
+  handler: (request: NextRequest, context: AuthContext) => Promise<NextResponse>,
+) => withAuth(handler, { requiredRole: 'Admin', requireEmailVerification: true });
 
-export const withManagerAuth = (handler: (request: NextRequest, context: AuthContext) => Promise<NextResponse>) =>
-  withAuth(handler, { requiredRole: 'Manager', requireEmailVerification: true });
+export const withManagerAuth = (
+  handler: (request: NextRequest, context: AuthContext) => Promise<NextResponse>,
+) => withAuth(handler, { requiredRole: 'Manager', requireEmailVerification: true });
 
 /**
  * Permission-based middleware factory
  */
 export const withPermissions = (
   permissions: Permission[],
-  handler: (request: NextRequest, context: AuthContext) => Promise<NextResponse>
-) =>
-  withAuth(handler, { requiredPermissions: permissions, requireEmailVerification: true });
+  handler: (request: NextRequest, context: AuthContext) => Promise<NextResponse>,
+) => withAuth(handler, { requiredPermissions: permissions, requireEmailVerification: true });
 
 /**
  * Organization-scoped middleware
  */
 export const withOrganizationAuth = (
-  handler: (request: NextRequest, context: AuthContext) => Promise<NextResponse>
+  handler: (request: NextRequest, context: AuthContext) => Promise<NextResponse>,
 ) =>
-  withAuth(handler, { 
+  withAuth(handler, {
     requireOrganizationAccess: true,
     requireEmailVerification: true,
   });
@@ -244,9 +248,9 @@ export const withOrganizationAuth = (
  * Workspace-scoped middleware
  */
 export const withWorkspaceAuth = (
-  handler: (request: NextRequest, context: AuthContext) => Promise<NextResponse>
+  handler: (request: NextRequest, context: AuthContext) => Promise<NextResponse>,
 ) =>
-  withAuth(handler, { 
+  withAuth(handler, {
     requireOrganizationAccess: true,
     requireWorkspaceAccess: true,
     requireEmailVerification: true,
@@ -262,7 +266,7 @@ export async function setCustomClaims(
     organizationId?: string;
     permissions?: Permission[];
     plan?: string;
-  }
+  },
 ): Promise<void> {
   try {
     await adminAuth.setCustomUserClaims(userId, claims);
@@ -285,13 +289,14 @@ export async function refreshUserClaims(userId: string): Promise<void> {
     }
 
     const userProfile = userDoc.data() as User;
-    
+
     // Update custom claims
     await setCustomClaims(userId, {
       role: userProfile.role,
       organizationId: userProfile.organizationId,
-      plan: userProfile.organizationId ? 
-        (await adminDb.collection('organizations').doc(userProfile.organizationId).get()).data()?.plan 
+      plan: userProfile.organizationId
+        ? (await adminDb.collection('organizations').doc(userProfile.organizationId).get()).data()
+            ?.plan
         : undefined,
     });
 
@@ -310,14 +315,14 @@ const rateLimits = new Map<string, { count: number; resetTime: number }>();
 export function withRateLimit(
   maxRequests: number = 100,
   windowMs: number = 60000,
-  handler: (request: NextRequest, context: AuthContext) => Promise<NextResponse>
+  handler: (request: NextRequest, context: AuthContext) => Promise<NextResponse>,
 ) {
   return withAuth(async (request: NextRequest, context: AuthContext): Promise<NextResponse> => {
     const key = `${context.user.uid}:${request.url}`;
     const now = Date.now();
-    
+
     const userLimit = rateLimits.get(key);
-    
+
     if (userLimit) {
       if (now < userLimit.resetTime) {
         if (userLimit.count >= maxRequests) {
@@ -349,7 +354,7 @@ export function withPlanLimits(
   options: {
     requiresFeature?: string;
     checkUsageLimits?: boolean;
-  } = {}
+  } = {},
 ) {
   return withAuth(async (request: NextRequest, context: AuthContext): Promise<NextResponse> => {
     try {
@@ -370,11 +375,19 @@ export function withPlanLimits(
           Free: ['aiEnabled'],
           Pro: ['aiEnabled', 'advancedReporting', 'apiAccess'],
           Business: ['aiEnabled', 'advancedReporting', 'apiAccess', 'ssoEnabled', 'customBranding'],
-          Enterprise: ['aiEnabled', 'advancedReporting', 'apiAccess', 'ssoEnabled', 'customBranding'],
+          Enterprise: [
+            'aiEnabled',
+            'advancedReporting',
+            'apiAccess',
+            'ssoEnabled',
+            'customBranding',
+          ],
         };
 
         if (!features[plan as keyof typeof features]?.includes(options.requiresFeature)) {
-          return ApiResponse.planLimitExceeded(`Feature '${options.requiresFeature}' not available in ${plan} plan`);
+          return ApiResponse.planLimitExceeded(
+            `Feature '${options.requiresFeature}' not available in ${plan} plan`,
+          );
         }
       }
 

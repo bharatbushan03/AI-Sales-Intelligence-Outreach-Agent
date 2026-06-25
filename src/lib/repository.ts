@@ -18,7 +18,13 @@ export interface RepositoryOptions {
 }
 
 export class FirestoreRepository<
-  T extends { id?: string; createdAt?: unknown; updatedAt?: unknown; organizationId?: string; deleted?: boolean },
+  T extends {
+    id?: string;
+    createdAt?: unknown;
+    updatedAt?: unknown;
+    organizationId?: string;
+    deleted?: boolean;
+  },
 > {
   constructor(
     protected collectionName: string,
@@ -35,14 +41,18 @@ export class FirestoreRepository<
   async get(id: string, organizationId?: string): Promise<T | null> {
     const doc = await this.collection.doc(id).get();
     if (!doc.exists) return null;
-    
+
     const data = { id: doc.id, ...doc.data() } as T;
 
     if (this.options?.enableSoftDelete && data.deleted === true) {
       return null;
     }
 
-    if (this.options?.enableMultiTenancy && organizationId && data.organizationId !== organizationId) {
+    if (
+      this.options?.enableMultiTenancy &&
+      organizationId &&
+      data.organizationId !== organizationId
+    ) {
       return null;
     }
 
@@ -406,7 +416,8 @@ export class FirestoreRepository<
    */
   private inferEventType(op: 'create' | 'update') {
     if (this.collectionName === 'research_reports' && op === 'create') return 'ResearchCompleted';
-    if (this.collectionName === 'opportunity_reports' && op === 'create') return 'OpportunityGenerated';
+    if (this.collectionName === 'opportunity_reports' && op === 'create')
+      return 'OpportunityGenerated';
     if (this.collectionName === 'outreach_campaigns' && op === 'create') return 'OutreachGenerated';
     if (this.collectionName === 'proposals' && op === 'create') return 'ProposalGenerated';
     if (this.collectionName === 'leads' && op === 'create') return 'LeadCreated';

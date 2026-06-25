@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Tenant Scoping check: Admins can query any org; Managers are limited to their own org.
-    const finalOrgId = userRole === 'Admin' ? (orgFilter || userOrgId) : userOrgId;
+    const finalOrgId = userRole === 'Admin' ? orgFilter || userOrgId : userOrgId;
 
     if (type === 'versions' && collectionName && docId) {
       const versions = await VersionControlService.getVersions(collectionName, docId);
@@ -48,7 +48,13 @@ export async function GET(req: NextRequest) {
 
     if (type === 'soft_deleted') {
       // Find soft deleted items across primary collections for this tenant
-      const collections = ['workflows', 'leads', 'opportunity_reports', 'outreach_campaigns', 'proposals'];
+      const collections = [
+        'workflows',
+        'leads',
+        'opportunity_reports',
+        'outreach_campaigns',
+        'proposals',
+      ];
       const softDeletedList: any[] = [];
 
       for (const col of collections) {
@@ -78,9 +84,11 @@ export async function GET(req: NextRequest) {
       workflowStepsRepository.list(undefined, 'createdAt', 'desc', limit, finalOrgId),
       AuditTrailService.listForOrg(finalOrgId, limit),
       EventStoreService.listForOrg(finalOrgId, limit),
-      userRole === 'Admin' ? organizationsRepository.list() : organizationsRepository.get(finalOrgId).then(o => o ? [o] : []),
-      userRole === 'Admin' 
-        ? usersRepository.list() 
+      userRole === 'Admin'
+        ? organizationsRepository.list()
+        : organizationsRepository.get(finalOrgId).then((o) => (o ? [o] : [])),
+      userRole === 'Admin'
+        ? usersRepository.list()
         : usersRepository.list([{ field: 'organizationId', operator: '==', value: finalOrgId }]),
     ]);
 
@@ -95,7 +103,11 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     logger.error(`Admin GET API failed: ${errorMsg}`, error);
-    return ApiResponse.error(`Failed to fetch administrative data: ${errorMsg}`, 'INTERNAL_ERROR', 500);
+    return ApiResponse.error(
+      `Failed to fetch administrative data: ${errorMsg}`,
+      'INTERNAL_ERROR',
+      500,
+    );
   }
 }
 
@@ -134,7 +146,11 @@ export async function POST(req: NextRequest) {
       // Check tenant isolation: verify manager can only restore items belonging to their organization
       const docSnap = await adminDb.collection(collection).doc(id).get();
       if (!docSnap.exists) {
-        return ApiResponse.error(`Document ${id} in ${collection} does not exist.`, 'NOT_FOUND', 404);
+        return ApiResponse.error(
+          `Document ${id} in ${collection} does not exist.`,
+          'NOT_FOUND',
+          404,
+        );
       }
       const data = docSnap.data();
       if (userRole !== 'Admin' && data?.organizationId !== userOrgId) {
@@ -165,13 +181,21 @@ export async function POST(req: NextRequest) {
     if (action === 'ROLLBACK') {
       const { collection, id, version } = body;
       if (!collection || !id || typeof version !== 'number') {
-        return ApiResponse.error('Missing collection name, document ID, or version index.', 'BAD_REQUEST', 400);
+        return ApiResponse.error(
+          'Missing collection name, document ID, or version index.',
+          'BAD_REQUEST',
+          400,
+        );
       }
 
       // Check tenant isolation
       const docSnap = await adminDb.collection(collection).doc(id).get();
       if (!docSnap.exists) {
-        return ApiResponse.error(`Document ${id} in ${collection} does not exist.`, 'NOT_FOUND', 404);
+        return ApiResponse.error(
+          `Document ${id} in ${collection} does not exist.`,
+          'NOT_FOUND',
+          404,
+        );
       }
       const data = docSnap.data();
       if (userRole !== 'Admin' && data?.organizationId !== userOrgId) {
@@ -179,12 +203,7 @@ export async function POST(req: NextRequest) {
       }
 
       // Rollback document state
-      const rolledBack = await VersionControlService.rollback(
-        collection,
-        id,
-        version,
-        userEmail,
-      );
+      const rolledBack = await VersionControlService.rollback(collection, id, version, userEmail);
 
       // Audit rollback
       await AuditTrailService.log({
@@ -196,13 +215,20 @@ export async function POST(req: NextRequest) {
         metadata: { targetVersion: version },
       });
 
-      return ApiResponse.success({ message: `Successfully rolled back ${id} to version ${version}.`, data: rolledBack });
+      return ApiResponse.success({
+        message: `Successfully rolled back ${id} to version ${version}.`,
+        data: rolledBack,
+      });
     }
 
     if (action === 'PURGE') {
       // Purge action requires Admin role (Managers cannot run global retention cleanses)
       if (userRole !== 'Admin') {
-        return ApiResponse.error('Unauthorized. Only Admins can trigger data retention purges.', 'FORBIDDEN', 403);
+        return ApiResponse.error(
+          'Unauthorized. Only Admins can trigger data retention purges.',
+          'FORBIDDEN',
+          403,
+        );
       }
 
       const retentionDays = Number(body.retentionDays);
@@ -218,7 +244,8 @@ export async function POST(req: NextRequest) {
       let purgedAudits = 0;
 
       // 1. Purge older workflows
-      const workflowSnap = await adminDb.collection('workflows')
+      const workflowSnap = await adminDb
+        .collection('workflows')
         .where('createdAt', '<', cutoffStr)
         .get();
 
@@ -230,7 +257,8 @@ export async function POST(req: NextRequest) {
       if (purgedWorkflows > 0) await batch1.commit();
 
       // 2. Purge older audit logs
-      const auditSnap = await adminDb.collection('audit_logs')
+      const auditSnap = await adminDb
+        .collection('audit_logs')
         .where('timestamp', '<', cutoffStr)
         .get();
 
@@ -265,7 +293,11 @@ export async function POST(req: NextRequest) {
 
     if (action === 'CREATE_ORGANIZATION') {
       if (userRole !== 'Admin') {
-        return ApiResponse.error('Unauthorized. Only Admins can register organizations.', 'FORBIDDEN', 403);
+        return ApiResponse.error(
+          'Unauthorized. Only Admins can register organizations.',
+          'FORBIDDEN',
+          403,
+        );
       }
 
       const { name, id } = body;
@@ -285,7 +317,9 @@ export async function POST(req: NextRequest) {
         metadata: { name },
       });
 
-      return ApiResponse.success({ message: `Organization ${name} (${id}) registered successfully.` });
+      return ApiResponse.success({
+        message: `Organization ${name} (${id}) registered successfully.`,
+      });
     }
 
     if (action === 'UPDATE_USER_ROLE') {
@@ -315,7 +349,9 @@ export async function POST(req: NextRequest) {
         metadata: { updateData },
       });
 
-      return ApiResponse.success({ message: `Successfully updated user ${targetUserId} properties.` });
+      return ApiResponse.success({
+        message: `Successfully updated user ${targetUserId} properties.`,
+      });
     }
 
     return ApiResponse.error('Invalid action requested.', 'BAD_REQUEST', 400);

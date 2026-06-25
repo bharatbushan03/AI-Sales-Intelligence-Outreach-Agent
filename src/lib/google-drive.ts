@@ -8,7 +8,7 @@ import { getOAuthClient } from './google-calendar';
  */
 export async function getDriveClientForUser(userId: string) {
   const userDoc = await adminDb.collection('users').doc(userId).get();
-  
+
   if (!userDoc.exists) {
     throw new Error('User not found');
   }
@@ -77,10 +77,14 @@ async function ensureFolderExists(drive: any, folderName: string): Promise<strin
 /**
  * Uploads proposal content to Google Drive as a Google Doc and creates a shareable link.
  */
-export async function exportProposalToDrive(userId: string, title: string, markdownContent: string) {
+export async function exportProposalToDrive(
+  userId: string,
+  title: string,
+  markdownContent: string,
+) {
   try {
     const drive = await getDriveClientForUser(userId);
-    
+
     // Ensure "Sales Proposals" folder exists
     const folderId = await ensureFolderExists(drive, 'Sales Proposals');
 

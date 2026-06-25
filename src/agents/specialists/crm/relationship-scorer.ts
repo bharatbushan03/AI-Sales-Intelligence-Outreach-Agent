@@ -37,7 +37,10 @@ export class RelationshipScoringEngine {
           updatedAt: new Date().toISOString(),
         };
       } catch (error) {
-        logger.error(`RelationshipScoringEngine live analysis failed. Falling back to mock.`, error);
+        logger.error(
+          `RelationshipScoringEngine live analysis failed. Falling back to mock.`,
+          error,
+        );
       }
     }
 
@@ -54,7 +57,8 @@ export class RelationshipScoringEngine {
         accountId,
         score: 82,
         classification: 'Strong Relationship' as RelationshipClassification,
-        rationale: 'High level connection established on LinkedIn. Client requested EU payments compliance report and engaged with the local checkout routing materials.',
+        rationale:
+          'High level connection established on LinkedIn. Client requested EU payments compliance report and engaged with the local checkout routing materials.',
         updatedAt,
       };
     }
@@ -65,7 +69,8 @@ export class RelationshipScoringEngine {
         accountId,
         score: 88,
         classification: 'Strong Relationship' as RelationshipClassification,
-        rationale: 'Completed discovery call. Proposal and relational schemas are currently under active evaluation by the technical lead.',
+        rationale:
+          'Completed discovery call. Proposal and relational schemas are currently under active evaluation by the technical lead.',
         updatedAt,
       };
     }
@@ -76,7 +81,8 @@ export class RelationshipScoringEngine {
         accountId,
         score: 90,
         classification: 'Strong Relationship' as RelationshipClassification,
-        rationale: 'Active negotiation on custom integration terms. Contracts in C-Suite review cycles.',
+        rationale:
+          'Active negotiation on custom integration terms. Contracts in C-Suite review cycles.',
         updatedAt,
       };
     }
@@ -87,7 +93,8 @@ export class RelationshipScoringEngine {
         accountId,
         score: 55,
         classification: 'Moderate Relationship' as RelationshipClassification,
-        rationale: 'Cold outreach sequence started. Introductory client briefing on document permission leaks is currently pending follow-up.',
+        rationale:
+          'Cold outreach sequence started. Introductory client briefing on document permission leaks is currently pending follow-up.',
         updatedAt,
       };
     }

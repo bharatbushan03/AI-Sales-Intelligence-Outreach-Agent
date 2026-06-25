@@ -31,7 +31,7 @@ export class OutreachAgent implements IAgent {
 
   constructor() {
     const key = env.GEMINI_API_KEY;
-    this.genAI = key && key !== 'mock-gemini-key' ? new AIPlatformGenerativeAI(key) as any : null;
+    this.genAI = key && key !== 'mock-gemini-key' ? (new AIPlatformGenerativeAI(key) as any) : null;
 
     this.personaAnalyzer = new PersonaAnalyzer(this.genAI);
     this.messagingStrategist = new MessagingStrategist(this.genAI);
@@ -176,7 +176,10 @@ export class OutreachAgent implements IAgent {
             json.executiveSummary || 'Completed high-conversion multi-channel campaign plan.',
         };
       } catch (error) {
-        logger.error(`Outreach scoring live analysis failed for ${profile.name}. Using mock.`, error);
+        logger.error(
+          `Outreach scoring live analysis failed for ${profile.name}. Using mock.`,
+          error,
+        );
       }
     }
 

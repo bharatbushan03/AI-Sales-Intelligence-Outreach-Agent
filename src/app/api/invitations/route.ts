@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { withAuth } from '@/lib/auth-middleware';
 import { hasPermission } from '@/lib/rbac';
-import { invitationsRepository, organizationsRepository, workspacesRepository } from '@/lib/repositories';
+import {
+  invitationsRepository,
+  organizationsRepository,
+  workspacesRepository,
+} from '@/lib/repositories';
 import { sendInvitationEmail } from '@/lib/email-service';
 import { ApiResponse } from '@/utils/api-response';
 import { logger } from '@/utils/logger';
@@ -16,7 +20,7 @@ const createInvitationSchema = z.object({
   role: z.enum(['owner', 'admin', 'manager', 'sales_rep', 'viewer']),
   type: z.enum(['organization', 'workspace']).default('workspace'),
   message: z.string().optional(),
-  expiresInDays: z.number().min(1).max(30).default(7)
+  expiresInDays: z.number().min(1).max(30).default(7),
 });
 
 // Schema for querying invitations
@@ -25,8 +29,14 @@ const queryInvitationsSchema = z.object({
   workspaceId: z.string().optional(),
   status: z.enum(['pending', 'accepted', 'declined', 'expired']).optional(),
   type: z.enum(['organization', 'workspace']).optional(),
-  page: z.string().optional().transform(val => val ? parseInt(val, 10) : 1),
-  limit: z.string().optional().transform(val => val ? Math.min(parseInt(val, 10), 50) : 20)
+  page: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : 1)),
+  limit: z
+    .string()
+    .optional()
+    .transform((val) => (val ? Math.min(parseInt(val, 10), 50) : 20)),
 });
 
 export async function POST(request: NextRequest) {
@@ -35,7 +45,8 @@ export async function POST(request: NextRequest) {
       const body = await request.json();
       const validatedData = createInvitationSchema.parse(body);
 
-      const { email, organizationId, workspaceId, role, type, message, expiresInDays } = validatedData;
+      const { email, organizationId, workspaceId, role, type, message, expiresInDays } =
+        validatedData;
 
       // Check if user has permission to invite to this organization/workspace
       const hasPerm = hasPermission(user.role, 'users.invite' as any);
@@ -57,7 +68,7 @@ export async function POST(request: NextRequest) {
       }
 
       const id = `inv_${Date.now()}`;
-      
+
       const invitation = {
         id,
         email,
@@ -69,7 +80,7 @@ export async function POST(request: NextRequest) {
         message,
         expiresInDays,
         status: 'pending' as const,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
 
       // Create the invitation
@@ -82,7 +93,7 @@ export async function POST(request: NextRequest) {
         inviterName: user.profile?.name || user.email || 'Team member',
         organizationName: org.name || 'Organization',
         workspaceName: wsName,
-        message
+        message,
       });
 
       logger.info('Invitation sent successfully', {
@@ -90,11 +101,10 @@ export async function POST(request: NextRequest) {
         email,
         organizationId,
         workspaceId,
-        invitedBy: user.uid
+        invitedBy: user.uid,
       });
 
       return ApiResponse.success(invitation, 201);
-
     } catch (error) {
       if (error instanceof z.ZodError) {
         return ApiResponse.validationError('Invalid request data', (error as any).errors);
@@ -126,15 +136,15 @@ export async function GET(request: NextRequest) {
 
       // Get invitations
       const filters: any[] = [];
-      if (organizationId) filters.push({ field: 'organizationId', operator: '==', value: organizationId });
+      if (organizationId)
+        filters.push({ field: 'organizationId', operator: '==', value: organizationId });
       if (workspaceId) filters.push({ field: 'workspaceId', operator: '==', value: workspaceId });
       if (status) filters.push({ field: 'status', operator: '==', value: status });
       if (type) filters.push({ field: 'type', operator: '==', value: type });
-      
+
       const result = await invitationsRepository.list(filters);
 
       return ApiResponse.success(result);
-
     } catch (error) {
       if (error instanceof z.ZodError) {
         return ApiResponse.validationError('Invalid query parameters', (error as any).errors);

@@ -16,10 +16,10 @@ interface OnboardingLayoutProps {
   onBack?: () => void;
 }
 
-export function OnboardingLayout({ 
-  children, 
+export function OnboardingLayout({
+  children,
   showBackButton = false,
-  onBack 
+  onBack,
 }: OnboardingLayoutProps) {
   const router = useRouter();
   const { signOut } = useAuth();
@@ -57,7 +57,7 @@ export function OnboardingLayout({
                   <span className="text-sm">Back</span>
                 </button>
               )}
-              
+
               <div className="flex items-center space-x-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600">
                   <Bot className="h-6 w-6 text-white" />
@@ -69,10 +69,7 @@ export function OnboardingLayout({
               </div>
             </div>
 
-            <button
-              onClick={handleSignOut}
-              className="text-sm text-slate-400 hover:text-slate-200"
-            >
+            <button onClick={handleSignOut} className="text-sm text-slate-400 hover:text-slate-200">
               Sign Out
             </button>
           </div>
@@ -80,9 +77,7 @@ export function OnboardingLayout({
       </header>
 
       {/* Main Content */}
-      <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        {children}
-      </main>
+      <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">{children}</main>
 
       {/* Footer */}
       <footer className="border-t border-slate-800/50 bg-slate-900/30 py-6">

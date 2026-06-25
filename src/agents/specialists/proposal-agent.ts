@@ -7,7 +7,13 @@ import { ROIEngine } from './proposal/roi-engine';
 import { ProposalWriter } from './proposal/proposal-writer';
 import { ExecutiveSummaryGenerator } from './proposal/executive-summary-generator';
 import { PresentationGenerator } from './proposal/presentation-generator';
-import { ProposalPackage, RoadmapPhase, ProposalDocument, BusinessCase, RoiAnalysis } from './proposal/types';
+import {
+  ProposalPackage,
+  RoadmapPhase,
+  ProposalDocument,
+  BusinessCase,
+  RoiAnalysis,
+} from './proposal/types';
 import { logger } from '../../utils/logger';
 
 export class ProposalAgent implements IAgent {
@@ -26,7 +32,7 @@ export class ProposalAgent implements IAgent {
 
   constructor() {
     const key = env.GEMINI_API_KEY;
-    this.genAI = key && key !== 'mock-gemini-key' ? new AIPlatformGenerativeAI(key) as any : null;
+    this.genAI = key && key !== 'mock-gemini-key' ? (new AIPlatformGenerativeAI(key) as any) : null;
 
     this.solutionDesigner = new SolutionDesigner(this.genAI);
     this.businessCaseGenerator = new BusinessCaseGenerator(this.genAI);

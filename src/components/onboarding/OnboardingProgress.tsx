@@ -44,21 +44,21 @@ const steps: Step[] = [
 ];
 
 export function OnboardingProgress({ progress, currentStep }: OnboardingProgressProps) {
-  const currentIndex = steps.findIndex(step => step.id === currentStep);
+  const currentIndex = steps.findIndex((step) => step.id === currentStep);
 
   return (
     <div className="mb-8">
       {/* Progress Bar */}
       <div className="mb-8">
-        <div className="flex items-center justify-between mb-2">
+        <div className="mb-2 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-white">Setup Your Account</h2>
           <span className="text-sm font-medium text-slate-400">
             {Math.round(progress)}% Complete
           </span>
         </div>
-        <div className="w-full bg-slate-800 rounded-full h-2">
+        <div className="h-2 w-full rounded-full bg-slate-800">
           <div
-            className="bg-gradient-to-r from-indigo-500 to-purple-600 h-2 rounded-full transition-all duration-500 ease-out"
+            className="h-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-500 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -82,8 +82,8 @@ export function OnboardingProgress({ progress, currentStep }: OnboardingProgress
                         isCompleted
                           ? 'border-indigo-500 bg-indigo-500'
                           : isCurrent
-                          ? 'border-indigo-500 bg-slate-900'
-                          : 'border-slate-600 bg-slate-800'
+                            ? 'border-indigo-500 bg-slate-900'
+                            : 'border-slate-600 bg-slate-800'
                       }`}
                     >
                       {isCompleted ? (
@@ -107,15 +107,13 @@ export function OnboardingProgress({ progress, currentStep }: OnboardingProgress
                         isCompleted
                           ? 'text-indigo-400'
                           : isCurrent
-                          ? 'text-white'
-                          : 'text-slate-400'
+                            ? 'text-white'
+                            : 'text-slate-400'
                       }`}
                     >
                       {step.name}
                     </div>
-                    <div className="text-xs text-slate-500">
-                      {step.description}
-                    </div>
+                    <div className="text-xs text-slate-500">{step.description}</div>
                   </div>
                 </div>
 

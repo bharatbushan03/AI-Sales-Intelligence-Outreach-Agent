@@ -25,7 +25,8 @@ export class OpportunityAgent implements IAgent {
 
   constructor() {
     const key = env.GEMINI_API_KEY;
-    const genAI = key && key !== 'mock-gemini-key' ? new AIPlatformGenerativeAI(key) as any : null;
+    const genAI =
+      key && key !== 'mock-gemini-key' ? (new AIPlatformGenerativeAI(key) as any) : null;
 
     this.painDetector = new PainPointDetector(genAI);
     this.growthAnalyzer = new GrowthSignalAnalyzer(genAI);

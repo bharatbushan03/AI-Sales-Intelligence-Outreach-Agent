@@ -22,23 +22,16 @@ export async function GET() {
     // Seed Firestore collections if they are empty
     await registry.initialize();
 
-    const [
-      prompts,
-      versions,
-      evaluations,
-      scorecards,
-      tokenUsage,
-      cacheEntries,
-      hallucinations,
-    ] = await Promise.all([
-      promptRegistryRepository.list(undefined, 'id', 'asc'),
-      promptVersionsRepository.list(undefined, 'createdAt', 'desc'),
-      evaluationResultsRepository.list(undefined, 'createdAt', 'desc'),
-      qualityScoresRepository.list(undefined, 'agentName', 'asc'),
-      tokenUsageRepository.list(undefined, 'createdAt', 'desc'),
-      responseCacheRepository.list(undefined, 'createdAt', 'desc'),
-      hallucinationReportsRepository.list(undefined, 'createdAt', 'desc'),
-    ]);
+    const [prompts, versions, evaluations, scorecards, tokenUsage, cacheEntries, hallucinations] =
+      await Promise.all([
+        promptRegistryRepository.list(undefined, 'id', 'asc'),
+        promptVersionsRepository.list(undefined, 'createdAt', 'desc'),
+        evaluationResultsRepository.list(undefined, 'createdAt', 'desc'),
+        qualityScoresRepository.list(undefined, 'agentName', 'asc'),
+        tokenUsageRepository.list(undefined, 'createdAt', 'desc'),
+        responseCacheRepository.list(undefined, 'createdAt', 'desc'),
+        hallucinationReportsRepository.list(undefined, 'createdAt', 'desc'),
+      ]);
 
     return ApiResponse.success({
       prompts,
@@ -72,7 +65,15 @@ export async function POST(req: NextRequest) {
     const registry = PromptRegistry.getInstance();
 
     if (action === 'UPDATE_PROMPT') {
-      const { name, description, template, systemInstruction, fewShots, outputInstructions, changelog } = body;
+      const {
+        name,
+        description,
+        template,
+        systemInstruction,
+        fewShots,
+        outputInstructions,
+        changelog,
+      } = body;
 
       if (!template) {
         return ApiResponse.error('Template is required for update', 'VALIDATION_ERROR', 400);

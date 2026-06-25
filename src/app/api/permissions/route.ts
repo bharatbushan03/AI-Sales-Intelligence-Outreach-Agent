@@ -7,11 +7,11 @@ import { NextRequest } from 'next/server';
 import { withAuth } from '@/lib/auth-middleware';
 import { ApiResponse } from '@/utils/api-response';
 import { logger } from '@/utils/logger';
-import { 
-  hasPermission, 
-  getUserPermissions, 
+import {
+  hasPermission,
+  getUserPermissions,
   SYSTEM_ROLES,
-  WORKSPACE_ROLE_PERMISSIONS 
+  WORKSPACE_ROLE_PERMISSIONS,
 } from '@/lib/rbac';
 import { Permission, Role, WorkspaceRole } from '@/types/auth';
 
@@ -27,7 +27,7 @@ export const GET = withAuth(async (request, context) => {
 
     // Get organization-level permissions
     const orgPermissions = SYSTEM_ROLES[context.user.role].permissions;
-    
+
     let workspacePermissions: Permission[] = [];
     let workspaceRole: WorkspaceRole | null = null;
 
@@ -36,22 +36,19 @@ export const GET = withAuth(async (request, context) => {
       // TODO: Get actual workspace role from workspace membership
       // For now, map org role to workspace role
       const roleMapping: Record<Role, WorkspaceRole> = {
-        'Owner': 'Owner',
-        'Admin': 'Admin', 
-        'Manager': 'Manager',
+        Owner: 'Owner',
+        Admin: 'Admin',
+        Manager: 'Manager',
         'Sales Rep': 'Member',
-        'Viewer': 'Viewer',
+        Viewer: 'Viewer',
       };
-      
+
       workspaceRole = roleMapping[context.user.role];
       workspacePermissions = WORKSPACE_ROLE_PERMISSIONS[workspaceRole] || [];
     }
 
     // Combine all permissions and deduplicate
-    const allPermissions = Array.from(new Set([
-      ...orgPermissions,
-      ...workspacePermissions,
-    ]));
+    const allPermissions = Array.from(new Set([...orgPermissions, ...workspacePermissions]));
 
     const capabilities = {
       // User Management
@@ -59,43 +56,43 @@ export const GET = withAuth(async (request, context) => {
       canManageUsers: hasPermission(context.user.role, 'users.manage_roles'),
       canInviteUsers: hasPermission(context.user.role, 'users.invite'),
       canDeleteUsers: hasPermission(context.user.role, 'users.delete'),
-      
+
       // Organization Management
       canUpdateOrganization: hasPermission(context.user.role, 'organization.update'),
       canManageOrganizationSettings: hasPermission(context.user.role, 'organization.settings'),
       canManageBilling: hasPermission(context.user.role, 'organization.billing'),
       canDeleteOrganization: hasPermission(context.user.role, 'organization.delete'),
-      
+
       // Workspace Management
       canCreateWorkspaces: hasPermission(context.user.role, 'workspaces.create'),
       canManageWorkspaces: hasPermission(context.user.role, 'workspaces.manage_members'),
       canDeleteWorkspaces: hasPermission(context.user.role, 'workspaces.delete'),
-      
+
       // Content Management
       canCreateWorkflows: hasPermission(context.user.role, 'workflows.create'),
       canExecuteWorkflows: hasPermission(context.user.role, 'workflows.execute'),
       canDeleteWorkflows: hasPermission(context.user.role, 'workflows.delete'),
-      
+
       canCreateReports: hasPermission(context.user.role, 'reports.create'),
       canUpdateReports: hasPermission(context.user.role, 'reports.update'),
       canDeleteReports: hasPermission(context.user.role, 'reports.delete'),
       canExportReports: hasPermission(context.user.role, 'reports.export'),
-      
+
       canCreateProposals: hasPermission(context.user.role, 'proposals.create'),
       canUpdateProposals: hasPermission(context.user.role, 'proposals.update'),
       canDeleteProposals: hasPermission(context.user.role, 'proposals.delete'),
       canShareProposals: hasPermission(context.user.role, 'proposals.share'),
-      
+
       canCreateLeads: hasPermission(context.user.role, 'leads.create'),
       canUpdateLeads: hasPermission(context.user.role, 'leads.update'),
       canDeleteLeads: hasPermission(context.user.role, 'leads.delete'),
       canImportLeads: hasPermission(context.user.role, 'leads.import'),
       canExportLeads: hasPermission(context.user.role, 'leads.export'),
-      
+
       // Collaboration
       canComment: hasPermission(context.user.role, 'comments.create'),
       canModerateComments: hasPermission(context.user.role, 'comments.delete'),
-      
+
       // System
       canAccessAdmin: hasPermission(context.user.role, 'system.admin'),
       canViewAudits: hasPermission(context.user.role, 'system.audit'),
@@ -172,13 +169,14 @@ export const POST = withAuth(async (request, context) => {
 
       // Check organization-level permission
       const hasOrgPermission = hasPermission(context.user.role, permission as Permission);
-      
+
       // Check workspace-level permission if workspace specified
       let hasWorkspacePermission = false;
       if (workspaceId && context.user.workspaceIds.includes(workspaceId)) {
         // TODO: Get actual workspace role
         const workspaceRole = 'Member' as WorkspaceRole;
-        hasWorkspacePermission = WORKSPACE_ROLE_PERMISSIONS[workspaceRole]?.includes(permission as Permission) || false;
+        hasWorkspacePermission =
+          WORKSPACE_ROLE_PERMISSIONS[workspaceRole]?.includes(permission as Permission) || false;
       }
 
       results[permission] = hasOrgPermission || hasWorkspacePermission;
@@ -199,7 +197,7 @@ export const POST = withAuth(async (request, context) => {
       summary: {
         total: permissionsToCheck.length,
         granted: Object.values(results).filter(Boolean).length,
-        denied: Object.values(results).filter(v => !v).length,
+        denied: Object.values(results).filter((v) => !v).length,
       },
     });
   } catch (error) {
@@ -213,44 +211,49 @@ export const POST = withAuth(async (request, context) => {
  * GET /api/permissions/matrix
  * Get complete permission matrix for role planning
  */
-export const matrix = withAuth(async (request, context) => {
-  try {
-    // Only admins can see the full permission matrix
-    if (!hasPermission(context.user.role, 'system.admin')) {
-      return ApiResponse.permissionDenied('Admin access required');
+export const matrix = withAuth(
+  async (request, context) => {
+    try {
+      // Only admins can see the full permission matrix
+      if (!hasPermission(context.user.role, 'system.admin')) {
+        return ApiResponse.permissionDenied('Admin access required');
+      }
+
+      const permissionMatrix = {
+        organizationRoles: Object.entries(SYSTEM_ROLES).map(([role, definition]) => ({
+          role,
+          displayName: definition.displayName,
+          description: definition.description,
+          level: definition.level,
+          permissions: definition.permissions,
+          permissionCount: definition.permissions.length,
+        })),
+        workspaceRoles: Object.entries(WORKSPACE_ROLE_PERMISSIONS).map(([role, permissions]) => ({
+          role,
+          permissions,
+          permissionCount: permissions.length,
+        })),
+        allPermissions: Array.from(
+          new Set([
+            ...Object.values(SYSTEM_ROLES).flatMap((role) => role.permissions),
+            ...Object.values(WORKSPACE_ROLE_PERMISSIONS).flat(),
+          ]),
+        ).sort(),
+      };
+
+      logger.info('Permission matrix retrieved', {
+        userId: context.user.uid,
+        organizationId: context.organizationId,
+      });
+
+      return ApiResponse.success(permissionMatrix);
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      logger.error(`Permission matrix retrieval failed: ${errorMsg}`, error);
+      return ApiResponse.error('Failed to retrieve permission matrix', 'INTERNAL_ERROR', 500);
     }
-
-    const permissionMatrix = {
-      organizationRoles: Object.entries(SYSTEM_ROLES).map(([role, definition]) => ({
-        role,
-        displayName: definition.displayName,
-        description: definition.description,
-        level: definition.level,
-        permissions: definition.permissions,
-        permissionCount: definition.permissions.length,
-      })),
-      workspaceRoles: Object.entries(WORKSPACE_ROLE_PERMISSIONS).map(([role, permissions]) => ({
-        role,
-        permissions,
-        permissionCount: permissions.length,
-      })),
-      allPermissions: Array.from(new Set([
-        ...Object.values(SYSTEM_ROLES).flatMap(role => role.permissions),
-        ...Object.values(WORKSPACE_ROLE_PERMISSIONS).flat(),
-      ])).sort(),
-    };
-
-    logger.info('Permission matrix retrieved', {
-      userId: context.user.uid,
-      organizationId: context.organizationId,
-    });
-
-    return ApiResponse.success(permissionMatrix);
-  } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : String(error);
-    logger.error(`Permission matrix retrieval failed: ${errorMsg}`, error);
-    return ApiResponse.error('Failed to retrieve permission matrix', 'INTERNAL_ERROR', 500);
-  }
-}, {
-  requiredPermissions: ['system.admin'],
-});
+  },
+  {
+    requiredPermissions: ['system.admin'],
+  },
+);

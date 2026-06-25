@@ -3,16 +3,16 @@
  * Complete collection structure for multi-tenant B2B SaaS platform
  */
 
-import { 
-  User, 
-  Organization, 
-  Workspace, 
-  Invitation, 
-  Notification, 
-  ActivityFeedItem, 
-  Comment, 
+import {
+  User,
+  Organization,
+  Workspace,
+  Invitation,
+  Notification,
+  ActivityFeedItem,
+  Comment,
   Session,
-  ApiKey
+  ApiKey,
 } from '../types/auth';
 
 /**
@@ -23,17 +23,17 @@ export const COLLECTIONS = {
   USERS: 'users',
   ORGANIZATIONS: 'organizations',
   WORKSPACES: 'workspaces',
-  
+
   // Access Control & Invitations
   INVITATIONS: 'invitations',
   SESSIONS: 'sessions',
   API_KEYS: 'api_keys',
-  
+
   // Communication & Activity
   NOTIFICATIONS: 'notifications',
   ACTIVITY_FEED: 'activity_feed',
   COMMENTS: 'comments',
-  
+
   // Business Logic Collections (already existing)
   WORKFLOWS: 'workflows',
   WORKFLOW_STEPS: 'workflow_steps',
@@ -44,13 +44,13 @@ export const COLLECTIONS = {
   LEADS: 'leads',
   ACCOUNTS: 'accounts',
   CONTACTS: 'contacts',
-  
+
   // Memory & Knowledge
   WORKFLOW_MEMORY: 'workflow_memory',
   AGENT_MEMORY: 'agent_memory',
   COMPANY_MEMORY: 'company_memory',
   KNOWLEDGE_GRAPH: 'knowledge_graph',
-  
+
   // Platform & System
   AUDIT_LOGS: 'audit_logs',
   DOMAIN_EVENTS: 'domain_events',
@@ -69,7 +69,7 @@ export interface UserDocument extends User {
   _securityHash?: string;
 }
 
-// Organization Document Structure  
+// Organization Document Structure
 export interface OrganizationDocument extends Organization {
   // Computed fields for quick access
   _memberCount?: number;
@@ -102,16 +102,16 @@ export const REQUIRED_INDEXES = [
     fields: [
       { fieldPath: 'organizationId', order: 'ASCENDING' },
       { fieldPath: 'role', order: 'ASCENDING' },
-      { fieldPath: 'status', order: 'ASCENDING' }
-    ]
+      { fieldPath: 'status', order: 'ASCENDING' },
+    ],
   },
   {
     collectionGroup: 'users',
-    queryScope: 'COLLECTION', 
+    queryScope: 'COLLECTION',
     fields: [
       { fieldPath: 'email', order: 'ASCENDING' },
-      { fieldPath: 'deleted', order: 'ASCENDING' }
-    ]
+      { fieldPath: 'deleted', order: 'ASCENDING' },
+    ],
   },
 
   // Organization queries
@@ -120,8 +120,8 @@ export const REQUIRED_INDEXES = [
     queryScope: 'COLLECTION',
     fields: [
       { fieldPath: 'domain', order: 'ASCENDING' },
-      { fieldPath: 'plan', order: 'ASCENDING' }
-    ]
+      { fieldPath: 'plan', order: 'ASCENDING' },
+    ],
   },
 
   // Workspace queries
@@ -131,16 +131,16 @@ export const REQUIRED_INDEXES = [
     fields: [
       { fieldPath: 'organizationId', order: 'ASCENDING' },
       { fieldPath: 'type', order: 'ASCENDING' },
-      { fieldPath: 'deleted', order: 'ASCENDING' }
-    ]
+      { fieldPath: 'deleted', order: 'ASCENDING' },
+    ],
   },
   {
     collectionGroup: 'workspaces',
     queryScope: 'COLLECTION',
     fields: [
       { fieldPath: 'organizationId', order: 'ASCENDING' },
-      { fieldPath: 'members.userId', order: 'ASCENDING' }
-    ]
+      { fieldPath: 'members.userId', order: 'ASCENDING' },
+    ],
   },
 
   // Invitation queries
@@ -150,24 +150,24 @@ export const REQUIRED_INDEXES = [
     fields: [
       { fieldPath: 'organizationId', order: 'ASCENDING' },
       { fieldPath: 'status', order: 'ASCENDING' },
-      { fieldPath: 'createdAt', order: 'DESCENDING' }
-    ]
+      { fieldPath: 'createdAt', order: 'DESCENDING' },
+    ],
   },
   {
     collectionGroup: 'invitations',
     queryScope: 'COLLECTION',
     fields: [
       { fieldPath: 'email', order: 'ASCENDING' },
-      { fieldPath: 'status', order: 'ASCENDING' }
-    ]
+      { fieldPath: 'status', order: 'ASCENDING' },
+    ],
   },
   {
     collectionGroup: 'invitations',
     queryScope: 'COLLECTION',
     fields: [
       { fieldPath: 'token', order: 'ASCENDING' },
-      { fieldPath: 'expiresAt', order: 'ASCENDING' }
-    ]
+      { fieldPath: 'expiresAt', order: 'ASCENDING' },
+    ],
   },
 
   // Notification queries
@@ -177,8 +177,8 @@ export const REQUIRED_INDEXES = [
     fields: [
       { fieldPath: 'userId', order: 'ASCENDING' },
       { fieldPath: 'read', order: 'ASCENDING' },
-      { fieldPath: 'createdAt', order: 'DESCENDING' }
-    ]
+      { fieldPath: 'createdAt', order: 'DESCENDING' },
+    ],
   },
   {
     collectionGroup: 'notifications',
@@ -186,8 +186,8 @@ export const REQUIRED_INDEXES = [
     fields: [
       { fieldPath: 'organizationId', order: 'ASCENDING' },
       { fieldPath: 'type', order: 'ASCENDING' },
-      { fieldPath: 'createdAt', order: 'DESCENDING' }
-    ]
+      { fieldPath: 'createdAt', order: 'DESCENDING' },
+    ],
   },
 
   // Activity Feed queries
@@ -196,24 +196,24 @@ export const REQUIRED_INDEXES = [
     queryScope: 'COLLECTION',
     fields: [
       { fieldPath: 'organizationId', order: 'ASCENDING' },
-      { fieldPath: 'timestamp', order: 'DESCENDING' }
-    ]
+      { fieldPath: 'timestamp', order: 'DESCENDING' },
+    ],
   },
   {
     collectionGroup: 'activity_feed',
     queryScope: 'COLLECTION',
     fields: [
       { fieldPath: 'workspaceId', order: 'ASCENDING' },
-      { fieldPath: 'timestamp', order: 'DESCENDING' }
-    ]
+      { fieldPath: 'timestamp', order: 'DESCENDING' },
+    ],
   },
   {
     collectionGroup: 'activity_feed',
     queryScope: 'COLLECTION',
     fields: [
       { fieldPath: 'userId', order: 'ASCENDING' },
-      { fieldPath: 'timestamp', order: 'DESCENDING' }
-    ]
+      { fieldPath: 'timestamp', order: 'DESCENDING' },
+    ],
   },
   {
     collectionGroup: 'activity_feed',
@@ -221,8 +221,8 @@ export const REQUIRED_INDEXES = [
     fields: [
       { fieldPath: 'organizationId', order: 'ASCENDING' },
       { fieldPath: 'action', order: 'ASCENDING' },
-      { fieldPath: 'timestamp', order: 'DESCENDING' }
-    ]
+      { fieldPath: 'timestamp', order: 'DESCENDING' },
+    ],
   },
 
   // Comment queries
@@ -232,8 +232,8 @@ export const REQUIRED_INDEXES = [
     fields: [
       { fieldPath: 'entityType', order: 'ASCENDING' },
       { fieldPath: 'entityId', order: 'ASCENDING' },
-      { fieldPath: 'createdAt', order: 'ASCENDING' }
-    ]
+      { fieldPath: 'createdAt', order: 'ASCENDING' },
+    ],
   },
   {
     collectionGroup: 'comments',
@@ -241,8 +241,8 @@ export const REQUIRED_INDEXES = [
     fields: [
       { fieldPath: 'organizationId', order: 'ASCENDING' },
       { fieldPath: 'authorId', order: 'ASCENDING' },
-      { fieldPath: 'createdAt', order: 'DESCENDING' }
-    ]
+      { fieldPath: 'createdAt', order: 'DESCENDING' },
+    ],
   },
   {
     collectionGroup: 'comments',
@@ -250,8 +250,8 @@ export const REQUIRED_INDEXES = [
     fields: [
       { fieldPath: 'workspaceId', order: 'ASCENDING' },
       { fieldPath: 'entityType', order: 'ASCENDING' },
-      { fieldPath: 'createdAt', order: 'DESCENDING' }
-    ]
+      { fieldPath: 'createdAt', order: 'DESCENDING' },
+    ],
   },
 
   // Session queries
@@ -261,16 +261,16 @@ export const REQUIRED_INDEXES = [
     fields: [
       { fieldPath: 'userId', order: 'ASCENDING' },
       { fieldPath: 'revoked', order: 'ASCENDING' },
-      { fieldPath: 'lastActiveAt', order: 'DESCENDING' }
-    ]
+      { fieldPath: 'lastActiveAt', order: 'DESCENDING' },
+    ],
   },
   {
     collectionGroup: 'sessions',
     queryScope: 'COLLECTION',
     fields: [
       { fieldPath: 'expiresAt', order: 'ASCENDING' },
-      { fieldPath: 'revoked', order: 'ASCENDING' }
-    ]
+      { fieldPath: 'revoked', order: 'ASCENDING' },
+    ],
   },
 
   // Business Logic Collection Indexes (enhance existing)
@@ -281,8 +281,8 @@ export const REQUIRED_INDEXES = [
       { fieldPath: 'organizationId', order: 'ASCENDING' },
       { fieldPath: 'workspaceId', order: 'ASCENDING' },
       { fieldPath: 'status', order: 'ASCENDING' },
-      { fieldPath: 'createdAt', order: 'DESCENDING' }
-    ]
+      { fieldPath: 'createdAt', order: 'DESCENDING' },
+    ],
   },
   {
     collectionGroup: 'research_reports',
@@ -290,8 +290,8 @@ export const REQUIRED_INDEXES = [
     fields: [
       { fieldPath: 'organizationId', order: 'ASCENDING' },
       { fieldPath: 'workspaceId', order: 'ASCENDING' },
-      { fieldPath: 'createdAt', order: 'DESCENDING' }
-    ]
+      { fieldPath: 'createdAt', order: 'DESCENDING' },
+    ],
   },
   {
     collectionGroup: 'proposals',
@@ -300,8 +300,8 @@ export const REQUIRED_INDEXES = [
       { fieldPath: 'organizationId', order: 'ASCENDING' },
       { fieldPath: 'workspaceId', order: 'ASCENDING' },
       { fieldPath: 'status', order: 'ASCENDING' },
-      { fieldPath: 'createdAt', order: 'DESCENDING' }
-    ]
+      { fieldPath: 'createdAt', order: 'DESCENDING' },
+    ],
   },
   {
     collectionGroup: 'leads',
@@ -310,9 +310,9 @@ export const REQUIRED_INDEXES = [
       { fieldPath: 'organizationId', order: 'ASCENDING' },
       { fieldPath: 'workspaceId', order: 'ASCENDING' },
       { fieldPath: 'status', order: 'ASCENDING' },
-      { fieldPath: 'score', order: 'DESCENDING' }
-    ]
-  }
+      { fieldPath: 'score', order: 'DESCENDING' },
+    ],
+  },
 ];
 
 /**
@@ -362,7 +362,7 @@ export const VALIDATION_RULES = {
     maxLength: {
       name: 100,
       email: 254,
-    }
+    },
   },
 
   organization: {
@@ -371,7 +371,7 @@ export const VALIDATION_RULES = {
       name: 100,
       domain: 253,
     },
-    plan: ['Free', 'Pro', 'Business', 'Enterprise']
+    plan: ['Free', 'Pro', 'Business', 'Enterprise'],
   },
 
   workspace: {
@@ -380,14 +380,14 @@ export const VALIDATION_RULES = {
       name: 100,
       description: 500,
     },
-    type: ['sales', 'marketing', 'customer_success', 'general']
+    type: ['sales', 'marketing', 'customer_success', 'general'],
   },
 
   invitation: {
     required: ['organizationId', 'email', 'role', 'invitedBy', 'token', 'expiresAt'],
     email: 'valid email format',
     role: ['Owner', 'Admin', 'Manager', 'Sales Rep', 'Viewer'],
-    status: ['pending', 'accepted', 'expired', 'revoked']
+    status: ['pending', 'accepted', 'expired', 'revoked'],
   },
 
   comment: {
@@ -395,8 +395,8 @@ export const VALIDATION_RULES = {
     maxLength: {
       content: 2000,
     },
-    entityType: ['research_report', 'opportunity_report', 'proposal', 'lead', 'campaign']
-  }
+    entityType: ['research_report', 'opportunity_report', 'proposal', 'lead', 'campaign'],
+  },
 };
 
 /**

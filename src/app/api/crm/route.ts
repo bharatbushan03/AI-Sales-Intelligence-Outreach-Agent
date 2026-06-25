@@ -40,14 +40,15 @@ export async function GET(req: NextRequest) {
     }
 
     // Default: Return aggregated statistics for Dashboard
-    const [leads, accounts, opportunities, activities, followups, relationships] = await Promise.all([
-      leadsRepository.list(undefined, 'updatedAt', 'desc'),
-      accountsRepository.list(undefined, 'updatedAt', 'desc'),
-      opportunitiesRepository.list(),
-      activitiesRepository.list(undefined, 'timestamp', 'desc'),
-      followupsRepository.list(undefined, 'dueDate', 'asc'),
-      relationshipScoresRepository.list(undefined, 'updatedAt', 'desc'),
-    ]);
+    const [leads, accounts, opportunities, activities, followups, relationships] =
+      await Promise.all([
+        leadsRepository.list(undefined, 'updatedAt', 'desc'),
+        accountsRepository.list(undefined, 'updatedAt', 'desc'),
+        opportunitiesRepository.list(),
+        activitiesRepository.list(undefined, 'timestamp', 'desc'),
+        followupsRepository.list(undefined, 'dueDate', 'asc'),
+        relationshipScoresRepository.list(undefined, 'updatedAt', 'desc'),
+      ]);
 
     return ApiResponse.success({
       leads,

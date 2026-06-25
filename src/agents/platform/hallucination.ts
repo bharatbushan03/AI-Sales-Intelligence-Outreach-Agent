@@ -86,7 +86,9 @@ Respond ONLY with a JSON object of this structure:
           unsupportedClaims.push(...json.unsupportedClaims);
         }
       } catch (err) {
-        logger.warn('Gemini hallucination verification failed, falling back to heuristics.', { error: String(err) });
+        logger.warn('Gemini hallucination verification failed, falling back to heuristics.', {
+          error: String(err),
+        });
       }
     }
 

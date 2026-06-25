@@ -15,10 +15,10 @@ export function isKeyboardAccessible(element: HTMLElement): boolean {
     'object',
     'embed',
     '[tabindex]:not([tabindex="-1"])',
-    '[contenteditable]'
+    '[contenteditable]',
   ];
 
-  return focusableElements.some(selector => element.matches(selector));
+  return focusableElements.some((selector) => element.matches(selector));
 }
 
 /**
@@ -36,7 +36,7 @@ export function focusTrap(element: HTMLElement) {
     'object',
     'embed',
     '[tabindex]:not([tabindex="-1"])',
-    '[contenteditable]'
+    '[contenteditable]',
   ].join(',');
 
   const focusable = element.querySelectorAll(focusableElements) as NodeListOf<HTMLElement>;
@@ -50,12 +50,14 @@ export function focusTrap(element: HTMLElement) {
       return;
     }
 
-    if (e.shiftKey) { // shift + tab
+    if (e.shiftKey) {
+      // shift + tab
       if (document.activeElement === firstFocusable) {
         e.preventDefault();
         lastFocusable.focus();
       }
-    } else { // tab
+    } else {
+      // tab
       if (document.activeElement === lastFocusable) {
         e.preventDefault();
         firstFocusable.focus();
@@ -71,7 +73,7 @@ export function SkipToContent() {
   return (
     <a
       href="#main-content"
-      className="px-3 py-2 bg-indigo-600 text-white absolute top-4 left-4 z-50 transform -translate-y-full transition-transform duration-300 focus:translate-y-0"
+      className="absolute top-4 left-4 z-50 -translate-y-full transform bg-indigo-600 px-3 py-2 text-white transition-transform duration-300 focus:translate-y-0"
     >
       Skip to main content
     </a>
@@ -81,9 +83,9 @@ export function SkipToContent() {
 /**
  * Screen reader only text
  */
-export function SrOnly({ children }: { children: React.ReactNode }) {
+export function SrOnly({ children, id }: { children: React.ReactNode; id?: string }) {
   return (
-    <span className="sr-only">
+    <span className="sr-only" id={id}>
       {children}
     </span>
   );
@@ -93,22 +95,21 @@ export function SrOnly({ children }: { children: React.ReactNode }) {
  * Visually hidden but accessible element
  */
 export function VisuallyHidden({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="not-sr-only">
-      {children}
-    </span>
-  );
+  return <span className="not-sr-only">{children}</span>;
 }
 
 /**
  * Announce changes to screen readers
  */
-export function LiveAnnouncer({ message, live = 'polite' }: { message: string; live?: 'off' | 'polite' | 'assertive' }) {
+export function LiveAnnouncer({
+  message,
+  live = 'polite',
+}: {
+  message: string;
+  live?: 'off' | 'polite' | 'assertive';
+}) {
   return (
-    <div
-      aria-live={live}
-      className="fixed left-0 top-0 w-1 h-1 overflow-hidden p-0 m-0"
-    >
+    <div aria-live={live} className="fixed top-0 left-0 m-0 h-1 w-1 overflow-hidden p-0">
       {message}
     </div>
   );
@@ -119,8 +120,8 @@ export function LiveAnnouncer({ message, live = 'polite' }: { message: string; l
  */
 export function KeyboardHelp() {
   return (
-    <div className="fixed bottom-4 right-4 z-50 bg-slate-900/50 backdrop-blur-md border border-slate-800 rounded-xl p-4 max-w-xs">
-      <h3 className="text-sm font-medium text-slate-100 mb-2">Keyboard Shortcuts</h3>
+    <div className="fixed right-4 bottom-4 z-50 max-w-xs rounded-xl border border-slate-800 bg-slate-900/50 p-4 backdrop-blur-md">
+      <h3 className="mb-2 text-sm font-medium text-slate-100">Keyboard Shortcuts</h3>
       <div className="space-y-2 text-xs">
         <div className="flex items-start gap-2">
           <span className="flex-shrink-0 font-medium text-indigo-400">⌘</span>
@@ -179,19 +180,19 @@ export function SkipLinks() {
     <>
       <a
         href="#main-navigation"
-        className="px-3 py-2 bg-indigo-600 text-white absolute top-4 left-4 z-50 transform -translate-y-4 transition-transform duration-300 focus:translate-y-0"
+        className="absolute top-4 left-4 z-50 -translate-y-4 transform bg-indigo-600 px-3 py-2 text-white transition-transform duration-300 focus:translate-y-0"
       >
         Skip to navigation
       </a>
       <a
         href="#main-content"
-        className="px-3 py-2 bg-indigo-600 text-white absolute top-4 left-4 z-50 transform -translate-y-3 transition-transform duration-300 focus:translate-y-0"
+        className="absolute top-4 left-4 z-50 -translate-y-3 transform bg-indigo-600 px-3 py-2 text-white transition-transform duration-300 focus:translate-y-0"
       >
         Skip to main content
       </a>
       <a
         href="#footer"
-        className="px-3 py-2 bg-indigo-600 text-white absolute top-4 left-4 z-50 transform -translate-y-2 transition-transform duration-300 focus:translate-y-0"
+        className="absolute top-4 left-4 z-50 -translate-y-2 transform bg-indigo-600 px-3 py-2 text-white transition-transform duration-300 focus:translate-y-0"
       >
         Skip to footer
       </a>
@@ -212,11 +213,13 @@ export function checkColorContrast(foreground: string, background: string): numb
     hex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
 
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
-    } : null;
+    return result
+      ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16),
+        }
+      : null;
   };
 
   const fgRgb = hexToRgb(foreground);
@@ -228,11 +231,9 @@ export function checkColorContrast(foreground: string, background: string): numb
 
   // Calculate relative luminance
   const luminance = (r: number, g: number, b: number) => {
-    const [rs, gs, bs] = [r, g, b].map(val => {
+    const [rs, gs, bs] = [r, g, b].map((val) => {
       val /= 255;
-      return val <= 0.03928
-        ? val / 12.92
-        : Math.pow((val + 0.055) / 1.055, 2.4);
+      return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);
     });
     return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
   };
@@ -249,7 +250,10 @@ export function checkColorContrast(foreground: string, background: string): numb
 /**
  * Get accessible color based on background
  */
-export function getAccessibleColor(background: string, options: string[] = ['#ffffff', '#000000']): string {
+export function getAccessibleColor(
+  background: string,
+  options: string[] = ['#ffffff', '#000000'],
+): string {
   let bestColor = options[0];
   let bestContrast = 0;
 

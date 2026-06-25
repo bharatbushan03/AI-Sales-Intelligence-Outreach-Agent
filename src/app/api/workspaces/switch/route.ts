@@ -37,7 +37,7 @@ export const POST = withAuth(async (request, context) => {
     }
 
     // Check if user has access to this workspace
-    const isMember = workspaceData.members?.some(member => member.userId === context.user.uid);
+    const isMember = workspaceData.members?.some((member) => member.userId === context.user.uid);
     const isOrgAdmin = ['Owner', 'Admin'].includes(context.user.role);
 
     if (!isMember && !isOrgAdmin) {
@@ -106,7 +106,7 @@ export const GET = withAuth(async (request, context) => {
 
     // Get active workspace details
     const workspaceDoc = await adminDb.collection('workspaces').doc(activeWorkspaceId).get();
-    
+
     if (!workspaceDoc.exists) {
       // Clear invalid active workspace
       await adminDb.collection('users').doc(context.user.uid).update({
@@ -123,7 +123,7 @@ export const GET = withAuth(async (request, context) => {
     const workspaceData = workspaceDoc.data() as Workspace;
 
     // Verify user still has access
-    const isMember = workspaceData.members?.some(member => member.userId === context.user.uid);
+    const isMember = workspaceData.members?.some((member) => member.userId === context.user.uid);
     const isOrgAdmin = ['Owner', 'Admin'].includes(context.user.role);
 
     if (!isMember && !isOrgAdmin) {

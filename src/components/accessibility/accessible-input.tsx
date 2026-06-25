@@ -1,9 +1,11 @@
 import { useState, useRef } from 'react';
 import { SrOnly } from './accessibility-utils';
 import { X } from 'lucide-react';
-import { X } from 'lucide-react';
 
-interface AccessibleInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'prefix'> {
+interface AccessibleInputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'size' | 'prefix'
+> {
   /** Label for the input */
   label?: string;
   /** Placeholder text */
@@ -57,34 +59,37 @@ export function AccessibleInput({
   const sizeConfig: Record<string, { px: number; py: number; textSize: string }> = {
     sm: { px: 2, py: 1, textSize: 'xs' },
     md: { px: 3, py: 2, textSize: 'sm' },
-    lg: { px: 4, py: 3, textSize: 'base' }
+    lg: { px: 4, py: 3, textSize: 'base' },
   };
 
   // Variant configurations
-  const variantConfig: Record<string, {
-    bg: string;
-    border: string;
-    focus: string;
-    hover: string;
-  }> = {
+  const variantConfig: Record<
+    string,
+    {
+      bg: string;
+      border: string;
+      focus: string;
+      hover: string;
+    }
+  > = {
     default: {
       bg: 'bg-white',
       border: 'border-slate-300',
       focus: 'focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20',
-      hover: 'hover:border-slate-400'
+      hover: 'hover:border-slate-400',
     },
     underlined: {
       bg: 'bg-transparent',
       border: 'border-b border-slate-300',
       focus: 'focus:border-b-2 focus:border-indigo-500',
-      hover: 'hover:border-b-2 hover:border-slate-400'
+      hover: 'hover:border-b-2 hover:border-slate-400',
     },
     filled: {
       bg: 'bg-slate-50',
       border: 'border-slate-200',
       focus: 'focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20',
-      hover: 'hover:bg-slate-100'
-    }
+      hover: 'hover:bg-slate-100',
+    },
   };
 
   const { px, py, textSize } = sizeConfig[size];
@@ -130,7 +135,7 @@ export function AccessibleInput({
   return (
     <div className={`${className} space-y-2`}>
       {label && (
-        <div className="flex items-start gap-1.5 mb-1">
+        <div className="mb-1 flex items-start gap-1.5">
           <label
             htmlFor={props.id}
             className={`flex items-center gap-1 text-sm font-medium ${
@@ -138,35 +143,22 @@ export function AccessibleInput({
             }`}
           >
             {label}
-            {required && (
-              <span className="text-red-500">*</span>
-            )}
+            {required && <span className="text-red-500">*</span>}
           </label>
           {props['aria-describedby'] && (
-            <SrOnly id={props['aria-describedby']}>
-              {helperText || error || success}
-            </SrOnly>
+            <SrOnly id={props['aria-describedby']}>{helperText || error || success}</SrOnly>
           )}
         </div>
       )}
       <div className="relative">
-        <div className={`flex items-center pl-${px} pr-${px} py-${py} bg-${bg.slice(3)} ${border} rounded-md ${focus} ${hover} transition-all duration-200 ${
-          isFocused ? 'focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20' : ''
-        } ${
-          (props.disabled || readOnly)
-            ? 'bg-slate-100/50 cursor-not-allowed'
-            : ''
-        }`}
+        <div
+          className={`flex items-center pl-${px} pr-${px} py-${py} bg-${bg.slice(3)} ${border} rounded-md ${focus} ${hover} transition-all duration-200 ${
+            isFocused ? 'focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20' : ''
+          } ${props.disabled || readOnly ? 'cursor-not-allowed bg-slate-100/50' : ''}`}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
         >
-          {prefix && (
-            <span className="flex-shrink-0 text-slate-400">
-              {prefix}
-            </span>
-          )}
+          {prefix && <span className="flex-shrink-0 text-slate-400">{prefix}</span>}
           <input
             ref={inputRef}
             type={props.type || 'text'}
@@ -175,24 +167,16 @@ export function AccessibleInput({
             onChange={handleChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            className="
-              flex-1 w-0 bg-transparent text-sm text-slate-900
-              focus:outline-none focus:ring-0
-              pl-0 pr-0
-            "
+            className="w-0 flex-1 bg-transparent pr-0 pl-0 text-sm text-slate-900 focus:ring-0 focus:outline-none"
             {...props}
             required={required}
             readOnly={readOnly}
           />
-          {suffix && (
-            <span className="flex-shrink-0 text-slate-400">
-              {suffix}
-            </span>
-          )}
+          {suffix && <span className="flex-shrink-0 text-slate-400">{suffix}</span>}
           {clearable && value && !readOnly && !props.disabled && (
             <button
               type="button"
-              className="flex-shrink-0 p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100/50 rounded-full"
+              className="flex-shrink-0 rounded-full p-1 text-slate-400 hover:bg-slate-100/50 hover:text-slate-600"
               onClick={handleClear}
               aria-label="Clear input"
             >
@@ -205,17 +189,16 @@ export function AccessibleInput({
       {helperText && !hasError && !success && (
         <p className="text-xs text-slate-500">{helperText}</p>
       )}
-      {error && (
-        <p className="text-xs text-red-500">{error}</p>
-      )}
-      {success && !error && (
-        <p className="text-xs text-green-500">{success}</p>
-      )}
+      {error && <p className="text-xs text-red-500">{error}</p>}
+      {success && !error && <p className="text-xs text-green-500">{success}</p>}
     </div>
   );
 }
 
-interface AccessibleTextareaProps extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'size'> {
+interface AccessibleTextareaProps extends Omit<
+  React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+  'size'
+> {
   label?: string;
   placeholder?: string;
   helperText?: string;
@@ -247,7 +230,7 @@ export function AccessibleTextarea({
   const sizeConfig: Record<string, { px: number; py: number; textSize: string }> = {
     sm: { px: 2, py: 1, textSize: 'xs' },
     md: { px: 3, py: 2, textSize: 'sm' },
-    lg: { px: 4, py: 3, textSize: 'base' }
+    lg: { px: 4, py: 3, textSize: 'base' },
   };
 
   const { px, py, textSize } = sizeConfig[size];
@@ -285,7 +268,7 @@ export function AccessibleTextarea({
   return (
     <div className={`${className} space-y-2`}>
       {label && (
-        <div className="flex items-start gap-1.5 mb-1">
+        <div className="mb-1 flex items-start gap-1.5">
           <label
             htmlFor={props.id}
             className={`flex items-center gap-1 text-sm font-medium ${
@@ -293,29 +276,20 @@ export function AccessibleTextarea({
             }`}
           >
             {label}
-            {required && (
-              <span className="text-red-500">*</span>
-            )}
+            {required && <span className="text-red-500">*</span>}
           </label>
           {props['aria-describedby'] && (
-            <SrOnly id={props['aria-describedby']}>
-              {helperText || error || success}
-            </SrOnly>
+            <SrOnly id={props['aria-describedby']}>{helperText || error || success}</SrOnly>
           )}
         </div>
       )}
       <div className="relative">
-        <div className={`flex items-center pl-${px} pr-${px} py-${py} bg-white border border-slate-300 rounded-md focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200 ${
-          isFocused ? 'focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20' : ''
-        } ${
-          (props.disabled || readOnly)
-            ? 'bg-slate-100/50 cursor-not-allowed'
-            : ''
-        }`}
+        <div
+          className={`flex items-center pl-${px} pr-${px} py-${py} rounded-md border border-slate-300 bg-white transition-all duration-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 ${
+            isFocused ? 'focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20' : ''
+          } ${props.disabled || readOnly ? 'cursor-not-allowed bg-slate-100/50' : ''}`}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
         >
           <textarea
             ref={textareaRef}
@@ -324,11 +298,7 @@ export function AccessibleTextarea({
             onChange={handleChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            className="
-              flex-1 w-0 bg-transparent text-sm text-slate-900
-              focus:outline-none focus:ring-0
-              pl-0 pr-0
-            "
+            className="w-0 flex-1 bg-transparent pr-0 pl-0 text-sm text-slate-900 focus:ring-0 focus:outline-none"
             {...props}
             required={required}
             readOnly={readOnly}
@@ -338,17 +308,8 @@ export function AccessibleTextarea({
       {helperText && !hasError && !success && (
         <p className="text-xs text-slate-500">{helperText}</p>
       )}
-      {error && (
-        <p className="text-xs text-red-500">{error}</p>
-      )}
-      {success && !error && (
-        <p className="text-xs text-green-500">{success}</p>
-      )}
+      {error && <p className="text-xs text-red-500">{error}</p>}
+      {success && !error && <p className="text-xs text-green-500">{success}</p>}
     </div>
   );
 }
-
-export {
-  AccessibleInput,
-  AccessibleTextarea
-};

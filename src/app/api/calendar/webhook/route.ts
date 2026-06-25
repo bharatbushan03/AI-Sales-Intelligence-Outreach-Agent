@@ -22,11 +22,11 @@ export async function POST(req: NextRequest) {
     const parts = channelId.split('-');
     if (parts.length >= 3 && parts[0] === 'sync' && parts[1] === 'channel') {
       const userId = parts[2];
-      
-      // In a real implementation, we would queue a background task here 
+
+      // In a real implementation, we would queue a background task here
       // instead of processing it synchronously, to avoid timeouts and Google retries.
       // E.g. publish to Cloud Pub/Sub or Cloud Tasks.
-      
+
       // We can record the event for asynchronous processing by a Cloud Function:
       await adminDb.collection('webhookEvents').add({
         type: 'calendar_sync',
@@ -35,17 +35,18 @@ export async function POST(req: NextRequest) {
         resourceId: resourceId,
         resourceState: resourceState,
         timestamp: new Date().toISOString(),
-        processed: false
+        processed: false,
       });
-      
     }
 
     // Google requires a 200 OK or 201 Created or 202 Accepted response.
     // Otherwise it will retry exponentially.
     return NextResponse.json({ success: true, message: 'Webhook received' }, { status: 202 });
-
   } catch (error: any) {
     console.error('Calendar webhook error:', error);
-    return NextResponse.json({ error: error.message || 'Failed to process webhook' }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || 'Failed to process webhook' },
+      { status: 500 },
+    );
   }
 }

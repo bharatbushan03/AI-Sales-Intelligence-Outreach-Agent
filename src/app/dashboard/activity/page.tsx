@@ -2,11 +2,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Clock, Info, CheckCircle, AlertTriangle, ArrowRight, User, RefreshCw, Zap } from 'lucide-react';
+import {
+  Clock,
+  Info,
+  CheckCircle,
+  AlertTriangle,
+  ArrowRight,
+  User,
+  RefreshCw,
+  Zap,
+} from 'lucide-react';
 
 export default function ActivityFeedPage() {
   const { profile } = useAuth();
-  
+
   const [loading, setLoading] = useState(true);
   const [activities, setActivities] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -28,7 +37,7 @@ export default function ActivityFeedPage() {
           details: `Performed a security data mutation: ${log.action} action on collection "${log.entityType}".`,
           timestamp: log.timestamp,
         }));
-        
+
         // Add onboarding default mock activity item
         list.push({
           id: 'act_onboarding',
@@ -37,7 +46,7 @@ export default function ActivityFeedPage() {
           details: 'Registered organization tenant workspace and created General Sales hub.',
           timestamp: new Date(Date.now() - 3600000).toISOString(),
         });
-        
+
         setActivities(list.sort((a: any, b: any) => b.timestamp.localeCompare(a.timestamp)));
       }
     } catch (err) {
@@ -58,7 +67,7 @@ export default function ActivityFeedPage() {
         return <Zap className="h-5 w-5 text-indigo-400" />;
       case 'CREATE':
       case 'RESTORE':
-        return <CheckCircle className="h-5 w-5 text-emerald-450" />;
+        return <CheckCircle className="text-emerald-450 h-5 w-5" />;
       case 'ROLLBACK':
       case 'UPDATE':
         return <Info className="h-5 w-5 text-amber-400" />;
@@ -68,16 +77,17 @@ export default function ActivityFeedPage() {
   };
 
   return (
-    <div className="space-y-8 text-slate-100 pb-16">
+    <div className="space-y-8 pb-16 text-slate-100">
       {/* Header */}
-      <div className="flex justify-between items-center border-b border-slate-800 pb-5">
+      <div className="flex items-center justify-between border-b border-slate-800 pb-5">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl flex items-center gap-3">
+          <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-white md:text-4xl">
             <Clock className="h-9 w-9 text-indigo-500" />
             Workspace Activity Log
           </h1>
           <p className="mt-2 text-sm text-slate-400">
-            Realtime activity feed detailing team members mutations, workflow completions, and security logs.
+            Realtime activity feed detailing team members mutations, workflow completions, and
+            security logs.
           </p>
         </div>
         <button
@@ -91,29 +101,31 @@ export default function ActivityFeedPage() {
       </div>
 
       {loading ? (
-        <div className="flex h-64 flex-col items-center justify-center gap-2 rounded-2xl border border-slate-850 bg-slate-900/10">
+        <div className="border-slate-850 flex h-64 flex-col items-center justify-center gap-2 rounded-2xl border bg-slate-900/10">
           <RefreshCw className="h-7 w-7 animate-spin text-indigo-500" />
           <span className="text-xs text-slate-500">Querying timeline events...</span>
         </div>
       ) : (
         <div className="max-w-3xl rounded-2xl border border-slate-800 bg-slate-900/20 p-6 md:p-8">
-          <div className="relative pl-6 border-l border-slate-850 space-y-8">
+          <div className="border-slate-850 relative space-y-8 border-l pl-6">
             {activities.map((act) => (
-              <div key={act.id} className="relative pl-6 group">
+              <div key={act.id} className="group relative pl-6">
                 {/* Timeline node icon */}
-                <div className="absolute -left-10 top-0.5 flex h-7 w-7 items-center justify-center rounded-xl bg-slate-950 border border-slate-800 group-hover:border-slate-700 transition">
+                <div className="absolute top-0.5 -left-10 flex h-7 w-7 items-center justify-center rounded-xl border border-slate-800 bg-slate-950 transition group-hover:border-slate-700">
                   {getActionIcon(act.action)}
                 </div>
-                <div className="flex items-center gap-2 text-xs text-slate-450 font-bold uppercase tracking-wider">
-                  <User className="h-3 w-3 inline text-slate-500" />
-                  <span className="text-slate-300 font-semibold">{act.userName}</span>
+                <div className="text-slate-450 flex items-center gap-2 text-xs font-bold tracking-wider uppercase">
+                  <User className="inline h-3 w-3 text-slate-500" />
+                  <span className="font-semibold text-slate-300">{act.userName}</span>
                   <span className="text-slate-500">•</span>
                   <span>{new Date(act.timestamp).toLocaleTimeString()}</span>
                   <span className="text-slate-500">•</span>
                   <span>{new Date(act.timestamp).toLocaleDateString()}</span>
                 </div>
-                <h4 className="text-sm font-bold text-slate-200 mt-1">{act.action.replace('_', ' ')}</h4>
-                <p className="text-xs text-slate-400 mt-1 leading-relaxed">{act.details}</p>
+                <h4 className="mt-1 text-sm font-bold text-slate-200">
+                  {act.action.replace('_', ' ')}
+                </h4>
+                <p className="mt-1 text-xs leading-relaxed text-slate-400">{act.details}</p>
               </div>
             ))}
           </div>

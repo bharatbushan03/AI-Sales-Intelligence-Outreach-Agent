@@ -30,24 +30,36 @@ interface AuthState {
   profile: User | null;
   loading: boolean;
   initializing: boolean;
-  
+
   // Session state
   activeWorkspaceId: string | null;
   sessionId: string | null;
   lastActivity: Date | null;
-  
+
   // Auth operations
   signInWithGoogle: () => Promise<{ success: boolean; error?: string; isNewUser?: boolean }>;
-  signInWithEmail: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  registerWithEmail: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>;
+  signInWithEmail: (
+    email: string,
+    password: string,
+  ) => Promise<{ success: boolean; error?: string }>;
+  registerWithEmail: (
+    email: string,
+    password: string,
+    name: string,
+  ) => Promise<{ success: boolean; error?: string }>;
   sendMagicLink: (email: string) => Promise<{ success: boolean; error?: string }>;
-  verifyMagicLink: (emailLink: string) => Promise<{ success: boolean; error?: string; isNewUser?: boolean }>;
+  verifyMagicLink: (
+    emailLink: string,
+  ) => Promise<{ success: boolean; error?: string; isNewUser?: boolean }>;
   sendPasswordReset: (email: string) => Promise<{ success: boolean; error?: string }>;
   resendEmailVerification: () => Promise<{ success: boolean; error?: string }>;
-  updatePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
+  updatePassword: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<{ success: boolean; error?: string }>;
   deleteAccount: (password: string) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
-  
+
   // Utility functions
   isEmailVerified: boolean;
   hasPasswordProvider: boolean;
@@ -95,10 +107,10 @@ export function useAuth(): AuthState {
 
         if (firebaseUser) {
           logger.info('User authenticated', { uid: firebaseUser.uid, email: firebaseUser.email });
-          
+
           // Create session record
           await createSession(firebaseUser.uid);
-          
+
           // Listen to user profile changes
           const userDocRef = doc(db, 'users', firebaseUser.uid);
           const unsubscribeProfile = onSnapshot(
@@ -107,12 +119,12 @@ export function useAuth(): AuthState {
               if (docSnap.exists()) {
                 const userData = { id: docSnap.id, ...docSnap.data() } as User;
                 setProfile(userData);
-                
+
                 // Set active workspace from profile
                 if (userData.preferences?.activeWorkspaceId) {
                   setActiveWorkspaceIdState(userData.preferences.activeWorkspaceId);
                 }
-                
+
                 logger.debug('Profile updated', { uid: userData.id, role: userData.role });
               } else {
                 logger.warn('User profile not found', { uid: firebaseUser.uid });
@@ -122,7 +134,7 @@ export function useAuth(): AuthState {
             (error) => {
               logger.error('Profile listener error', error);
               setProfile(null);
-            }
+            },
           );
 
           // Update last activity
@@ -146,8 +158,6 @@ export function useAuth(): AuthState {
 
     return unsubscribe;
   }, []);
-
-
 
   // Authentication operations
   const handleSignInWithGoogle = useCallback(async () => {
@@ -176,18 +186,21 @@ export function useAuth(): AuthState {
     }
   }, []);
 
-  const handleRegisterWithEmail = useCallback(async (email: string, password: string, name: string) => {
-    setLoading(true);
-    try {
-      const result = await registerWithEmailPassword(email, password, name);
-      if (result.error) {
-        return { success: false, error: result.error };
+  const handleRegisterWithEmail = useCallback(
+    async (email: string, password: string, name: string) => {
+      setLoading(true);
+      try {
+        const result = await registerWithEmailPassword(email, password, name);
+        if (result.error) {
+          return { success: false, error: result.error };
+        }
+        return { success: true };
+      } finally {
+        setLoading(false);
       }
-      return { success: true };
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    [],
+  );
 
   const handleSendMagicLink = useCallback(async (email: string) => {
     setLoading(true);
@@ -265,26 +278,29 @@ export function useAuth(): AuthState {
   }, []);
 
   // Workspace management
-  const setActiveWorkspace = useCallback(async (workspaceId: string) => {
-    if (!user || !profile) return;
+  const setActiveWorkspace = useCallback(
+    async (workspaceId: string) => {
+      if (!user || !profile) return;
 
-    try {
-      setActiveWorkspaceIdState(workspaceId);
-      localStorage.setItem('activeWorkspaceId', workspaceId);
+      try {
+        setActiveWorkspaceIdState(workspaceId);
+        localStorage.setItem('activeWorkspaceId', workspaceId);
 
-      // Update user preferences
-      const userDocRef = doc(db, 'users', user.uid);
-      await updateDoc(userDocRef, {
-        'preferences.activeWorkspaceId': workspaceId,
-        updatedAt: new Date().toISOString(),
-      });
+        // Update user preferences
+        const userDocRef = doc(db, 'users', user.uid);
+        await updateDoc(userDocRef, {
+          'preferences.activeWorkspaceId': workspaceId,
+          updatedAt: new Date().toISOString(),
+        });
 
-      logger.info('Active workspace updated', { userId: user.uid, workspaceId });
-    } catch (error) {
-      logger.error('Failed to update active workspace', error);
-      throw error;
-    }
-  }, [user, profile]);
+        logger.info('Active workspace updated', { userId: user.uid, workspaceId });
+      } catch (error) {
+        logger.error('Failed to update active workspace', error);
+        throw error;
+      }
+    },
+    [user, profile],
+  );
 
   // Refresh profile data
   const refreshProfile = useCallback(async () => {
@@ -356,21 +372,24 @@ export function useSession() {
       }
 
       // Check token expiry (Firebase handles this automatically)
-      user.getIdTokenResult().then((tokenResult) => {
-        const expiryTime = new Date(tokenResult.expirationTime);
-        setSessionExpiry(expiryTime);
-        setSessionValid(new Date() < expiryTime);
-      }).catch((error) => {
-        logger.error('Failed to check token expiry', error);
-        setSessionValid(false);
-      });
+      user
+        .getIdTokenResult()
+        .then((tokenResult) => {
+          const expiryTime = new Date(tokenResult.expirationTime);
+          setSessionExpiry(expiryTime);
+          setSessionValid(new Date() < expiryTime);
+        })
+        .catch((error) => {
+          logger.error('Failed to check token expiry', error);
+          setSessionValid(false);
+        });
     };
 
     checkSession();
-    
+
     // Check session every 5 minutes
     const interval = setInterval(checkSession, 5 * 60 * 1000);
-    
+
     return () => clearInterval(interval);
   }, []);
 

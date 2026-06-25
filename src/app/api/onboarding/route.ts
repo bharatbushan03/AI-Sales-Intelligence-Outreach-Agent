@@ -40,7 +40,7 @@ interface OnboardingData {
  */
 export const POST = withAuth(async (request, context) => {
   try {
-    const body = await request.json() as OnboardingData;
+    const body = (await request.json()) as OnboardingData;
     const { step, profileData, organizationData, workspaceData, inviteEmails } = body;
 
     if (!step) {
@@ -49,20 +49,20 @@ export const POST = withAuth(async (request, context) => {
 
     const userId = context.user.uid;
     const userRef = adminDb.collection('users').doc(userId);
-    
+
     switch (step) {
       case 'profile':
         return await handleProfileStep(userRef, profileData!, userId);
-      
+
       case 'organization':
         return await handleOrganizationStep(userRef, organizationData!, userId, context);
-      
+
       case 'workspace':
         return await handleWorkspaceStep(userRef, workspaceData!, userId, context);
-      
+
       case 'complete':
         return await handleCompleteStep(userRef, inviteEmails || [], userId, context);
-      
+
       default:
         return ApiResponse.badRequest('Invalid onboarding step');
     }
@@ -81,7 +81,7 @@ export const GET = withAuth(async (request, context) => {
   try {
     const userId = context.user.uid;
     const userDoc = await adminDb.collection('users').doc(userId).get();
-    
+
     if (!userDoc.exists) {
       return ApiResponse.success({
         currentStep: 'profile',
@@ -91,20 +91,20 @@ export const GET = withAuth(async (request, context) => {
     }
 
     const userData = userDoc.data() as User;
-    
+
     // Determine current onboarding step
     let currentStep: string = 'profile';
     let completed = false;
 
     if (userData.name && userData.role) {
       currentStep = 'organization';
-      
+
       if (userData.organizationId) {
         // Check if organization exists
         const orgDoc = await adminDb.collection('organizations').doc(userData.organizationId).get();
         if (orgDoc.exists) {
           currentStep = 'workspace';
-          
+
           // Check if user has any workspaces
           if (userData.workspaceIds && userData.workspaceIds.length > 0) {
             currentStep = 'complete';
@@ -124,9 +124,11 @@ export const GET = withAuth(async (request, context) => {
           industry: userData.preferences?.industry,
           teamSize: userData.preferences?.teamSize,
         },
-        organization: userData.organizationId ? {
-          id: userData.organizationId,
-        } : null,
+        organization: userData.organizationId
+          ? {
+              id: userData.organizationId,
+            }
+          : null,
         workspaces: userData.workspaceIds || [],
       },
     });
@@ -143,7 +145,7 @@ export const GET = withAuth(async (request, context) => {
 async function handleProfileStep(
   userRef: any,
   profileData: OnboardingData['profileData'],
-  userId: string
+  userId: string,
 ): Promise<NextResponse> {
   if (!profileData) {
     return ApiResponse.badRequest('Profile data is required');
@@ -219,7 +221,7 @@ async function handleOrganizationStep(
   userRef: any,
   organizationData: OnboardingData['organizationData'],
   userId: string,
-  context: any
+  context: any,
 ): Promise<NextResponse> {
   if (!organizationData) {
     return ApiResponse.badRequest('Organization data is required');
@@ -256,7 +258,7 @@ async function handleOrganizationStep(
     name,
     domain,
     industry,
-    size: size as "startup" | "small" | "medium" | "enterprise" | undefined,
+    size: size as 'startup' | 'small' | 'medium' | 'enterprise' | undefined,
     owner: userId,
   });
 
@@ -306,7 +308,7 @@ async function handleWorkspaceStep(
   userRef: any,
   workspaceData: OnboardingData['workspaceData'],
   userId: string,
-  context: any
+  context: any,
 ): Promise<NextResponse> {
   if (!workspaceData) {
     return ApiResponse.badRequest('Workspace data is required');
@@ -330,7 +332,7 @@ async function handleWorkspaceStep(
     organizationId: context.organizationId,
     name,
     description: description || 'Default workspace for B2B sales activities',
-    type: type as "sales" | "marketing" | "customer_success" | "general" | undefined,
+    type: type as 'sales' | 'marketing' | 'customer_success' | 'general' | undefined,
     createdBy: userId,
     settings: {
       isDefault: true,
@@ -346,12 +348,14 @@ async function handleWorkspaceStep(
         requireApproval: false,
       },
     },
-    members: [{
-      userId,
-      role: 'Owner',
-      permissions: [],
-      joinedAt: new Date().toISOString(),
-    }],
+    members: [
+      {
+        userId,
+        role: 'Owner',
+        permissions: [],
+        joinedAt: new Date().toISOString(),
+      },
+    ],
   });
 
   await adminDb.collection('workspaces').doc(workspaceId).set(wsData);
@@ -398,7 +402,7 @@ async function handleCompleteStep(
   userRef: any,
   inviteEmails: string[],
   userId: string,
-  context: any
+  context: any,
 ): Promise<NextResponse> {
   const batch = adminDb.batch();
 
@@ -425,7 +429,7 @@ async function handleCompleteStep(
 
       const inviteId = `inv_${Math.random().toString(36).substring(2, 11)}`;
       const token = `${inviteId}_${Math.random().toString(36).substring(2, 15)}`;
-      
+
       const invitationData = {
         id: inviteId,
         organizationId: context.organizationId,
@@ -443,7 +447,7 @@ async function handleCompleteStep(
 
       const inviteRef = adminDb.collection('invitations').doc(inviteId);
       batch.set(inviteRef, invitationData);
-      
+
       pendingInvitations.push({
         email,
         inviteId,
@@ -485,7 +489,7 @@ async function handleCompleteStep(
     completed: true,
     onboardingComplete: true,
     data: {
-      invitations: pendingInvitations.map(inv => ({
+      invitations: pendingInvitations.map((inv) => ({
         email: inv.email,
         status: 'pending',
         inviteId: inv.inviteId,

@@ -91,9 +91,13 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { sender, topic, payload } = body;
-    
+
     if (!sender || !topic || !payload) {
-      return ApiResponse.error('Missing required fields: sender, topic, payload', 'BAD_REQUEST', 400);
+      return ApiResponse.error(
+        'Missing required fields: sender, topic, payload',
+        'BAD_REQUEST',
+        400,
+      );
     }
 
     const bus = AgentMessagingBus.getInstance();

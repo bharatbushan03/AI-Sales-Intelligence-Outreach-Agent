@@ -52,7 +52,7 @@ export function NavigationShell({ children }: { children: React.ReactNode }) {
       <TopBar />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex flex-1 overflow-hidden">
         {/* Desktop Sidebar */}
         <aside className="hidden w-64 flex-col border-r border-slate-800 bg-slate-900 text-slate-400 md:flex">
           {/* Brand Banner */}

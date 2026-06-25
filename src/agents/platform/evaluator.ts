@@ -77,7 +77,9 @@ Respond ONLY with a JSON object of this structure:
         }
         note = json.note || 'Gemini evaluator output review registered.';
       } catch (err) {
-        logger.warn('Gemini evaluator failed, using fallback heuristic scores.', { error: String(err) });
+        logger.warn('Gemini evaluator failed, using fallback heuristic scores.', {
+          error: String(err),
+        });
       }
     } else {
       // Heuristic offline scores adjustment based on length and variable grounding

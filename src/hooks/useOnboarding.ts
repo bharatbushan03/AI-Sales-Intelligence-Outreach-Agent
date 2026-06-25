@@ -64,8 +64,8 @@ interface OnboardingOperations {
     type?: string;
   }) => Promise<{ success: boolean; error?: string }>;
 
-  completeOnboarding: (inviteEmails?: string[]) => Promise<{ 
-    success: boolean; 
+  completeOnboarding: (inviteEmails?: string[]) => Promise<{
+    success: boolean;
     error?: string;
     invitations?: any[];
   }>;
@@ -89,18 +89,17 @@ export function useOnboarding(): OnboardingState & OnboardingOperations {
   // Check if user needs onboarding
   const needsOnboarding = useCallback(() => {
     if (!user || !profile) return true;
-    
+
     // Check if user has completed basic setup
-    return !profile.organizationId || 
-           !profile.workspaceIds?.length ||
-           !profile.name ||
-           !profile.role;
+    return (
+      !profile.organizationId || !profile.workspaceIds?.length || !profile.name || !profile.role
+    );
   }, [user, profile]);
 
   // Fetch onboarding status
   const fetchOnboardingStatus = useCallback(async () => {
     if (!user) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         loading: false,
         currentStep: 'profile',
@@ -111,12 +110,12 @@ export function useOnboarding(): OnboardingState & OnboardingOperations {
     }
 
     try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
+      setState((prev) => ({ ...prev, loading: true, error: null }));
 
       const idToken = await user.getIdToken();
       const response = await fetch('/api/onboarding', {
         headers: {
-          'Authorization': `Bearer ${idToken}`,
+          Authorization: `Bearer ${idToken}`,
           'Content-Type': 'application/json',
         },
       });
@@ -126,9 +125,9 @@ export function useOnboarding(): OnboardingState & OnboardingOperations {
       }
 
       const result = await response.json();
-      
+
       if (result.success) {
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           currentStep: result.data.currentStep,
           completed: result.data.completed,
@@ -140,7 +139,7 @@ export function useOnboarding(): OnboardingState & OnboardingOperations {
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         error: errorMsg,
         loading: false,
@@ -154,7 +153,7 @@ export function useOnboarding(): OnboardingState & OnboardingOperations {
     if (needsOnboarding()) {
       fetchOnboardingStatus();
     } else {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         completed: true,
         currentStep: 'complete',
@@ -164,206 +163,209 @@ export function useOnboarding(): OnboardingState & OnboardingOperations {
   }, [needsOnboarding, fetchOnboardingStatus]);
 
   // Submit profile step
-  const submitProfile = useCallback(async (profileData: {
-    name: string;
-    role: string;
-    industry?: string;
-    teamSize?: string;
-  }) => {
-    if (!user) {
-      return { success: false, error: 'User not authenticated' };
-    }
-
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
-
-      const idToken = await user.getIdToken();
-      const response = await fetch('/api/onboarding', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${idToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          step: 'profile',
-          profileData,
-        }),
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        setState(prev => ({
-          ...prev,
-          currentStep: result.data.nextStep,
-          data: {
-            ...prev.data,
-            profile: result.data.data.profile,
-          },
-          loading: false,
-        }));
-        return { success: true };
-      } else {
-        setState(prev => ({ ...prev, loading: false }));
-        return { success: false, error: result.error?.message || 'Profile submission failed' };
+  const submitProfile = useCallback(
+    async (profileData: { name: string; role: string; industry?: string; teamSize?: string }) => {
+      if (!user) {
+        return { success: false, error: 'User not authenticated' };
       }
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Profile submission failed';
-      setState(prev => ({ ...prev, error: errorMsg, loading: false }));
-      return { success: false, error: errorMsg };
-    }
-  }, [user]);
+
+      try {
+        setState((prev) => ({ ...prev, loading: true, error: null }));
+
+        const idToken = await user.getIdToken();
+        const response = await fetch('/api/onboarding', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            step: 'profile',
+            profileData,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          setState((prev) => ({
+            ...prev,
+            currentStep: result.data.nextStep,
+            data: {
+              ...prev.data,
+              profile: result.data.data.profile,
+            },
+            loading: false,
+          }));
+          return { success: true };
+        } else {
+          setState((prev) => ({ ...prev, loading: false }));
+          return { success: false, error: result.error?.message || 'Profile submission failed' };
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Profile submission failed';
+        setState((prev) => ({ ...prev, error: errorMsg, loading: false }));
+        return { success: false, error: errorMsg };
+      }
+    },
+    [user],
+  );
 
   // Submit organization step
-  const submitOrganization = useCallback(async (organizationData: {
-    name: string;
-    domain: string;
-    industry?: string;
-    size?: string;
-  }) => {
-    if (!user) {
-      return { success: false, error: 'User not authenticated' };
-    }
-
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
-
-      const idToken = await user.getIdToken();
-      const response = await fetch('/api/onboarding', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${idToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          step: 'organization',
-          organizationData,
-        }),
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        setState(prev => ({
-          ...prev,
-          currentStep: result.data.nextStep,
-          data: {
-            ...prev.data,
-            organization: result.data.data.organization,
-          },
-          loading: false,
-        }));
-        return { success: true };
-      } else {
-        setState(prev => ({ ...prev, loading: false }));
-        return { success: false, error: result.error?.message || 'Organization creation failed' };
+  const submitOrganization = useCallback(
+    async (organizationData: {
+      name: string;
+      domain: string;
+      industry?: string;
+      size?: string;
+    }) => {
+      if (!user) {
+        return { success: false, error: 'User not authenticated' };
       }
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Organization creation failed';
-      setState(prev => ({ ...prev, error: errorMsg, loading: false }));
-      return { success: false, error: errorMsg };
-    }
-  }, [user]);
+
+      try {
+        setState((prev) => ({ ...prev, loading: true, error: null }));
+
+        const idToken = await user.getIdToken();
+        const response = await fetch('/api/onboarding', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            step: 'organization',
+            organizationData,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          setState((prev) => ({
+            ...prev,
+            currentStep: result.data.nextStep,
+            data: {
+              ...prev.data,
+              organization: result.data.data.organization,
+            },
+            loading: false,
+          }));
+          return { success: true };
+        } else {
+          setState((prev) => ({ ...prev, loading: false }));
+          return { success: false, error: result.error?.message || 'Organization creation failed' };
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Organization creation failed';
+        setState((prev) => ({ ...prev, error: errorMsg, loading: false }));
+        return { success: false, error: errorMsg };
+      }
+    },
+    [user],
+  );
 
   // Submit workspace step
-  const submitWorkspace = useCallback(async (workspaceData: {
-    name: string;
-    description?: string;
-    type?: string;
-  }) => {
-    if (!user) {
-      return { success: false, error: 'User not authenticated' };
-    }
-
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
-
-      const idToken = await user.getIdToken();
-      const response = await fetch('/api/onboarding', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${idToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          step: 'workspace',
-          workspaceData,
-        }),
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        setState(prev => ({
-          ...prev,
-          currentStep: result.data.nextStep,
-          data: {
-            ...prev.data,
-            workspace: result.data.data.workspace,
-          },
-          loading: false,
-        }));
-        return { success: true };
-      } else {
-        setState(prev => ({ ...prev, loading: false }));
-        return { success: false, error: result.error?.message || 'Workspace creation failed' };
+  const submitWorkspace = useCallback(
+    async (workspaceData: { name: string; description?: string; type?: string }) => {
+      if (!user) {
+        return { success: false, error: 'User not authenticated' };
       }
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Workspace creation failed';
-      setState(prev => ({ ...prev, error: errorMsg, loading: false }));
-      return { success: false, error: errorMsg };
-    }
-  }, [user]);
+
+      try {
+        setState((prev) => ({ ...prev, loading: true, error: null }));
+
+        const idToken = await user.getIdToken();
+        const response = await fetch('/api/onboarding', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            step: 'workspace',
+            workspaceData,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          setState((prev) => ({
+            ...prev,
+            currentStep: result.data.nextStep,
+            data: {
+              ...prev.data,
+              workspace: result.data.data.workspace,
+            },
+            loading: false,
+          }));
+          return { success: true };
+        } else {
+          setState((prev) => ({ ...prev, loading: false }));
+          return { success: false, error: result.error?.message || 'Workspace creation failed' };
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Workspace creation failed';
+        setState((prev) => ({ ...prev, error: errorMsg, loading: false }));
+        return { success: false, error: errorMsg };
+      }
+    },
+    [user],
+  );
 
   // Complete onboarding with optional team invitations
-  const completeOnboarding = useCallback(async (inviteEmails: string[] = []) => {
-    if (!user) {
-      return { success: false, error: 'User not authenticated' };
-    }
-
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
-
-      const idToken = await user.getIdToken();
-      const response = await fetch('/api/onboarding', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${idToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          step: 'complete',
-          inviteEmails,
-        }),
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        setState(prev => ({
-          ...prev,
-          currentStep: 'complete',
-          completed: true,
-          data: {
-            ...prev.data,
-            invitations: result.data.data.invitations,
-          },
-          loading: false,
-        }));
-        return { 
-          success: true, 
-          invitations: result.data.data.invitations 
-        };
-      } else {
-        setState(prev => ({ ...prev, loading: false }));
-        return { success: false, error: result.error?.message || 'Onboarding completion failed' };
+  const completeOnboarding = useCallback(
+    async (inviteEmails: string[] = []) => {
+      if (!user) {
+        return { success: false, error: 'User not authenticated' };
       }
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Onboarding completion failed';
-      setState(prev => ({ ...prev, error: errorMsg, loading: false }));
-      return { success: false, error: errorMsg };
-    }
-  }, [user]);
+
+      try {
+        setState((prev) => ({ ...prev, loading: true, error: null }));
+
+        const idToken = await user.getIdToken();
+        const response = await fetch('/api/onboarding', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            step: 'complete',
+            inviteEmails,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          setState((prev) => ({
+            ...prev,
+            currentStep: 'complete',
+            completed: true,
+            data: {
+              ...prev.data,
+              invitations: result.data.data.invitations,
+            },
+            loading: false,
+          }));
+          return {
+            success: true,
+            invitations: result.data.data.invitations,
+          };
+        } else {
+          setState((prev) => ({ ...prev, loading: false }));
+          return { success: false, error: result.error?.message || 'Onboarding completion failed' };
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Onboarding completion failed';
+        setState((prev) => ({ ...prev, error: errorMsg, loading: false }));
+        return { success: false, error: errorMsg };
+      }
+    },
+    [user],
+  );
 
   // Refresh onboarding status
   const refreshStatus = useCallback(async () => {
@@ -374,10 +376,10 @@ export function useOnboarding(): OnboardingState & OnboardingOperations {
   const skipStep = useCallback(async () => {
     const stepOrder: OnboardingStep[] = ['profile', 'organization', 'workspace', 'complete'];
     const currentIndex = stepOrder.indexOf(state.currentStep);
-    
+
     if (currentIndex < stepOrder.length - 1) {
       const nextStep = stepOrder[currentIndex + 1];
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         currentStep: nextStep,
       }));
@@ -386,7 +388,7 @@ export function useOnboarding(): OnboardingState & OnboardingOperations {
 
   // Go to specific step
   const goToStep = useCallback(async (step: OnboardingStep) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       currentStep: step,
     }));

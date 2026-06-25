@@ -3,7 +3,7 @@ export function SkeletonLoader({
   height = '1rem',
   radius = '0.25rem',
   count = 1,
-  className = ''
+  className = '',
 }: {
   width?: string | number;
   height?: string | number;
@@ -24,7 +24,13 @@ export function SkeletonLoader({
 }
 
 // Skeleton variants for common UI elements
-export function SkeletonText({ lines = 3, className = '' }: { lines?: number; className?: string }) {
+export function SkeletonText({
+  lines = 3,
+  className = '',
+}: {
+  lines?: number;
+  className?: string;
+}) {
   return (
     <div className={`${className} space-y-2`}>
       {Array.from({ length: lines }).map((_, index) => (
@@ -39,17 +45,23 @@ export function SkeletonText({ lines = 3, className = '' }: { lines?: number; cl
   );
 }
 
-export function SkeletonAvatar({ size = '2rem', className = '' }: { size?: string | number; className?: string }) {
+export function SkeletonAvatar({
+  size = '2rem',
+  className = '',
+}: {
+  size?: string | number;
+  className?: string;
+}) {
   return (
     <div
-      className={`flex-shrink-0 h-${typeof size === 'number' ? size : size.replace('rem', '').replace('px', '')} w-${typeof size === 'number' ? size : size.replace('rem', '').replace('px', '')} bg-slate-800/50 rounded-full animate-pulse ${className}`}
+      className={`flex-shrink-0 h-${typeof size === 'number' ? size : size.replace('rem', '').replace('px', '')} w-${typeof size === 'number' ? size : size.replace('rem', '').replace('px', '')} animate-pulse rounded-full bg-slate-800/50 ${className}`}
     />
   );
 }
 
 export function SkeletonCard({ className = '' }: { className?: string } = {}) {
   return (
-    <div className={`${className} bg-slate-900/50 rounded-xl p-4 border border-slate-800`}>
+    <div className={`${className} rounded-xl border border-slate-800 bg-slate-900/50 p-4`}>
       <div className="space-y-4">
         <div className="flex items-start gap-3">
           <SkeletonAvatar size="3.5rem" />

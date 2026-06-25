@@ -9,7 +9,10 @@ export class AIPlatformGenerativeAI {
     // The wrapper hooks into the platform singleton
   }
 
-  public getGenerativeModel(options: { model: string; generationConfig?: any }): AIPlatformGenerativeModel {
+  public getGenerativeModel(options: {
+    model: string;
+    generationConfig?: any;
+  }): AIPlatformGenerativeModel {
     return new AIPlatformGenerativeModel(this.platform, options);
   }
 }
@@ -54,7 +57,7 @@ export class AIPlatformGenerativeModel {
 
     // 3. Map system instruction and content to seeded prompt IDs
     const promptId = this.mapInstructionToPromptId(systemInstruction, promptText);
-    
+
     // Inject the prompt text directly into template variables
     const variables = {
       query: promptText,
@@ -82,7 +85,9 @@ export class AIPlatformGenerativeModel {
     // Ensure prompt is registered (fallback fallback)
     await this.ensurePromptRegistered(promptId, systemInstruction);
 
-    logger.info(`AIPlatform Wrapper routing execution for agent: "${agentName}" via promptId: "${promptId}"`);
+    logger.info(
+      `AIPlatform Wrapper routing execution for agent: "${agentName}" via promptId: "${promptId}"`,
+    );
     const text = await this.platform.executeGeneration(promptId, variables, schema, options);
 
     return {
@@ -109,13 +114,26 @@ export class AIPlatformGenerativeModel {
     const inst = systemInstruction.toLowerCase();
     const prompt = promptText.toLowerCase();
 
-    if (inst.includes('companyprofiler') || prompt.includes('extract core profile')) return 'research.company';
-    if (inst.includes('websiteanalyzer') || prompt.includes('website products')) return 'research.web';
-    if (inst.includes('competitoranalyzer') || prompt.includes('landscape')) return 'research.competitor';
-    if (inst.includes('opportunitydiscovery') || prompt.includes('opportunities and risks')) return 'research.opportunity';
-    if (inst.includes('insightgenerator') || prompt.includes('synthesis')) return 'research.insight';
-    if (inst.includes('manager agent') && (prompt.includes('workflow plan') || prompt.includes('decompose'))) return 'manager.plan';
-    if (inst.includes('manager agent') && (prompt.includes('successfully executed') || prompt.includes('outcome'))) return 'manager.synthesis';
+    if (inst.includes('companyprofiler') || prompt.includes('extract core profile'))
+      return 'research.company';
+    if (inst.includes('websiteanalyzer') || prompt.includes('website products'))
+      return 'research.web';
+    if (inst.includes('competitoranalyzer') || prompt.includes('landscape'))
+      return 'research.competitor';
+    if (inst.includes('opportunitydiscovery') || prompt.includes('opportunities and risks'))
+      return 'research.opportunity';
+    if (inst.includes('insightgenerator') || prompt.includes('synthesis'))
+      return 'research.insight';
+    if (
+      inst.includes('manager agent') &&
+      (prompt.includes('workflow plan') || prompt.includes('decompose'))
+    )
+      return 'manager.plan';
+    if (
+      inst.includes('manager agent') &&
+      (prompt.includes('successfully executed') || prompt.includes('outcome'))
+    )
+      return 'manager.synthesis';
 
     return 'generic.generation';
   }

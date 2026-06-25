@@ -40,3 +40,12 @@ jobs:
         env:
           SKIP_ENV_VALIDATION: 'true'
           NODE_ENV: 'test'
+
+      - name: Security Scan
+        run: npm run security:scan
+
+      - name: Build Verification
+        run: npm run build
+        env:
+          SKIP_ENV_VALIDATION: 'true'
+          NODE_ENV: 'production'

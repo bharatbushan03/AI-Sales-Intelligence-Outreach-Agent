@@ -24,7 +24,6 @@ import {
 import { AuditActor } from '../../lib/audit-trail';
 import { hasPermission } from '../../lib/rbac';
 
-
 const PLANNING_SYSTEM_PROMPT = `
 You are the Manager Agent for a B2B Sales multi-agent system.
 Your job is to parse the user's sales goal and decompose it into a workflow plan.
@@ -80,7 +79,11 @@ export class ManagerAgent {
   /**
    * Orchestrates the multi-agent execution pipeline.
    */
-  public async orchestrate(userId: string, userGoal: string, workspaceId?: string): Promise<FinalWorkflowResult> {
+  public async orchestrate(
+    userId: string,
+    userGoal: string,
+    workspaceId?: string,
+  ): Promise<FinalWorkflowResult> {
     const context = createAgentContext(userId, userGoal);
     const startTimestamp = Date.now();
 
@@ -104,7 +107,9 @@ export class ManagerAgent {
 
     // 1. RBAC authorization validation
     if (!hasPermission(actor.role as any, 'workflows.execute' as any)) {
-      throw new Error(`Unauthorized. User role ${actor.role} does not possess workflows.execute permissions.`);
+      throw new Error(
+        `Unauthorized. User role ${actor.role} does not possess workflows.execute permissions.`,
+      );
     }
 
     // 2. Tenant & Workspace validation
@@ -116,7 +121,9 @@ export class ManagerAgent {
         // Ignored under testing mock conditions
       }
       if (wsDoc && wsDoc.organizationId !== organizationId) {
-        throw new Error(`Unauthorized. Workspace ${workspaceId} does not belong to your organization ${organizationId}.`);
+        throw new Error(
+          `Unauthorized. Workspace ${workspaceId} does not belong to your organization ${organizationId}.`,
+        );
       }
     }
 
@@ -124,17 +131,19 @@ export class ManagerAgent {
       // 0. Extract target company name and query Context Router for pre-execution memory loading
       const companyName = this.extractCompanyName(userGoal);
       const contextRouter = new ContextRouter(this.genAI);
-      
+
       logTimelineEvent(context, 'workflow_start', `Routing prior memory for "${companyName}"...`);
       const priorMemory = await contextRouter.routeContext(userId, userGoal, companyName);
-      
+
       // Seed context.sharedMemory with retrieved context
       if (priorMemory.research) context.sharedMemory.research = priorMemory.research;
-      if (priorMemory.opportunityAnalysis) context.sharedMemory.opportunityAnalysis = priorMemory.opportunityAnalysis;
+      if (priorMemory.opportunityAnalysis)
+        context.sharedMemory.opportunityAnalysis = priorMemory.opportunityAnalysis;
       if (priorMemory.outreach) context.sharedMemory.outreach = priorMemory.outreach;
       if (priorMemory.crm) context.sharedMemory.crm = priorMemory.crm;
       if (priorMemory.proposal) context.sharedMemory.proposal = priorMemory.proposal;
-      if (priorMemory.memoryReferences) context.sharedMemory.memoryReferences = priorMemory.memoryReferences;
+      if (priorMemory.memoryReferences)
+        context.sharedMemory.memoryReferences = priorMemory.memoryReferences;
 
       // 1. Generate Workflow Plan
       logTimelineEvent(context, 'workflow_start', 'Decomposing user goal into execution plan...');
@@ -173,12 +182,7 @@ export class ManagerAgent {
         memoryReferences: updatedContext.sharedMemory.memoryReferences as any,
       };
 
-      await contextRouter.saveWorkflowRun(
-        context.workflowId,
-        userId,
-        userGoal,
-        finalSharedMemory
-      );
+      await contextRouter.saveWorkflowRun(context.workflowId, userId, userGoal, finalSharedMemory);
 
       // 5. Update Knowledge Graph
       await this.updateKnowledgeGraph(updatedContext, companyName);
@@ -265,7 +269,7 @@ export class ManagerAgent {
   ): Promise<void> {
     try {
       const agentsExecuted = Array.from(new Set(context.executionHistory.map((h) => h.agentName)));
-      
+
       await workflowsRepository.create(
         context.workflowId,
         {
@@ -291,29 +295,25 @@ export class ManagerAgent {
 
       for (const trace of context.executionHistory) {
         const stepId = `${context.workflowId}_${trace.agentName}`;
-        await workflowStepsRepository.create(
-          stepId,
-          {
-            workflowId: context.workflowId,
-            agentName: trace.agentName,
-            status: trace.status,
-            startTime: trace.startTime,
-            endTime: trace.endTime,
-            durationMs: trace.durationMs,
-            input: trace.input,
-            output: trace.output || null,
-            error: trace.error || null,
-            createdAt: trace.startTime,
-            updatedAt: trace.endTime,
-            organizationId,
-          }
-        );
+        await workflowStepsRepository.create(stepId, {
+          workflowId: context.workflowId,
+          agentName: trace.agentName,
+          status: trace.status,
+          startTime: trace.startTime,
+          endTime: trace.endTime,
+          durationMs: trace.durationMs,
+          input: trace.input,
+          output: trace.output || null,
+          error: trace.error || null,
+          createdAt: trace.startTime,
+          updatedAt: trace.endTime,
+          organizationId,
+        });
       }
     } catch (err) {
       logger.error('Failed to persist workflow execution details to Firestore', err);
     }
   }
-
 
   /**
    * Generates a workflow plan dynamically using Gemini.
@@ -461,7 +461,8 @@ export class ManagerAgent {
       });
     }
 
-    const needsProposal = query.includes('proposal') || query.includes('quote') || query.includes('pricing');
+    const needsProposal =
+      query.includes('proposal') || query.includes('quote') || query.includes('pricing');
 
     // Always append CRM update
     const crmDepends = [];
@@ -482,7 +483,8 @@ export class ManagerAgent {
         let action = 'LOG_WORKFLOW_RUN';
         if (goal.includes('create lead')) action = 'CREATE_LEAD';
         else if (goal.includes('summarize meeting')) action = 'SUMMARIZE_MEETING';
-        else if (goal.includes('pipeline analysis') || goal.includes('analyze pipeline')) action = 'ANALYZE_PIPELINE';
+        else if (goal.includes('pipeline analysis') || goal.includes('analyze pipeline'))
+          action = 'ANALYZE_PIPELINE';
         return {
           action,
           summary: `Workflow completed. Goal: ${ctx.userGoal}`,
@@ -573,7 +575,7 @@ export class ManagerAgent {
     if (query.includes('stripe')) return 'Stripe';
     if (query.includes('hubspot')) return 'HubSpot';
     if (query.includes('salesforce')) return 'Salesforce';
-    
+
     // Parse from URL if present
     const website = this.extractWebsite(text);
     if (website) {
@@ -582,29 +584,27 @@ export class ManagerAgent {
         return parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
       }
     }
-    
+
     // Fallback: extract first capitalized word, or return a sensible name
     const words = text.match(/[A-Z][a-zA-Z]*/g);
     if (words && words.length > 0) {
       const stopWords = ['I', 'B2B', 'CRM', 'SaaS', 'AI', 'Sales', 'Research', 'Analyze'];
-      const filtered = words.filter(w => !stopWords.includes(w));
+      const filtered = words.filter((w) => !stopWords.includes(w));
       if (filtered.length > 0) return filtered[0];
     }
-    
+
     // Fallback: strip standard prompts like "Research ", "Analyze "
     let clean = text.replace(/^(research|analyze|find|get info on|about)\s+/i, '');
     clean = clean.split(/\s+/)[0]; // get first word
     if (clean) {
       return clean.charAt(0).toUpperCase() + clean.slice(1);
     }
-    
+
     return 'Prospect';
   }
 
   private async updateKnowledgeGraph(context: AgentContext, companyName: string): Promise<void> {
-    const nodes: any[] = [
-      { id: companyName.toLowerCase(), label: companyName, type: 'company' }
-    ];
+    const nodes: any[] = [{ id: companyName.toLowerCase(), label: companyName, type: 'company' }];
     const edges: any[] = [];
 
     const research = context.sharedMemory.research as any;
@@ -613,7 +613,11 @@ export class ManagerAgent {
       if (research.industry && research.industry.classification) {
         const indId = research.industry.classification.toLowerCase().replace(/\s+/g, '_');
         nodes.push({ id: indId, label: research.industry.classification, type: 'industry' });
-        edges.push({ source: companyName.toLowerCase(), target: indId, relationship: 'belongs_to' });
+        edges.push({
+          source: companyName.toLowerCase(),
+          target: indId,
+          relationship: 'belongs_to',
+        });
       }
 
       // Competitors
@@ -622,7 +626,11 @@ export class ManagerAgent {
           if (c && c.name) {
             const compId = c.name.toLowerCase().replace(/\s+/g, '_');
             nodes.push({ id: compId, label: c.name, type: 'competitor' });
-            edges.push({ source: companyName.toLowerCase(), target: compId, relationship: 'competes_with' });
+            edges.push({
+              source: companyName.toLowerCase(),
+              target: compId,
+              relationship: 'competes_with',
+            });
           }
         });
       }
@@ -631,9 +639,16 @@ export class ManagerAgent {
       if (Array.isArray(research.risks)) {
         research.risks.forEach((r: any) => {
           if (r && r.title) {
-            const painId = r.title.toLowerCase().replace(/[^a-z0-9]+/g, '_').substring(0, 30);
+            const painId = r.title
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '_')
+              .substring(0, 30);
             nodes.push({ id: painId, label: r.title, type: 'pain-point' });
-            edges.push({ source: companyName.toLowerCase(), target: painId, relationship: 'experiences_pain' });
+            edges.push({
+              source: companyName.toLowerCase(),
+              target: painId,
+              relationship: 'experiences_pain',
+            });
           }
         });
       }
@@ -642,9 +657,16 @@ export class ManagerAgent {
       if (Array.isArray(research.opportunities)) {
         research.opportunities.forEach((o: any) => {
           if (o && o.title) {
-            const oppId = o.title.toLowerCase().replace(/[^a-z0-9]+/g, '_').substring(0, 30);
+            const oppId = o.title
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '_')
+              .substring(0, 30);
             nodes.push({ id: oppId, label: o.title, type: 'opportunity' });
-            edges.push({ source: companyName.toLowerCase(), target: oppId, relationship: 'has_opportunity' });
+            edges.push({
+              source: companyName.toLowerCase(),
+              target: oppId,
+              relationship: 'has_opportunity',
+            });
           }
         });
       }
@@ -663,14 +685,18 @@ export class ManagerAgent {
     for (const trace of context.executionHistory) {
       try {
         const existingList = await agentMemoryRepository.list([
-          { field: 'agentName', operator: '==' as const, value: trace.agentName }
+          { field: 'agentName', operator: '==' as const, value: trace.agentName },
         ]);
 
         const timestamp = new Date().toISOString();
         let record: AgentMemory;
 
         let competitors: string[] = [];
-        if (trace.agentName === 'ResearchAgent' && trace.output && Array.isArray(trace.output.competitors)) {
+        if (
+          trace.agentName === 'ResearchAgent' &&
+          trace.output &&
+          Array.isArray(trace.output.competitors)
+        ) {
           competitors = trace.output.competitors
             .map((c: any) => c.name)
             .filter((name: any) => typeof name === 'string');
@@ -681,7 +707,7 @@ export class ManagerAgent {
           const newCount = existing.executionsCount + 1;
           const prevLatency = existing.performanceMetrics.averageLatencyMs;
           const newLatency = (prevLatency * existing.executionsCount + trace.durationMs) / newCount;
-          
+
           const prevSuccesses = existing.performanceMetrics.successRate * existing.executionsCount;
           const currentSuccess = trace.status === 'success' ? 1 : 0;
           const newSuccessRate = (prevSuccesses + currentSuccess) / newCount;
@@ -689,7 +715,7 @@ export class ManagerAgent {
           const companiesSet = new Set(existing.analyzedCompanies);
           companiesSet.add(companyName);
           const competitorsSet = new Set(existing.discoveredCompetitors);
-          competitors.forEach(c => competitorsSet.add(c));
+          competitors.forEach((c) => competitorsSet.add(c));
 
           record = {
             id: existing.id,

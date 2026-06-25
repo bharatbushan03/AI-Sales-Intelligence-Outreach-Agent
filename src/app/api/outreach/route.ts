@@ -69,7 +69,9 @@ export async function POST(req: NextRequest) {
     const opportunityResult = await opportunityAgent.execute(opportunityCtx, { researchData });
 
     if (!opportunityResult.success || !opportunityResult.output) {
-      throw new Error(opportunityResult.error || 'Failed to calculate opportunity analysis metrics.');
+      throw new Error(
+        opportunityResult.error || 'Failed to calculate opportunity analysis metrics.',
+      );
     }
     const opportunityData = opportunityResult.output;
 
@@ -131,7 +133,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    logger.info(`Successfully generated and cached outreach package ${savedPackage.id} for "${query}"`);
+    logger.info(
+      `Successfully generated and cached outreach package ${savedPackage.id} for "${query}"`,
+    );
     return ApiResponse.success(savedPackage, 201);
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);

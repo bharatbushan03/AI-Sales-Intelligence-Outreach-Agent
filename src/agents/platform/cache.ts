@@ -36,7 +36,9 @@ export class ResponseCacheManager {
       if (new Date(memEntry.expiresAt) > now) {
         memEntry.hits++;
         // Async update of hits count in Firestore
-        this.updateHits(memEntry).catch((err) => logger.warn('Failed to update cache hit stats:', err));
+        this.updateHits(memEntry).catch((err) =>
+          logger.warn('Failed to update cache hit stats:', err),
+        );
         return memEntry;
       } else {
         // Expired in-memory
@@ -54,7 +56,9 @@ export class ResponseCacheManager {
         if (new Date(dbEntry.expiresAt) > now) {
           dbEntry.hits++;
           this.inMemoryCache.set(cacheKey, dbEntry);
-          this.updateHits(dbEntry).catch((err) => logger.warn('Failed to update cache hit stats:', err));
+          this.updateHits(dbEntry).catch((err) =>
+            logger.warn('Failed to update cache hit stats:', err),
+          );
           return dbEntry;
         } else {
           // Expired database cache

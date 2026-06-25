@@ -53,14 +53,14 @@ export function WorkspaceStep({ onNext }: WorkspaceStepProps) {
     description: '',
     type: 'sales',
   });
-  
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const selectedWorkspaceType = WORKSPACE_TYPES.find(type => type.id === formData.type);
+  const selectedWorkspaceType = WORKSPACE_TYPES.find((type) => type.id === formData.type);
 
   const handleTypeSelect = (typeId: string) => {
-    const workspaceType = WORKSPACE_TYPES.find(type => type.id === typeId);
+    const workspaceType = WORKSPACE_TYPES.find((type) => type.id === typeId);
     if (workspaceType) {
       setFormData({
         ...formData,
@@ -73,7 +73,7 @@ export function WorkspaceStep({ onNext }: WorkspaceStepProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name.trim()) {
       setErrors({ name: 'Workspace name is required' });
       return;
@@ -89,7 +89,7 @@ export function WorkspaceStep({ onNext }: WorkspaceStepProps) {
 
     try {
       const result = await onNext(formData);
-      
+
       if (!result.success) {
         setErrors({ submit: result.error || 'Failed to create workspace' });
       }
@@ -101,7 +101,7 @@ export function WorkspaceStep({ onNext }: WorkspaceStepProps) {
   };
 
   return (
-    <div className="rounded-2xl bg-slate-900/50 p-8 shadow-xl backdrop-blur-sm border border-slate-800/50">
+    <div className="rounded-2xl border border-slate-800/50 bg-slate-900/50 p-8 shadow-xl backdrop-blur-sm">
       <div className="mb-8 text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-600">
           <FolderOpen className="h-8 w-8 text-white" />
@@ -115,42 +115,40 @@ export function WorkspaceStep({ onNext }: WorkspaceStepProps) {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Workspace Type Selection */}
         <div>
-          <label className="block text-sm font-medium text-slate-200 mb-4">
+          <label className="mb-4 block text-sm font-medium text-slate-200">
             Choose Workspace Type
           </label>
           <div className="grid gap-4 sm:grid-cols-2">
             {WORKSPACE_TYPES.map((type) => {
               const Icon = type.icon;
               const isSelected = formData.type === type.id;
-              
+
               return (
                 <button
                   key={type.id}
                   type="button"
                   onClick={() => handleTypeSelect(type.id)}
-                  className={`p-4 rounded-lg border-2 text-left transition-all ${
+                  className={`rounded-lg border-2 p-4 text-left transition-all ${
                     isSelected
                       ? 'border-indigo-500 bg-indigo-500/10'
-                      : 'border-slate-600 hover:border-slate-500 bg-slate-800/50'
+                      : 'border-slate-600 bg-slate-800/50 hover:border-slate-500'
                   }`}
                 >
                   <div className="flex items-start space-x-3">
-                    <div className={`p-2 rounded-lg ${
-                      isSelected ? 'bg-indigo-500' : 'bg-slate-700'
-                    }`}>
-                      <Icon className={`h-5 w-5 ${
-                        isSelected ? 'text-white' : 'text-slate-400'
-                      }`} />
+                    <div
+                      className={`rounded-lg p-2 ${isSelected ? 'bg-indigo-500' : 'bg-slate-700'}`}
+                    >
+                      <Icon className={`h-5 w-5 ${isSelected ? 'text-white' : 'text-slate-400'}`} />
                     </div>
                     <div className="flex-1">
-                      <h3 className={`text-sm font-medium ${
-                        isSelected ? 'text-indigo-400' : 'text-white'
-                      }`}>
+                      <h3
+                        className={`text-sm font-medium ${
+                          isSelected ? 'text-indigo-400' : 'text-white'
+                        }`}
+                      >
                         {type.name}
                       </h3>
-                      <p className="mt-1 text-xs text-slate-400">
-                        {type.description}
-                      </p>
+                      <p className="mt-1 text-xs text-slate-400">{type.description}</p>
                     </div>
                   </div>
                 </button>
@@ -161,8 +159,8 @@ export function WorkspaceStep({ onNext }: WorkspaceStepProps) {
 
         {/* Selected Type Features */}
         {selectedWorkspaceType && (
-          <div className="rounded-lg bg-slate-800/50 p-4 border border-slate-700">
-            <h4 className="text-sm font-medium text-slate-200 mb-3">
+          <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
+            <h4 className="mb-3 text-sm font-medium text-slate-200">
               {selectedWorkspaceType.name} includes:
             </h4>
             <div className="grid gap-2 sm:grid-cols-2">
@@ -178,7 +176,7 @@ export function WorkspaceStep({ onNext }: WorkspaceStepProps) {
 
         {/* Workspace Name */}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-slate-200 mb-2">
+          <label htmlFor="name" className="mb-2 block text-sm font-medium text-slate-200">
             Workspace Name *
           </label>
           <input
@@ -186,7 +184,7 @@ export function WorkspaceStep({ onNext }: WorkspaceStepProps) {
             id="name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className={`block w-full rounded-lg border bg-slate-800/50 px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 ${
+            className={`block w-full rounded-lg border bg-slate-800/50 px-4 py-3 text-white placeholder-slate-400 focus:ring-2 focus:outline-none ${
               errors.name
                 ? 'border-red-500 focus:ring-red-500'
                 : 'border-slate-600 focus:ring-indigo-500'
@@ -198,7 +196,7 @@ export function WorkspaceStep({ onNext }: WorkspaceStepProps) {
 
         {/* Description */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-slate-200 mb-2">
+          <label htmlFor="description" className="mb-2 block text-sm font-medium text-slate-200">
             Description (Optional)
           </label>
           <textarea
@@ -206,14 +204,14 @@ export function WorkspaceStep({ onNext }: WorkspaceStepProps) {
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             rows={3}
-            className="block w-full rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+            className="block w-full resize-none rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-3 text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             placeholder="Describe what this workspace will be used for..."
           />
         </div>
 
         {/* Submit Error */}
         {errors.submit && (
-          <div className="rounded-lg bg-red-900/50 border border-red-500/50 p-4">
+          <div className="rounded-lg border border-red-500/50 bg-red-900/50 p-4">
             <p className="text-sm text-red-400">{errors.submit}</p>
           </div>
         )}
@@ -222,25 +220,35 @@ export function WorkspaceStep({ onNext }: WorkspaceStepProps) {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 py-3 px-4 text-white font-medium hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+          className="w-full rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-3 font-medium text-white transition-all duration-200 hover:from-indigo-600 hover:to-purple-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isLoading ? 'Creating Workspace...' : 'Create Workspace'}
         </button>
       </form>
 
       {/* Info Box */}
-      <div className="mt-8 rounded-lg bg-blue-900/20 border border-blue-500/20 p-4">
+      <div className="mt-8 rounded-lg border border-blue-500/20 bg-blue-900/20 p-4">
         <div className="flex items-start space-x-3">
           <div className="flex-shrink-0">
-            <svg className="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="h-5 w-5 text-blue-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
           </div>
           <div>
             <h4 className="text-sm font-medium text-blue-400">You can always customize later</h4>
             <p className="mt-1 text-xs text-slate-400">
-              Don't worry about getting everything perfect now. You can create additional workspaces, 
-              change settings, and invite team members after completing the setup.
+              Don't worry about getting everything perfect now. You can create additional
+              workspaces, change settings, and invite team members after completing the setup.
             </p>
           </div>
         </div>

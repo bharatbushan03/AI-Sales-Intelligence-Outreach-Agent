@@ -35,12 +35,7 @@ class Logger {
     return levels[level] >= levels[this.logLevel];
   }
 
-  private createLogEntry(
-    level: LogLevel,
-    message: string,
-    data?: any,
-    error?: any
-  ): LogEntry {
+  private createLogEntry(level: LogLevel, message: string, data?: any, error?: any): LogEntry {
     return {
       timestamp: new Date().toISOString(),
       level,
@@ -63,13 +58,13 @@ class Logger {
 
   private formatConsoleOutput(entry: LogEntry): void {
     const { timestamp, level, message, data, error } = entry;
-    
+
     if (this.isDevelopment) {
       // Pretty format for development
       const colors = {
         debug: '\x1b[36m', // Cyan
-        info: '\x1b[32m',  // Green  
-        warn: '\x1b[33m',  // Yellow
+        info: '\x1b[32m', // Green
+        warn: '\x1b[33m', // Yellow
         error: '\x1b[31m', // Red
         reset: '\x1b[0m',
       };
@@ -77,13 +72,13 @@ class Logger {
       const color = colors[level] || colors.reset;
       const prefix = `${color}[${level.toUpperCase()}]${colors.reset}`;
       const timeStr = new Date(timestamp).toLocaleTimeString();
-      
+
       console.log(`${prefix} ${timeStr} ${message}`);
-      
+
       if (data) {
         console.log('Data:', data);
       }
-      
+
       if (error) {
         console.error('Error:', error);
       }
@@ -95,28 +90,28 @@ class Logger {
 
   debug(message: string, data?: any): void {
     if (!this.shouldLog('debug')) return;
-    
+
     const entry = this.createLogEntry('debug', message, data);
     this.formatConsoleOutput(entry);
   }
 
   info(message: string, data?: any): void {
     if (!this.shouldLog('info')) return;
-    
+
     const entry = this.createLogEntry('info', message, data);
     this.formatConsoleOutput(entry);
   }
 
   warn(message: string, data?: any): void {
     if (!this.shouldLog('warn')) return;
-    
+
     const entry = this.createLogEntry('warn', message, data);
     this.formatConsoleOutput(entry);
   }
 
   error(message: string, error?: any, data?: any): void {
     if (!this.shouldLog('error')) return;
-    
+
     const entry = this.createLogEntry('error', message, data, error);
     this.formatConsoleOutput(entry);
   }
@@ -124,7 +119,7 @@ class Logger {
   // Structured logging methods for specific contexts
   auth(level: LogLevel, message: string, data?: any): void {
     if (!this.shouldLog(level)) return;
-    
+
     const entry = this.createLogEntry(level, `[AUTH] ${message}`, {
       ...data,
       context: 'authentication',
@@ -134,7 +129,7 @@ class Logger {
 
   api(level: LogLevel, message: string, data?: any): void {
     if (!this.shouldLog(level)) return;
-    
+
     const entry = this.createLogEntry(level, `[API] ${message}`, {
       ...data,
       context: 'api',
@@ -144,7 +139,7 @@ class Logger {
 
   security(level: LogLevel, message: string, data?: any): void {
     if (!this.shouldLog(level)) return;
-    
+
     const entry = this.createLogEntry(level, `[SECURITY] ${message}`, {
       ...data,
       context: 'security',
@@ -154,7 +149,7 @@ class Logger {
 
   workflow(level: LogLevel, message: string, data?: any): void {
     if (!this.shouldLog(level)) return;
-    
+
     const entry = this.createLogEntry(level, `[WORKFLOW] ${message}`, {
       ...data,
       context: 'workflow',
@@ -189,12 +184,9 @@ export const createContextLogger = (context: {
   sessionId?: string;
 }) => {
   return {
-    debug: (message: string, data?: any) =>
-      logger.debug(message, { ...data, ...context }),
-    info: (message: string, data?: any) =>
-      logger.info(message, { ...data, ...context }),
-    warn: (message: string, data?: any) =>
-      logger.warn(message, { ...data, ...context }),
+    debug: (message: string, data?: any) => logger.debug(message, { ...data, ...context }),
+    info: (message: string, data?: any) => logger.info(message, { ...data, ...context }),
+    warn: (message: string, data?: any) => logger.warn(message, { ...data, ...context }),
     error: (message: string, error?: any, data?: any) =>
       logger.error(message, error, { ...data, ...context }),
   };
@@ -206,10 +198,10 @@ export const requestLogger = (
   url: string,
   statusCode: number,
   duration: number,
-  userId?: string
+  userId?: string,
 ) => {
   const level: LogLevel = statusCode >= 400 ? 'error' : statusCode >= 300 ? 'warn' : 'info';
-  
+
   logger.api(level, `${method} ${url} ${statusCode}`, {
     method,
     url,
@@ -223,32 +215,32 @@ export const requestLogger = (
 export const measurePerformance = async <T>(
   operation: () => Promise<T>,
   operationName: string,
-  context?: any
+  context?: any,
 ): Promise<T> => {
   const start = Date.now();
-  
+
   try {
     const result = await operation();
     const duration = Date.now() - start;
-    
+
     logger.info(`Performance: ${operationName} completed`, {
       operationName,
       duration,
       success: true,
       ...context,
     });
-    
+
     return result;
   } catch (error) {
     const duration = Date.now() - start;
-    
+
     logger.error(`Performance: ${operationName} failed`, error, {
       operationName,
       duration,
       success: false,
       ...context,
     });
-    
+
     throw error;
   }
 };

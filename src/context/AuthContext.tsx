@@ -11,24 +11,36 @@ interface AuthContextType {
   profile: User | null;
   loading: boolean;
   initializing: boolean;
-  
+
   // Session state
   activeWorkspaceId: string | null;
   sessionId: string | null;
   lastActivity: Date | null;
-  
+
   // Auth operations
   signInWithGoogle: () => Promise<{ success: boolean; error?: string; isNewUser?: boolean }>;
-  signInWithEmail: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  registerWithEmail: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>;
+  signInWithEmail: (
+    email: string,
+    password: string,
+  ) => Promise<{ success: boolean; error?: string }>;
+  registerWithEmail: (
+    email: string,
+    password: string,
+    name: string,
+  ) => Promise<{ success: boolean; error?: string }>;
   sendMagicLink: (email: string) => Promise<{ success: boolean; error?: string }>;
-  verifyMagicLink: (emailLink: string) => Promise<{ success: boolean; error?: string; isNewUser?: boolean }>;
+  verifyMagicLink: (
+    emailLink: string,
+  ) => Promise<{ success: boolean; error?: string; isNewUser?: boolean }>;
   sendPasswordReset: (email: string) => Promise<{ success: boolean; error?: string }>;
   resendEmailVerification: () => Promise<{ success: boolean; error?: string }>;
-  updatePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
+  updatePassword: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<{ success: boolean; error?: string }>;
   deleteAccount: (password: string) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
-  
+
   // Utility functions
   isEmailVerified: boolean;
   hasPasswordProvider: boolean;
@@ -36,7 +48,7 @@ interface AuthContextType {
   setActiveWorkspace: (workspaceId: string) => Promise<void>;
   refreshProfile: () => Promise<void>;
   updateActivity: () => Promise<void>;
-  
+
   // Legacy compatibility
   logout: () => Promise<void>;
   setActiveWorkspaceId: (id: string | null) => void;
@@ -61,11 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setActiveWorkspaceId,
   };
 
-  return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth(): AuthContextType {

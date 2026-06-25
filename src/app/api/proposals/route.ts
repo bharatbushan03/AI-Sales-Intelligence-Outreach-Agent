@@ -22,11 +22,7 @@ import { ProposalPackage } from '@/agents/specialists/proposal/types';
  */
 export async function GET() {
   try {
-    const list = await proposalsRepository.list(
-      undefined,
-      'metadata.timestamp',
-      'desc',
-    );
+    const list = await proposalsRepository.list(undefined, 'metadata.timestamp', 'desc');
     return ApiResponse.success(list);
   } catch (error) {
     logger.error('Failed to fetch B2B proposals history', error);
@@ -104,7 +100,10 @@ export async function POST(req: NextRequest) {
 
     // 5. Run Proposal Agent
     const proposalAgent = new ProposalAgent();
-    const proposalCtx = createAgentContext(userId, `Generate complete B2B proposals for "${query}"`);
+    const proposalCtx = createAgentContext(
+      userId,
+      `Generate complete B2B proposals for "${query}"`,
+    );
     proposalCtx.sharedMemory.research = researchData;
     proposalCtx.sharedMemory.opportunityAnalysis = opportunityData;
     proposalCtx.sharedMemory.crm = crmData;
@@ -151,7 +150,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    logger.info(`Successfully generated and cached proposals package ${savedProposal.id} for "${query}"`);
+    logger.info(
+      `Successfully generated and cached proposals package ${savedProposal.id} for "${query}"`,
+    );
     return ApiResponse.success(savedProposal, 201);
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
