@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Play, RefreshCw, Zap,   Brain, Target, MessageSquare, Database, FileText,
   TrendingUp, Activity, CheckCircle2, Clock, ArrowRight,

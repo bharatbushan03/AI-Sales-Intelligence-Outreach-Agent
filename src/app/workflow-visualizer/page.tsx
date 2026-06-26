@@ -64,7 +64,7 @@ const messageVariants = [
   'Market intelligence update: {{count}} new signals detected in target sector',
   'Scoring model applied to {{count}} leads with {{confidence}}% confidence',
   'Personalized template generated for {{company}} with {{tone}} tone',
-  'Pipeline stage transition: {{from}} -> {{to}} for {{count}} opportunities',
+  'Pipeline stage transition: {{from}} \u2192 {{to}} for {{count}} opportunities',
   'Context shared: {{topic}} from {{agentA}} to {{agentB}} for alignment',
   'Cross-reference complete: {{dataA}} matched with {{dataB}} across {{count}} dimensions',
 ];
@@ -283,7 +283,7 @@ function MessageLog({ messages }: { messages: Message[] }) {
   return (
     <div
       ref={scrollRef}
-      className="max-h-[420px] space-y-2 overflow-y-auto pr-2"
+      className="max-h-[420px] space-y-2 overflow-y-auto pr-2 scrollbar-thin scrollbar-track-slate-800 scrollbar-thumb-slate-600"
     >
       {messages.map((msg) => (
         <div

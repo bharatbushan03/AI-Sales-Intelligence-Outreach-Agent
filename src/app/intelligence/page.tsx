@@ -364,6 +364,7 @@ export default function ExecutiveCopilot() {
     setInput('');
     setIsLoading(true);
 
+    // Simulate analysis delay
     await new Promise((resolve) => setTimeout(resolve, 1500 + Math.random() * 1000));
 
     const response = generateResponse(question);
