@@ -38,11 +38,11 @@ interface AnimationState {
 }
 
 const agents: Agent[] = [
-  { id: 'research', name: 'Research', icon: '🔍', color: 'from-cyan-500 to-blue-600' },
-  { id: 'opportunity', name: 'Opportunity', icon: '💡', color: 'from-violet-500 to-purple-600' },
-  { id: 'outreach', name: 'Outreach', icon: '📬', color: 'from-amber-500 to-orange-600' },
-  { id: 'crm', name: 'CRM', icon: '📊', color: 'from-emerald-500 to-teal-600' },
-  { id: 'proposal', name: 'Proposal', icon: '📄', color: 'from-rose-500 to-pink-600' },
+  { id: 'research', name: 'Research', icon: '\u{1F50D}', color: 'from-cyan-500 to-blue-600' },
+  { id: 'opportunity', name: 'Opportunity', icon: '\u{1F4A1}', color: 'from-violet-500 to-purple-600' },
+  { id: 'outreach', name: 'Outreach', icon: '\u{1F4EC}', color: 'from-amber-500 to-orange-600' },
+  { id: 'crm', name: 'CRM', icon: '\u{1F4CA}', color: 'from-emerald-500 to-teal-600' },
+  { id: 'proposal', name: 'Proposal', icon: '\u{1F4C4}', color: 'from-rose-500 to-pink-600' },
 ];
 
 const agentOrder: AgentId[] = ['research', 'opportunity', 'outreach', 'crm', 'proposal'];
@@ -52,7 +52,7 @@ const sampleMessages: Omit<Message, 'id' | 'timestamp'>[] = [
   { from: 'opportunity', to: 'outreach', content: 'Top 12 leads scored and prioritized by engagement potential', type: 'insight' },
   { from: 'outreach', to: 'crm', content: 'Campaign deployed: 120 personalized emails sent to qualified leads', type: 'response' },
   { from: 'crm', to: 'proposal', content: '7 opportunities updated in pipeline, 3 request proposal generation', type: 'data' },
-  { from: 'proposal', to: 'research', content: 'Need补充 data on TechCorp for proposal customization', type: 'command' },
+  { from: 'proposal', to: 'research', content: 'Need data on TechCorp for proposal customization', type: 'command' },
   { from: 'research', to: 'proposal', content: 'TechCorp data enriched with latest funding and tech stack info', type: 'response' },
   { from: 'proposal', to: 'crm', content: 'Proposal generated and attached to opportunity record', type: 'response' },
   { from: 'opportunity', to: 'research', content: 'Re-scoring needed for new batch of inbound leads', type: 'command' },
@@ -64,7 +64,7 @@ const messageVariants = [
   'Market intelligence update: {{count}} new signals detected in target sector',
   'Scoring model applied to {{count}} leads with {{confidence}}% confidence',
   'Personalized template generated for {{company}} with {{tone}} tone',
-  'Pipeline stage transition: {{from}} → {{to}} for {{count}} opportunities',
+  'Pipeline stage transition: {{from}} \u2192 {{to}} for {{count}} opportunities',
   'Context shared: {{topic}} from {{agentA}} to {{agentB}} for alignment',
   'Cross-reference complete: {{dataA}} matched with {{dataB}} across {{count}} dimensions',
 ];
@@ -274,10 +274,10 @@ function MessageLog({ messages }: { messages: Message[] }) {
   };
 
   const typeIcons: Record<string, string> = {
-    data: '📊',
-    insight: '💡',
-    command: '⚡',
-    response: '✅',
+    data: '\u{1F4CA}',
+    insight: '\u{1F4A1}',
+    command: '\u26A1',
+    response: '\u2705',
   };
 
   return (
@@ -368,6 +368,15 @@ export default function WorkflowVisualizer() {
     return `${((totalMs / (messages.length - 1)) / 1000).toFixed(1)}s`;
   }, [messages]);
 
+  const messageFlowRate = React.useMemo(() => {
+    if (messages.length < 2) return '0/min';
+    const oldest = messages[messages.length - 1].timestamp.getTime();
+    const newest = messages[0].timestamp.getTime();
+    const elapsedSec = (newest - oldest) / 1000;
+    if (elapsedSec <= 0) return '0/min';
+    return `${Math.round((messages.length / elapsedSec) * 60)}/min`;
+  }, [messages]);
+
   const getMessageCount = (agentId: AgentId) =>
     messages.filter((m) => m.from === agentId || m.to === agentId).length;
 
@@ -376,7 +385,6 @@ export default function WorkflowVisualizer() {
 
   return (
     <div className="space-y-6 p-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <div className="flex items-center gap-3">
@@ -400,7 +408,6 @@ export default function WorkflowVisualizer() {
         </div>
       </div>
 
-      {/* Stats Row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           icon={Radio}
@@ -423,12 +430,11 @@ export default function WorkflowVisualizer() {
         <StatsCard
           icon={Activity}
           label="Message Flow"
-          value={`${Math.round(messages.filter((m) => m.timestamp > new Date(messages[0]?.timestamp.getTime() - 10000)).length / 10 * 60)}/min`}
+          value={messageFlowRate}
           subtext="Current throughput rate"
         />
       </div>
 
-      {/* Visual Flow */}
       <div className="rounded-2xl border border-slate-700/50 bg-slate-800/30 p-8 backdrop-blur-xl">
         <div className="mb-6 flex items-center gap-2">
           <Bot className="h-4 w-4 text-indigo-400" />
@@ -439,12 +445,10 @@ export default function WorkflowVisualizer() {
         </div>
 
         <div className="relative flex items-center justify-center py-8">
-          {/* Connections background */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="h-32 w-[90%] rounded-full bg-gradient-to-r from-indigo-500/5 via-purple-500/5 to-indigo-500/5 blur-3xl" />
           </div>
 
-          {/* Agent nodes with connections */}
           <div className="relative flex items-center gap-1">
             {agentOrder.map((id, idx) => {
               const agent = agents.find((a) => a.id === id)!;
@@ -475,14 +479,12 @@ export default function WorkflowVisualizer() {
           </div>
         </div>
 
-        {/* Animated message overlay */}
         {animating && (
           <div className="relative flex h-0 justify-center">
             <AnimatedMessage from={animating.from} to={animating.to} />
           </div>
         )}
 
-        {/* Mini live stream */}
         <div className="mt-6 rounded-xl border border-slate-700/30 bg-slate-900/50 p-3">
           <div className="mb-2 flex items-center gap-2">
             <Send className="h-3.5 w-3.5 text-slate-500" />
@@ -499,14 +501,13 @@ export default function WorkflowVisualizer() {
               <span className="text-slate-400">
                 {agents.find((a) => a.id === messages[0].to)?.name}
               </span>
-              <span className="ml-1 text-slate-500">—</span>
+              <span className="ml-1 text-slate-500">\u2014</span>
               <span className="truncate text-slate-500">{messages[0].content}</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Message Log */}
       <div className="rounded-2xl border border-slate-700/50 bg-slate-800/30 p-6 backdrop-blur-xl">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -535,7 +536,6 @@ export default function WorkflowVisualizer() {
         <MessageLog messages={messages} />
       </div>
 
-      {/* Context Sharing Panel */}
       <div className="rounded-2xl border border-slate-700/50 bg-slate-800/30 p-6 backdrop-blur-xl">
         <div className="flex items-center gap-2">
           <Network className="h-4 w-4 text-indigo-400" />
@@ -544,40 +544,40 @@ export default function WorkflowVisualizer() {
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {[
             {
-              icon: '🧠',
+              icon: '\u{1F9E0}',
               title: 'Shared Memory',
               desc: 'Agents access unified memory store for consistent context across all interactions',
               agents: 'All Agents',
             },
             {
-              icon: '🔄',
+              icon: '\u{1F504}',
               title: 'State Sync',
               desc: 'Real-time state synchronization ensures every agent operates with latest data',
-              agents: 'Research ↔ CRM',
+              agents: 'Research \u2194 CRM',
             },
             {
-              icon: '🎯',
+              icon: '\u{1F3AF}',
               title: 'Goal Alignment',
               desc: 'Agents coordinate on shared objectives and dynamically adjust priorities',
-              agents: 'Opportunity ↔ Outreach',
+              agents: 'Opportunity \u2194 Outreach',
             },
             {
-              icon: '🔗',
+              icon: '\u{1F517}',
               title: 'Data Linking',
               desc: 'Cross-referenced data from multiple sources enriches agent decision-making',
-              agents: 'Research ↔ Proposal',
+              agents: 'Research \u2194 Proposal',
             },
             {
-              icon: '⚡',
+              icon: '\u26A1',
               title: 'Event Triggers',
               desc: 'Agent actions trigger workflows in downstream agents automatically',
-              agents: 'CRM ↔ Proposal',
+              agents: 'CRM \u2194 Proposal',
             },
             {
-              icon: '📋',
+              icon: '\u{1F4CB}',
               title: 'Feedback Loop',
               desc: 'Continuous feedback between agents refines outputs and improves accuracy',
-              agents: 'Outreach ↔ Opportunity',
+              agents: 'Outreach \u2194 Opportunity',
             },
           ].map((item) => (
             <div

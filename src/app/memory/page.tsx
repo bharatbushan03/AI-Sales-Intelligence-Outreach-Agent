@@ -37,7 +37,7 @@ interface NodePosition {
   y: number;
 }
 
-const NODE_META: Record<NodeType, { label: string; icon: React.ComponentType<{ className?: string }>; color: string; stroke: string; glow: string }> = {
+const NODE_META: Record<NodeType, { label: string; icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>; color: string; stroke: string; glow: string }> = {
   company: { label: 'Company', icon: Building2, color: '#312e81', stroke: '#6366f1', glow: 'rgba(99,102,241,0.25)' },
   competitor: { label: 'Competitor', icon: Crosshair, color: '#881337', stroke: '#f43f5e', glow: 'rgba(244,63,94,0.25)' },
   opportunity: { label: 'Opportunity', icon: TrendingUp, color: '#064e3b', stroke: '#34d399', glow: 'rgba(52,211,153,0.25)' },
