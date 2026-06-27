@@ -47,7 +47,7 @@ export const GET = withAuth(async (req, { user }) => {
 export const POST = withAuth(async (req, { user }) => {
   try {
     const userId = user.uid;
-    
+
     const body = await req.json();
     const query = body.query || '';
 

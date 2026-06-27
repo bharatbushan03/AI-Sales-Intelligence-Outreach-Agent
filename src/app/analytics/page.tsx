@@ -75,7 +75,10 @@ const scenarios: ScenarioData[] = [
     ],
     color: '#22c55e',
     gradient: 'from-emerald-500/20 to-emerald-500/5',
-    monthlyProjection: [320000, 380000, 410000, 450000, 490000, 520000, 480000, 510000, 560000, 590000, 620000, 680000],
+    monthlyProjection: [
+      320000, 380000, 410000, 450000, 490000, 520000, 480000, 510000, 560000, 590000, 620000,
+      680000,
+    ],
   },
   {
     key: 'expected',
@@ -90,7 +93,10 @@ const scenarios: ScenarioData[] = [
     ],
     color: '#6366f1',
     gradient: 'from-indigo-500/20 to-indigo-500/5',
-    monthlyProjection: [260000, 285000, 300000, 320000, 340000, 355000, 310000, 335000, 365000, 385000, 395000, 420000],
+    monthlyProjection: [
+      260000, 285000, 300000, 320000, 340000, 355000, 310000, 335000, 365000, 385000, 395000,
+      420000,
+    ],
   },
   {
     key: 'conservative',
@@ -105,7 +111,10 @@ const scenarios: ScenarioData[] = [
     ],
     color: '#f59e0b',
     gradient: 'from-amber-500/20 to-amber-500/5',
-    monthlyProjection: [210000, 220000, 230000, 240000, 250000, 260000, 235000, 245000, 255000, 265000, 270000, 285000],
+    monthlyProjection: [
+      210000, 220000, 230000, 240000, 250000, 260000, 235000, 245000, 255000, 265000, 270000,
+      285000,
+    ],
   },
 ];
 
@@ -258,12 +267,21 @@ function AnimatedProgressBar({
 
 // ─── Revenue Forecast Chart (Bar Chart) ──────────────────────────────────────
 
-function RevenueForecastChart({
-  scenarios,
-}: {
-  scenarios: ScenarioData[];
-}) {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function RevenueForecastChart({ scenarios }: { scenarios: ScenarioData[] }) {
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
   const maxVal = Math.max(...scenarios.flatMap((s) => s.monthlyProjection));
   const chartHeight = 200;
   const chartWidth = 600;
@@ -271,7 +289,11 @@ function RevenueForecastChart({
   const groupGap = 2;
 
   return (
-    <svg viewBox={`0 0 ${chartWidth} ${chartHeight + 40}`} className="w-full" preserveAspectRatio="xMidYMid meet">
+    <svg
+      viewBox={`0 0 ${chartWidth} ${chartHeight + 40}`}
+      className="w-full"
+      preserveAspectRatio="xMidYMid meet"
+    >
       {[0, 0.25, 0.5, 0.75, 1].map((frac) => (
         <g key={frac}>
           <line
@@ -296,7 +318,10 @@ function RevenueForecastChart({
       {months.map((_, mi) => (
         <g key={mi}>
           {scenarios.map((sc, si) => {
-            const x = mi * (chartWidth / months.length) + si * (barWidth + groupGap) + (chartWidth / months.length - scenarios.length * (barWidth + groupGap)) / 2;
+            const x =
+              mi * (chartWidth / months.length) +
+              si * (barWidth + groupGap) +
+              (chartWidth / months.length - scenarios.length * (barWidth + groupGap)) / 2;
             const barH = (sc.monthlyProjection[mi] / maxVal) * chartHeight;
             return (
               <g key={sc.key}>
@@ -311,7 +336,12 @@ function RevenueForecastChart({
                 />
                 {mi > 0 && (
                   <line
-                    x1={(mi - 1) * (chartWidth / months.length) + si * (barWidth + groupGap) + barWidth / 2 + (chartWidth / months.length - scenarios.length * (barWidth + groupGap)) / 2}
+                    x1={
+                      (mi - 1) * (chartWidth / months.length) +
+                      si * (barWidth + groupGap) +
+                      barWidth / 2 +
+                      (chartWidth / months.length - scenarios.length * (barWidth + groupGap)) / 2
+                    }
                     y1={chartHeight - (sc.monthlyProjection[mi - 1] / maxVal) * chartHeight}
                     x2={x + barWidth / 2}
                     y2={chartHeight - barH}
@@ -394,7 +424,12 @@ function PipelineWaterfall({ stages }: { stages: PipelineStage[] }) {
                 x1={x + barWidth}
                 y1={200 - barHeight - 30 + barHeight / 2}
                 x2={x + barWidth + 20}
-                y2={200 - ((stages[i + 1].value / total) * maxBarHeight) - 30 + (stages[i + 1].value / total) * maxBarHeight / 2}
+                y2={
+                  200 -
+                  (stages[i + 1].value / total) * maxBarHeight -
+                  30 +
+                  ((stages[i + 1].value / total) * maxBarHeight) / 2
+                }
                 stroke="#475569"
                 strokeWidth={1}
                 strokeDasharray="3 3"
@@ -426,15 +461,7 @@ function OpportunityRadar({ scores }: { scores: OpportunityScore[] }) {
             return `${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`;
           })
           .join(' ');
-        return (
-          <polygon
-            key={level}
-            points={pts}
-            fill="none"
-            stroke="#1e293b"
-            strokeWidth={1}
-          />
-        );
+        return <polygon key={level} points={pts} fill="none" stroke="#1e293b" strokeWidth={1} />;
       })}
 
       {scores.map((_, i) => {
@@ -453,11 +480,13 @@ function OpportunityRadar({ scores }: { scores: OpportunityScore[] }) {
       })}
 
       <polygon
-        points={scores.map((_, i) => {
-          const angle = -Math.PI / 2 + i * angleStep;
-          const r = (scores[i].score / 100) * radius;
-          return `${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`;
-        }).join(' ')}
+        points={scores
+          .map((_, i) => {
+            const angle = -Math.PI / 2 + i * angleStep;
+            const r = (scores[i].score / 100) * radius;
+            return `${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`;
+          })
+          .join(' ')}
         fill="rgba(99, 102, 241, 0.2)"
         stroke="#6366f1"
         strokeWidth={2}
@@ -501,15 +530,7 @@ function OpportunityRadar({ scores }: { scores: OpportunityScore[] }) {
 
 // ─── Gauge Component ─────────────────────────────────────────────────────────
 
-function GaugeIndicator({
-  value,
-  label,
-  color,
-}: {
-  value: number;
-  label: string;
-  color: string;
-}) {
+function GaugeIndicator({ value, label, color }: { value: number; label: string; color: string }) {
   const radius = 35;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - value / 100);
@@ -532,14 +553,7 @@ function GaugeIndicator({
   return (
     <div className="flex flex-col items-center">
       <svg width="90" height="90" viewBox="0 0 90 90">
-        <circle
-          cx="45"
-          cy="45"
-          r={radius}
-          fill="none"
-          stroke="#1e293b"
-          strokeWidth="6"
-        />
+        <circle cx="45" cy="45" r={radius} fill="none" stroke="#1e293b" strokeWidth="6" />
         <circle
           cx="45"
           cy="45"
@@ -613,7 +627,9 @@ export default function PredictiveRevenueEngine() {
             <div className="text-3xl font-bold text-white">
               <AnimatedCounter end={totalPipeline} prefix="$" decimals={0} />
             </div>
-            <p className="mt-1 text-xs text-slate-500">Across {pipelineStages.reduce((s, p) => s + p.count, 0)} active deals</p>
+            <p className="mt-1 text-xs text-slate-500">
+              Across {pipelineStages.reduce((s, p) => s + p.count, 0)} active deals
+            </p>
           </div>
         </div>
 
@@ -631,8 +647,8 @@ export default function PredictiveRevenueEngine() {
             </div>
             <div className="mt-1 flex items-center gap-1 text-xs">
               <ArrowUpRight className="h-3 w-3 text-emerald-400" />
-              <span className="text-emerald-400 font-medium">+18.2%</span>
-              <span className="text-slate-500 ml-1">vs last quarter</span>
+              <span className="font-medium text-emerald-400">+18.2%</span>
+              <span className="ml-1 text-slate-500">vs last quarter</span>
             </div>
           </div>
         </div>
@@ -651,8 +667,8 @@ export default function PredictiveRevenueEngine() {
             </div>
             <div className="mt-1 flex items-center gap-1 text-xs">
               <ArrowUpRight className="h-3 w-3 text-emerald-400" />
-              <span className="text-emerald-400 font-medium">+2.4%</span>
-              <span className="text-slate-500 ml-1">improvement</span>
+              <span className="font-medium text-emerald-400">+2.4%</span>
+              <span className="ml-1 text-slate-500">improvement</span>
             </div>
           </div>
         </div>
@@ -682,7 +698,7 @@ export default function PredictiveRevenueEngine() {
             <button
               key={sc.key}
               onClick={() => setSelectedScenario(sc.key)}
-              className={`group relative overflow-hidden rounded-2xl border p-5 text-left transition-all backdrop-blur-sm ${
+              className={`group relative overflow-hidden rounded-2xl border p-5 text-left backdrop-blur-sm transition-all ${
                 isActive
                   ? 'border-slate-600 bg-slate-800/80 shadow-xl shadow-slate-900/50'
                   : 'border-slate-800 bg-slate-900/40 hover:border-slate-700 hover:bg-slate-900/60'
@@ -696,7 +712,10 @@ export default function PredictiveRevenueEngine() {
 
               <div className="relative">
                 <div className="mb-3 flex items-center justify-between">
-                  <span className="text-xs font-semibold tracking-wider uppercase" style={{ color: sc.color }}>
+                  <span
+                    className="text-xs font-semibold tracking-wider uppercase"
+                    style={{ color: sc.color }}
+                  >
                     {sc.label}
                   </span>
                   {isActive && <ChevronRight className="h-4 w-4 text-slate-400" />}
@@ -718,15 +737,15 @@ export default function PredictiveRevenueEngine() {
                   {sc.growth >= 0 ? (
                     <>
                       <ArrowUpRight className="h-3 w-3 text-emerald-400" />
-                      <span className="text-emerald-400 font-medium">+{sc.growth}%</span>
+                      <span className="font-medium text-emerald-400">+{sc.growth}%</span>
                     </>
                   ) : (
                     <>
                       <ArrowDownRight className="h-3 w-3 text-red-400" />
-                      <span className="text-red-400 font-medium">{sc.growth}%</span>
+                      <span className="font-medium text-red-400">{sc.growth}%</span>
                     </>
                   )}
-                  <span className="text-slate-500 ml-1">projected growth</span>
+                  <span className="ml-1 text-slate-500">projected growth</span>
                 </div>
 
                 {isActive && (
@@ -785,7 +804,9 @@ export default function PredictiveRevenueEngine() {
             {pipelineStages.map((stage) => (
               <div key={stage.name} className="text-center">
                 <div className="mb-1 text-[10px] font-medium text-slate-400">{stage.name}</div>
-                <div className="text-xs font-bold text-slate-200">{formatCurrency(stage.value)}</div>
+                <div className="text-xs font-bold text-slate-200">
+                  {formatCurrency(stage.value)}
+                </div>
               </div>
             ))}
           </div>
@@ -802,13 +823,19 @@ export default function PredictiveRevenueEngine() {
               {opportunityScores.map((score) => (
                 <div key={score.category}>
                   <div className="mb-1 flex items-center justify-between text-xs">
-                    <span className="text-slate-300 font-medium">{score.category}</span>
-                    <span className="text-slate-400">{formatCurrency(score.potential)} potential</span>
+                    <span className="font-medium text-slate-300">{score.category}</span>
+                    <span className="text-slate-400">
+                      {formatCurrency(score.potential)} potential
+                    </span>
                   </div>
                   <div className="h-1.5 overflow-hidden rounded-full bg-slate-800">
                     <div
                       className="h-full rounded-full"
-                      style={{ width: `${score.score}%`, backgroundColor: score.score >= 80 ? '#22c55e' : score.score >= 65 ? '#6366f1' : '#f59e0b' }}
+                      style={{
+                        width: `${score.score}%`,
+                        backgroundColor:
+                          score.score >= 80 ? '#22c55e' : score.score >= 65 ? '#6366f1' : '#f59e0b',
+                      }}
                     />
                   </div>
                 </div>
@@ -827,7 +854,10 @@ export default function PredictiveRevenueEngine() {
           </div>
           <div className="space-y-4">
             {marketSignals.map((signal) => (
-              <div key={signal.label} className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+              <div
+                key={signal.label}
+                className="rounded-xl border border-slate-800 bg-slate-900/60 p-4"
+              >
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-200">{signal.label}</span>
                   <div className="flex items-center gap-1.5">
@@ -836,12 +866,22 @@ export default function PredictiveRevenueEngine() {
                     ) : (
                       <ArrowDownRight className="h-3.5 w-3.5 text-red-400" />
                     )}
-                    <span className={signal.trend === 'up' ? 'text-emerald-400 text-xs font-medium' : 'text-red-400 text-xs font-medium'}>
-                      {signal.change > 0 ? '+' : ''}{signal.change}%
+                    <span
+                      className={
+                        signal.trend === 'up'
+                          ? 'text-xs font-medium text-emerald-400'
+                          : 'text-xs font-medium text-red-400'
+                      }
+                    >
+                      {signal.change > 0 ? '+' : ''}
+                      {signal.change}%
                     </span>
                   </div>
                 </div>
-                <AnimatedProgressBar value={signal.value} color={signal.trend === 'up' ? '#22c55e' : '#ef4444'} />
+                <AnimatedProgressBar
+                  value={signal.value}
+                  color={signal.trend === 'up' ? '#22c55e' : '#ef4444'}
+                />
               </div>
             ))}
           </div>
@@ -854,7 +894,10 @@ export default function PredictiveRevenueEngine() {
           </div>
           <div className="space-y-4">
             {industryTrends.map((trend) => (
-              <div key={trend.sector} className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+              <div
+                key={trend.sector}
+                className="rounded-xl border border-slate-800 bg-slate-900/60 p-4"
+              >
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-200">{trend.sector}</span>
                   <div className="flex items-center gap-2">
@@ -864,17 +907,21 @@ export default function PredictiveRevenueEngine() {
                     <span
                       className={`rounded-full px-2 py-0.5 text-[9px] font-semibold ${
                         trend.momentum === 'high'
-                          ? 'bg-emerald-950 text-emerald-400 border border-emerald-900'
+                          ? 'border border-emerald-900 bg-emerald-950 text-emerald-400'
                           : trend.momentum === 'medium'
-                            ? 'bg-amber-950 text-amber-400 border border-amber-900'
-                            : 'bg-red-950 text-red-400 border border-red-900'
+                            ? 'border border-amber-900 bg-amber-950 text-amber-400'
+                            : 'border border-red-900 bg-red-950 text-red-400'
                       }`}
                     >
                       {trend.momentum}
                     </span>
                   </div>
                 </div>
-                <AnimatedProgressBar value={trend.growthRate * 3.5} color={trend.color} label="Market momentum" />
+                <AnimatedProgressBar
+                  value={trend.growthRate * 3.5}
+                  color={trend.color}
+                  label="Market momentum"
+                />
               </div>
             ))}
           </div>
@@ -900,7 +947,10 @@ export default function PredictiveRevenueEngine() {
               <div key={sc.key} className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
                 <div className="mb-3 flex items-center gap-2">
                   <div className="h-3 w-3 rounded-full" style={{ backgroundColor: sc.color }} />
-                  <span className="text-sm font-semibold text-slate-200" style={{ color: sc.color }}>
+                  <span
+                    className="text-sm font-semibold text-slate-200"
+                    style={{ color: sc.color }}
+                  >
                     {sc.label}
                   </span>
                 </div>
@@ -909,7 +959,9 @@ export default function PredictiveRevenueEngine() {
                     <div key={q}>
                       <div className="mb-1 flex items-center justify-between text-xs">
                         <span className="text-slate-400">{q}</span>
-                        <span className="font-medium text-slate-200">{formatCurrency(quarters[i])}</span>
+                        <span className="font-medium text-slate-200">
+                          {formatCurrency(quarters[i])}
+                        </span>
                       </div>
                       <div className="h-2 overflow-hidden rounded-full bg-slate-800">
                         <div
@@ -926,7 +978,9 @@ export default function PredictiveRevenueEngine() {
                 </div>
                 <div className="mt-3 border-t border-slate-800 pt-3 text-center">
                   <span className="text-xs text-slate-500">Annual Total: </span>
-                  <span className="font-bold text-slate-200">{formatCurrency(quarters.reduce((a, b) => a + b, 0))}</span>
+                  <span className="font-bold text-slate-200">
+                    {formatCurrency(quarters.reduce((a, b) => a + b, 0))}
+                  </span>
                 </div>
               </div>
             );

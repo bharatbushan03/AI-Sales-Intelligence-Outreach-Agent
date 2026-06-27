@@ -22,7 +22,7 @@ export const GET = withAuth(async (req, { user }) => {
     const userId = user.uid;
     // Note: userId is available but not used in GET as it returns all historical reports
     // In a multi-tenant system, we might want to filter by user/tenant
-    
+
     try {
       const reports = await opportunityReportsRepository.list(
         undefined,
@@ -47,7 +47,7 @@ export const GET = withAuth(async (req, { user }) => {
 export const POST = withAuth(async (req, { user }) => {
   try {
     const userId = user.uid;
-    
+
     const body = await req.json();
     const query = body.query || '';
 

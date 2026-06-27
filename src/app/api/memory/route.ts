@@ -18,7 +18,7 @@ export const GET = withAuth(async (req, { user }) => {
   try {
     const userId = user.uid;
     // Note: In a production implementation, we would filter memory data by user/tenant
-    
+
     try {
       const searchParams = req.nextUrl.searchParams;
       const type = searchParams.get('type') || 'all';
@@ -99,7 +99,7 @@ export const GET = withAuth(async (req, { user }) => {
 export const POST = withAuth(async (req, { user }) => {
   try {
     const userId = user.uid;
-    
+
     const body = await req.json();
     const { sender, topic, payload } = body;
 

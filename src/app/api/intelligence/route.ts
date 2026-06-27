@@ -22,7 +22,7 @@ export const GET = withAuth(async (req, { user }) => {
     const userId = user.uid;
     // Note: In a multi-tenant system, we might filter prompts by user/tenant
     // For now, returning all data as it's primarily system configuration
-    
+
     try {
       const registry = PromptRegistry.getInstance();
       // Seed Firestore collections if they are empty
@@ -65,7 +65,7 @@ export const GET = withAuth(async (req, { user }) => {
 export const POST = withAuth(async (req, { user }) => {
   try {
     const userId = user.uid;
-    
+
     const body = await req.json();
     const { action, promptId } = body;
 

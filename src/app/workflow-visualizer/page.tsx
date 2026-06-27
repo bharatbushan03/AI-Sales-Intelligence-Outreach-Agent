@@ -39,7 +39,12 @@ interface AnimationState {
 
 const agents: Agent[] = [
   { id: 'research', name: 'Research', icon: '\u{1F50D}', color: 'from-cyan-500 to-blue-600' },
-  { id: 'opportunity', name: 'Opportunity', icon: '\u{1F4A1}', color: 'from-violet-500 to-purple-600' },
+  {
+    id: 'opportunity',
+    name: 'Opportunity',
+    icon: '\u{1F4A1}',
+    color: 'from-violet-500 to-purple-600',
+  },
   { id: 'outreach', name: 'Outreach', icon: '\u{1F4EC}', color: 'from-amber-500 to-orange-600' },
   { id: 'crm', name: 'CRM', icon: '\u{1F4CA}', color: 'from-emerald-500 to-teal-600' },
   { id: 'proposal', name: 'Proposal', icon: '\u{1F4C4}', color: 'from-rose-500 to-pink-600' },
@@ -48,16 +53,66 @@ const agents: Agent[] = [
 const agentOrder: AgentId[] = ['research', 'opportunity', 'outreach', 'crm', 'proposal'];
 
 const sampleMessages: Omit<Message, 'id' | 'timestamp'>[] = [
-  { from: 'research', to: 'opportunity', content: 'Market analysis complete: 45 target companies identified with high-fit scores', type: 'data' },
-  { from: 'opportunity', to: 'outreach', content: 'Top 12 leads scored and prioritized by engagement potential', type: 'insight' },
-  { from: 'outreach', to: 'crm', content: 'Campaign deployed: 120 personalized emails sent to qualified leads', type: 'response' },
-  { from: 'crm', to: 'proposal', content: '7 opportunities updated in pipeline, 3 request proposal generation', type: 'data' },
-  { from: 'proposal', to: 'research', content: 'Need data on TechCorp for proposal customization', type: 'command' },
-  { from: 'research', to: 'proposal', content: 'TechCorp data enriched with latest funding and tech stack info', type: 'response' },
-  { from: 'proposal', to: 'crm', content: 'Proposal generated and attached to opportunity record', type: 'response' },
-  { from: 'opportunity', to: 'research', content: 'Re-scoring needed for new batch of inbound leads', type: 'command' },
-  { from: 'research', to: 'opportunity', content: 'New leads analyzed: 8 high priority, 4 medium, 3 low', type: 'data' },
-  { from: 'outreach', to: 'opportunity', content: 'Email campaign metrics: 32% open rate, 12% reply rate', type: 'insight' },
+  {
+    from: 'research',
+    to: 'opportunity',
+    content: 'Market analysis complete: 45 target companies identified with high-fit scores',
+    type: 'data',
+  },
+  {
+    from: 'opportunity',
+    to: 'outreach',
+    content: 'Top 12 leads scored and prioritized by engagement potential',
+    type: 'insight',
+  },
+  {
+    from: 'outreach',
+    to: 'crm',
+    content: 'Campaign deployed: 120 personalized emails sent to qualified leads',
+    type: 'response',
+  },
+  {
+    from: 'crm',
+    to: 'proposal',
+    content: '7 opportunities updated in pipeline, 3 request proposal generation',
+    type: 'data',
+  },
+  {
+    from: 'proposal',
+    to: 'research',
+    content: 'Need data on TechCorp for proposal customization',
+    type: 'command',
+  },
+  {
+    from: 'research',
+    to: 'proposal',
+    content: 'TechCorp data enriched with latest funding and tech stack info',
+    type: 'response',
+  },
+  {
+    from: 'proposal',
+    to: 'crm',
+    content: 'Proposal generated and attached to opportunity record',
+    type: 'response',
+  },
+  {
+    from: 'opportunity',
+    to: 'research',
+    content: 'Re-scoring needed for new batch of inbound leads',
+    type: 'command',
+  },
+  {
+    from: 'research',
+    to: 'opportunity',
+    content: 'New leads analyzed: 8 high priority, 4 medium, 3 low',
+    type: 'data',
+  },
+  {
+    from: 'outreach',
+    to: 'opportunity',
+    content: 'Email campaign metrics: 32% open rate, 12% reply rate',
+    type: 'insight',
+  },
 ];
 
 const messageVariants = [
@@ -80,12 +135,26 @@ function getRandomMessage(agentsList: Agent[]): Omit<Message, 'id' | 'timestamp'
     .replace('{{tone}}', tones[Math.floor(Math.random() * tones.length)])
     .replace('{{from}}', ['Discovery', 'Qualification', 'Proposal'][Math.floor(Math.random() * 3)])
     .replace('{{to}}', ['Qualification', 'Proposal', 'Negotiation'][Math.floor(Math.random() * 3)])
-    .replace('{{topic}}', ['tech stack', 'budget', 'timeline', 'decision criteria'][Math.floor(Math.random() * 4)])
+    .replace(
+      '{{topic}}',
+      ['tech stack', 'budget', 'timeline', 'decision criteria'][Math.floor(Math.random() * 4)],
+    )
     .replace('{{agentA}}', agentsList[Math.floor(Math.random() * agentsList.length)].name)
     .replace('{{agentB}}', agentsList[Math.floor(Math.random() * agentsList.length)].name)
-    .replace('{{dataA}}', ['CRM records', 'email history', 'support tickets'][Math.floor(Math.random() * 3)])
-    .replace('{{dataB}}', ['market data', 'social profiles', 'news articles'][Math.floor(Math.random() * 3)]);
-  const types: ('data' | 'insight' | 'command' | 'response')[] = ['data', 'insight', 'command', 'response'];
+    .replace(
+      '{{dataA}}',
+      ['CRM records', 'email history', 'support tickets'][Math.floor(Math.random() * 3)],
+    )
+    .replace(
+      '{{dataB}}',
+      ['market data', 'social profiles', 'news articles'][Math.floor(Math.random() * 3)],
+    );
+  const types: ('data' | 'insight' | 'command' | 'response')[] = [
+    'data',
+    'insight',
+    'command',
+    'response',
+  ];
   const fromIdx = Math.floor(Math.random() * agentsList.length);
   let toIdx = Math.floor(Math.random() * agentsList.length);
   while (toIdx === fromIdx) {
@@ -149,7 +218,7 @@ function AgentNode({ agent, isActive, messageCount }: AgentNodeProps) {
     >
       <div
         className={`relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${agent.color} shadow-lg transition-all duration-300 ${
-          isActive ? 'shadow-indigo-500/30 ring-2 ring-indigo-400' : 'shadow-black/20'
+          isActive ? 'ring-2 shadow-indigo-500/30 ring-indigo-400' : 'shadow-black/20'
         }`}
       >
         <span className="text-2xl">{agent.icon}</span>
@@ -186,9 +255,7 @@ function ConnectionArrow({ from, to, hasActiveMessage }: ConnectionArrowProps) {
       />
       <div
         className={`flex h-6 w-6 items-center justify-center rounded-full transition-all duration-500 ${
-          hasActiveMessage
-            ? 'bg-indigo-500 shadow-lg shadow-indigo-500/40'
-            : 'bg-slate-800'
+          hasActiveMessage ? 'bg-indigo-500 shadow-lg shadow-indigo-500/40' : 'bg-slate-800'
         }`}
       >
         <ArrowRight
@@ -283,7 +350,7 @@ function MessageLog({ messages }: { messages: Message[] }) {
   return (
     <div
       ref={scrollRef}
-      className="max-h-[420px] space-y-2 overflow-y-auto pr-2 scrollbar-thin scrollbar-track-slate-800 scrollbar-thumb-slate-600"
+      className="max-h-[420px] scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800 space-y-2 overflow-y-auto pr-2"
     >
       {messages.map((msg) => (
         <div
@@ -314,7 +381,7 @@ function MessageLog({ messages }: { messages: Message[] }) {
                 {msg.type}
               </span>
             </div>
-            <span className="whitespace-nowrap text-[10px] text-slate-500">
+            <span className="text-[10px] whitespace-nowrap text-slate-500">
               {msg.timestamp.toLocaleTimeString()}
             </span>
           </div>
@@ -364,8 +431,11 @@ export default function WorkflowVisualizer() {
     if (messages.length < 2) return '0ms';
     const totalMs = messages
       .slice(0, messages.length - 1)
-      .reduce((sum, msg, i) => sum + (messages[i].timestamp.getTime() - msg.timestamp.getTime()), 0);
-    return `${((totalMs / (messages.length - 1)) / 1000).toFixed(1)}s`;
+      .reduce(
+        (sum, msg, i) => sum + (messages[i].timestamp.getTime() - msg.timestamp.getTime()),
+        0,
+      );
+    return `${(totalMs / (messages.length - 1) / 1000).toFixed(1)}s`;
   }, [messages]);
 
   const messageFlowRate = React.useMemo(() => {
@@ -467,11 +537,7 @@ export default function WorkflowVisualizer() {
                     messageCount={getMessageCount(id)}
                   />
                   {nextAgent && (
-                    <ConnectionArrow
-                      from={id}
-                      to={nextAgent}
-                      hasActiveMessage={hasActiveNext}
-                    />
+                    <ConnectionArrow from={id} to={nextAgent} hasActiveMessage={hasActiveNext} />
                   )}
                 </React.Fragment>
               );
@@ -488,7 +554,7 @@ export default function WorkflowVisualizer() {
         <div className="mt-6 rounded-xl border border-slate-700/30 bg-slate-900/50 p-3">
           <div className="mb-2 flex items-center gap-2">
             <Send className="h-3.5 w-3.5 text-slate-500" />
-            <span className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">
+            <span className="text-[11px] font-medium tracking-wider text-slate-500 uppercase">
               Latest Broadcast
             </span>
           </div>
