@@ -53,17 +53,24 @@ jobs:
         run: |
           aws sts get-caller-identity
 
+      - name: Create ECR Repository
+        run: |
+          aws ecr describe-repositories --repository-names "${{ env.REPOSITORY_NAME }}" --region "${{ env.REGION }}" 2>/dev/null || \
+          aws ecr create-repository \
+            --repository-name "${{ env.REPOSITORY_NAME }}" \
+            --region "${{ env.REGION }}"
+
       - name: Build Container
         run: |
           docker build \
-            --tag "${{ steps.login-ecr.outputs.registry }}/${{ env.ACCOUNT_ID }}/${{ env.REPOSITORY_NAME }}:${GITHUB_SHA}" \
-            --tag "${{ steps.login-ecr.outputs.registry }}/${{ env.ACCOUNT_ID }}/${{ env.REPOSITORY_NAME }}:${ENVIRONMENT}" \
+            --tag "${{ steps.login-ecr.outputs.registry }}/${{ env.REPOSITORY_NAME }}:${GITHUB_SHA}" \
+            --tag "${{ steps.login-ecr.outputs.registry }}/${{ env.REPOSITORY_NAME }}:${ENVIRONMENT}" \
             .
 
       - name: Push Container
         run: |
-          docker push "${{ steps.login-ecr.outputs.registry }}/${{ env.ACCOUNT_ID }}/${{ env.REPOSITORY_NAME }}:${GITHUB_SHA}"
-          docker push "${{ steps.login-ecr.outputs.registry }}/${{ env.ACCOUNT_ID }}/${{ env.REPOSITORY_NAME }}:${ENVIRONMENT}"
+          docker push "${{ steps.login-ecr.outputs.registry }}/${{ env.REPOSITORY_NAME }}:${GITHUB_SHA}"
+          docker push "${{ steps.login-ecr.outputs.registry }}/${{ env.REPOSITORY_NAME }}:${ENVIRONMENT}"
 
       - name: Configure Container Security
         run: |
