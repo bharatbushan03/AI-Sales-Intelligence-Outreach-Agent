@@ -1,0 +1,34 @@
+{
+  "DistributionConfig": {
+    "ViewerCertificate": {
+      "ACMCertificateArn": "${{ vars.AWS_CERTIFICATE_ARN }}",
+      "MinimumProtocolVersion": "TLSv1.2_2021",
+      "CertificateSource": "acm"
+    },
+    "DefaultRootObject": "/",
+    "Origins": [
+      {
+        "DomainName": "${{ env.ACCOUNT_ID }}.dkr.ecr.${{ env.REGION }}.amazonaws.com",
+        "CustomOriginConfig": {
+          "OriginProtocolPolicy": "http-only"
+        }
+      }
+    ],
+    "DefaultCacheBehavior": {
+      "AllowedMethods": ["GET", "HEAD", "OPTIONS"],
+      "CachedMethods": ["GET", "HEAD"],
+      "TargetOriginId": "origin1",
+      "ForwardedValues": {
+        "QueryString": false,
+        "Cookies": {
+          "Forward": "none"
+        }
+      },
+      "ViewerProtocolPolicy": "redirect-to-https",
+      "MinTTL": 0,
+      "DefaultTTL": 86400
+    },
+    "Comment": "CloudFront Distribution for sales-intelligence",
+    "Enabled": true
+  }
+}
