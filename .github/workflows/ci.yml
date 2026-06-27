@@ -53,12 +53,6 @@ jobs:
       - name: Build Verification
         run: npm run build
 
-      - name: AWS Security Hub Scan
-        if: false
-        uses: securecodebox/dependency-scan@v4
-        with:
-          languages: 'node'
-
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:

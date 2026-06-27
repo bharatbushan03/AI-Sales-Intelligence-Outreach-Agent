@@ -35,7 +35,8 @@ const DEMO_STEPS = [
     id: 'company-analysis',
     title: 'Company Analysis',
     subtitle: 'Deep research on any target company',
-    description: 'Enter a company name and watch as our AI agents perform comprehensive research across thousands of data points.',
+    description:
+      'Enter a company name and watch as our AI agents perform comprehensive research across thousands of data points.',
     icon: Building2,
     color: 'from-blue-500 to-cyan-400',
     bgGlow: 'bg-blue-500/10',
@@ -44,7 +45,8 @@ const DEMO_STEPS = [
     id: 'opportunity-discovery',
     title: 'Opportunity Discovery',
     subtitle: 'Uncover hidden revenue opportunities',
-    description: 'Our multi-agent system identifies pain points, growth signals, and sales triggers with weighted priority scoring.',
+    description:
+      'Our multi-agent system identifies pain points, growth signals, and sales triggers with weighted priority scoring.',
     icon: Target,
     color: 'from-violet-500 to-purple-400',
     bgGlow: 'bg-violet-500/10',
@@ -53,7 +55,8 @@ const DEMO_STEPS = [
     id: 'outreach-creation',
     title: 'Outreach Creation',
     subtitle: 'AI-generated personalized outreach',
-    description: 'Gemini crafts tailored messaging, talking points, and value propositions for each decision-maker.',
+    description:
+      'Gemini crafts tailored messaging, talking points, and value propositions for each decision-maker.',
     icon: Mail,
     color: 'from-amber-500 to-orange-400',
     bgGlow: 'bg-amber-500/10',
@@ -62,7 +65,8 @@ const DEMO_STEPS = [
     id: 'crm-creation',
     title: 'CRM Creation',
     subtitle: 'Automated CRM record generation',
-    description: 'All research, opportunities, and outreach are automatically structured into Firestore CRM records.',
+    description:
+      'All research, opportunities, and outreach are automatically structured into Firestore CRM records.',
     icon: Database,
     color: 'from-emerald-500 to-green-400',
     bgGlow: 'bg-emerald-500/10',
@@ -71,7 +75,8 @@ const DEMO_STEPS = [
     id: 'proposal-generation',
     title: 'Proposal Generation',
     subtitle: 'Strategic proposal generation',
-    description: 'Generate comprehensive proposals with executive summaries, objection handling, and strategic recommendations.',
+    description:
+      'Generate comprehensive proposals with executive summaries, objection handling, and strategic recommendations.',
     icon: FileText,
     color: 'from-rose-500 to-pink-400',
     bgGlow: 'bg-rose-500/10',
@@ -79,14 +84,54 @@ const DEMO_STEPS = [
 ];
 
 const TECH_STACK = [
-  { name: 'Gemini AI', icon: Bot, description: 'Large language model for analysis and generation', color: 'text-blue-400' },
-  { name: 'Firebase Auth', icon: Shield, description: 'Authentication and user management', color: 'text-amber-400' },
-  { name: 'Firestore', icon: Database, description: 'Real-time NoSQL document database', color: 'text-green-400' },
-  { name: 'Cloud Run', icon: Cloud, description: 'Serverless container deployment', color: 'text-cyan-400' },
-  { name: 'Google Cloud', icon: Globe, description: 'Infrastructure and AI services', color: 'text-blue-300' },
-  { name: 'Vertex AI', icon: Cpu, description: 'ML model training and deployment', color: 'text-purple-400' },
-  { name: 'BigQuery', icon: Layers, description: 'Analytics and data warehousing', color: 'text-indigo-400' },
-  { name: 'Cloud Storage', icon: Zap, description: 'Scalable object storage', color: 'text-yellow-400' },
+  {
+    name: 'Gemini AI',
+    icon: Bot,
+    description: 'Large language model for analysis and generation',
+    color: 'text-blue-400',
+  },
+  {
+    name: 'Firebase Auth',
+    icon: Shield,
+    description: 'Authentication and user management',
+    color: 'text-amber-400',
+  },
+  {
+    name: 'Firestore',
+    icon: Database,
+    description: 'Real-time NoSQL document database',
+    color: 'text-green-400',
+  },
+  {
+    name: 'Cloud Run',
+    icon: Cloud,
+    description: 'Serverless container deployment',
+    color: 'text-cyan-400',
+  },
+  {
+    name: 'Google Cloud',
+    icon: Globe,
+    description: 'Infrastructure and AI services',
+    color: 'text-blue-300',
+  },
+  {
+    name: 'Vertex AI',
+    icon: Cpu,
+    description: 'ML model training and deployment',
+    color: 'text-purple-400',
+  },
+  {
+    name: 'BigQuery',
+    icon: Layers,
+    description: 'Analytics and data warehousing',
+    color: 'text-indigo-400',
+  },
+  {
+    name: 'Cloud Storage',
+    icon: Zap,
+    description: 'Scalable object storage',
+    color: 'text-yellow-400',
+  },
 ];
 
 type DemoStatus = 'welcome' | 'running' | 'complete';
@@ -100,7 +145,9 @@ function AnimatedCheckmark({ show }: { show: boolean }) {
           : 'border-slate-700 text-slate-600'
       }`}
     >
-      <CheckCircle2 className={`h-4 w-4 transition-all duration-500 ${show ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`} />
+      <CheckCircle2
+        className={`h-4 w-4 transition-all duration-500 ${show ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}
+      />
     </div>
   );
 }
@@ -112,7 +159,7 @@ function StepCard({
   completed,
   onClick,
 }: {
-  step: typeof DEMO_STEPS[number];
+  step: (typeof DEMO_STEPS)[number];
   index: number;
   currentStep: number;
   completed: boolean;
@@ -132,9 +179,7 @@ function StepCard({
             : 'border-slate-800 bg-slate-900/40 opacity-50 hover:border-slate-700 hover:opacity-70'
       }`}
     >
-      {isActive && (
-        <div className={`absolute inset-0 opacity-[0.03] ${step.bgGlow}`} />
-      )}
+      {isActive && <div className={`absolute inset-0 opacity-[0.03] ${step.bgGlow}`} />}
       <div className="relative flex items-start gap-4">
         <div
           className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-all duration-500 ${
@@ -145,11 +190,7 @@ function StepCard({
                 : 'bg-slate-800 text-slate-600'
           }`}
         >
-          {completed ? (
-            <CheckCircle2 className="h-6 w-6" />
-          ) : (
-            <Icon className="h-6 w-6" />
-          )}
+          {completed ? <CheckCircle2 className="h-6 w-6" /> : <Icon className="h-6 w-6" />}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
@@ -234,17 +275,23 @@ function SimulatedContent({ stepIndex }: { stepIndex: number }) {
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-2 rounded-xl border border-slate-700/50 bg-slate-800/40 p-4">
-            <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">Revenue</div>
+            <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+              Revenue
+            </div>
             <div className="text-2xl font-bold text-white">$2.4B</div>
             <div className="text-xs text-slate-500">Annual (estimated)</div>
           </div>
           <div className="space-y-2 rounded-xl border border-slate-700/50 bg-slate-800/40 p-4">
-            <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">Employees</div>
+            <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+              Employees
+            </div>
             <div className="text-2xl font-bold text-white">~12,500</div>
             <div className="text-xs text-slate-500">Global workforce</div>
           </div>
           <div className="space-y-2 rounded-xl border border-slate-700/50 bg-slate-800/40 p-4">
-            <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">Industry</div>
+            <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+              Industry
+            </div>
             <div className="text-2xl font-bold text-white">Enterprise SaaS</div>
             <div className="text-xs text-slate-500">B2B vertical</div>
           </div>
@@ -255,10 +302,10 @@ function SimulatedContent({ stepIndex }: { stepIndex: number }) {
             Gemini Analysis Summary
           </div>
           <p className="text-sm leading-relaxed text-slate-300">
-            Acme Corp is a mature enterprise SaaS company experiencing rapid expansion in the APAC region.
-            Recent leadership changes in their C-suite suggest potential organizational restructuring.
-            Our agents detected 12 active hiring signals and 3 recent executive departures indicating
-            strategic realignment.
+            Acme Corp is a mature enterprise SaaS company experiencing rapid expansion in the APAC
+            region. Recent leadership changes in their C-suite suggest potential organizational
+            restructuring. Our agents detected 12 active hiring signals and 3 recent executive
+            departures indicating strategic realignment.
           </p>
         </div>
       </div>
@@ -271,7 +318,8 @@ function SimulatedContent({ stepIndex }: { stepIndex: number }) {
               <Zap className="h-4 w-4" /> High-Value Opportunity
             </div>
             <p className="text-sm text-slate-300">
-              Their APAC expansion creates a $500K coaching & sales enablement need for new sales hires.
+              Their APAC expansion creates a $500K coaching & sales enablement need for new sales
+              hires.
             </p>
             <div className="flex items-center justify-between text-xs">
               <span className="text-slate-500">Fit Score</span>
@@ -335,7 +383,9 @@ function SimulatedContent({ stepIndex }: { stepIndex: number }) {
             Personalized Outreach Draft
           </div>
           <div className="rounded-lg border border-slate-700/30 bg-slate-900/60 p-4">
-            <div className="mb-2 text-xs font-semibold text-slate-500">Subject: Strategic Growth Opportunity</div>
+            <div className="mb-2 text-xs font-semibold text-slate-500">
+              Subject: Strategic Growth Opportunity
+            </div>
             <p className="text-sm leading-relaxed text-slate-300">
               Hi [Prospect Name], I noticed Acme Corp is scaling rapidly in APAC. We have
               successfully helped similar organizations accelerate their sales team ramp-up by 40%.
@@ -344,15 +394,21 @@ function SimulatedContent({ stepIndex }: { stepIndex: number }) {
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-lg border border-slate-700/30 bg-slate-900/40 p-3">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Tone</div>
+              <div className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
+                Tone
+              </div>
               <div className="mt-1 text-sm font-medium text-slate-200">Consultative</div>
             </div>
             <div className="rounded-lg border border-slate-700/30 bg-slate-900/40 p-3">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Channel</div>
+              <div className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
+                Channel
+              </div>
               <div className="mt-1 text-sm font-medium text-slate-200">LinkedIn + Email</div>
             </div>
             <div className="rounded-lg border border-slate-700/30 bg-slate-900/40 p-3">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Sequence</div>
+              <div className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
+                Sequence
+              </div>
               <div className="mt-1 text-sm font-medium text-slate-200">3-Step Cadence</div>
             </div>
           </div>
@@ -436,15 +492,19 @@ function SimulatedContent({ stepIndex }: { stepIndex: number }) {
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="rounded-lg border border-slate-700/30 bg-slate-900/40 p-3 text-center">
                 <div className="text-2xl font-bold text-white">$1.2M</div>
-                <div className="text-[10px] font-semibold uppercase text-slate-500">Projected Value</div>
+                <div className="text-[10px] font-semibold text-slate-500 uppercase">
+                  Projected Value
+                </div>
               </div>
               <div className="rounded-lg border border-slate-700/30 bg-slate-900/40 p-3 text-center">
                 <div className="text-2xl font-bold text-white">94%</div>
-                <div className="text-[10px] font-semibold uppercase text-slate-500">Win Probability</div>
+                <div className="text-[10px] font-semibold text-slate-500 uppercase">
+                  Win Probability
+                </div>
               </div>
               <div className="rounded-lg border border-slate-700/30 bg-slate-900/40 p-3 text-center">
                 <div className="text-2xl font-bold text-white">6mo</div>
-                <div className="text-[10px] font-semibold uppercase text-slate-500">Timeline</div>
+                <div className="text-[10px] font-semibold text-slate-500 uppercase">Timeline</div>
               </div>
             </div>
           </div>
@@ -477,9 +537,7 @@ function SimulatedContent({ stepIndex }: { stepIndex: number }) {
         </div>
       </div>
       <p className="text-sm leading-relaxed text-slate-400">{step.description}</p>
-      <div className="border-t border-slate-800 pt-4">
-        {contents[stepIndex] || contents[5]}
-      </div>
+      <div className="border-t border-slate-800 pt-4">{contents[stepIndex] || contents[5]}</div>
     </div>
   );
 }
@@ -517,11 +575,14 @@ export default function DemoModePage() {
     contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
 
-  const goToStep = useCallback((step: number) => {
-    setCurrentStep(step);
-    setDemoStatus('running');
-    setTimeout(() => scrollToContent(), 100);
-  }, [scrollToContent]);
+  const goToStep = useCallback(
+    (step: number) => {
+      setCurrentStep(step);
+      setDemoStatus('running');
+      setTimeout(() => scrollToContent(), 100);
+    },
+    [scrollToContent],
+  );
 
   const goNext = useCallback(() => {
     if (currentStep < totalSteps - 1) {
@@ -569,8 +630,8 @@ export default function DemoModePage() {
     return (
       <div className="relative min-h-screen overflow-hidden bg-slate-950">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -left-40 -top-40 h-[500px] w-[500px] rounded-full bg-blue-500/5 blur-[120px]" />
-          <div className="absolute -right-40 -top-40 h-[500px] w-[500px] rounded-full bg-violet-500/5 blur-[120px]" />
+          <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-blue-500/5 blur-[120px]" />
+          <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-violet-500/5 blur-[120px]" />
           <div className="absolute -bottom-40 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-rose-500/5 blur-[120px]" />
         </div>
 
@@ -620,10 +681,7 @@ export default function DemoModePage() {
             {DEMO_STEPS.map((step, i) => {
               const Icon = step.icon;
               return (
-                <div
-                  key={step.id}
-                  className="flex flex-col items-center gap-2 text-center"
-                >
+                <div key={step.id} className="flex flex-col items-center gap-2 text-center">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-800 text-slate-400">
                     <Icon className="h-5 w-5" />
                   </div>
@@ -634,24 +692,28 @@ export default function DemoModePage() {
           </div>
 
           {showArchitecture && (
-            <div className="mt-12 w-full max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="animate-in fade-in slide-in-from-bottom-4 mt-12 w-full max-w-4xl duration-500">
               <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-8 backdrop-blur-xl">
                 <h2 className="mb-6 text-2xl font-bold text-white">System Architecture</h2>
                 <div className="grid gap-6 md:grid-cols-2">
                   <div className="space-y-4">
                     <h3 className="text-sm font-semibold text-blue-400">Agent Layer</h3>
                     <div className="space-y-2">
-                      {['Research Agent (Gemini)', 'Opportunity Agent', 'Outreach Agent', 'CRM Agent', 'Proposal Agent'].map(
-                        (agent) => (
-                          <div
-                            key={agent}
-                            className="flex items-center gap-2 rounded-lg border border-slate-700/30 bg-slate-800/40 px-3 py-2 text-sm text-slate-300"
-                          >
-                            <Bot className="h-4 w-4 text-blue-400" />
-                            {agent}
-                          </div>
-                        ),
-                      )}
+                      {[
+                        'Research Agent (Gemini)',
+                        'Opportunity Agent',
+                        'Outreach Agent',
+                        'CRM Agent',
+                        'Proposal Agent',
+                      ].map((agent) => (
+                        <div
+                          key={agent}
+                          className="flex items-center gap-2 rounded-lg border border-slate-700/30 bg-slate-800/40 px-3 py-2 text-sm text-slate-300"
+                        >
+                          <Bot className="h-4 w-4 text-blue-400" />
+                          {agent}
+                        </div>
+                      ))}
                     </div>
                   </div>
                   <div className="space-y-4">
@@ -709,18 +771,16 @@ export default function DemoModePage() {
     return (
       <div className="relative min-h-screen bg-slate-950">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/5 blur-[120px]" />
+          <div className="absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/5 blur-[120px]" />
         </div>
         <div className="relative mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center px-6 py-20 text-center">
           <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/20">
             <Trophy className="h-10 w-10 text-emerald-400" />
           </div>
-          <h1 className="mb-4 text-5xl font-bold text-white md:text-6xl">
-            Demo Complete!
-          </h1>
+          <h1 className="mb-4 text-5xl font-bold text-white md:text-6xl">Demo Complete!</h1>
           <p className="mb-4 max-w-xl text-lg text-slate-400">
-            You have experienced the full power of the Autonomous Sales Intelligence Platform.
-            Every step was executed by AI agents powered by Google&apos;s Gemini and cloud infrastructure.
+            You have experienced the full power of the Autonomous Sales Intelligence Platform. Every
+            step was executed by AI agents powered by Google&apos;s Gemini and cloud infrastructure.
           </p>
           <div className="mb-10 grid gap-4 sm:grid-cols-3">
             {[
@@ -754,12 +814,12 @@ export default function DemoModePage() {
   return (
     <div className="min-h-screen bg-slate-950">
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -left-40 top-1/4 h-[400px] w-[400px] rounded-full bg-blue-500/3 blur-[100px]" />
-        <div className="absolute -right-40 top-3/4 h-[400px] w-[400px] rounded-full bg-violet-500/3 blur-[100px]" />
+        <div className="absolute top-1/4 -left-40 h-[400px] w-[400px] rounded-full bg-blue-500/3 blur-[100px]" />
+        <div className="absolute top-3/4 -right-40 h-[400px] w-[400px] rounded-full bg-violet-500/3 blur-[100px]" />
       </div>
 
       {/* Mobile nav toggle */}
-      <div className="fixed bottom-6 right-6 z-50 md:hidden">
+      <div className="fixed right-6 bottom-6 z-50 md:hidden">
         <button
           onClick={() => setMobileNavOpen(!mobileNavOpen)}
           className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-violet-600 text-white shadow-2xl shadow-blue-500/30 transition-all duration-300 hover:scale-110"
@@ -807,7 +867,9 @@ export default function DemoModePage() {
                         <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-slate-600'}`} />
                       )}
                     </div>
-                    <span className={`font-semibold ${isActive ? 'text-white' : isDone ? 'text-emerald-300' : 'text-slate-500'}`}>
+                    <span
+                      className={`font-semibold ${isActive ? 'text-white' : isDone ? 'text-emerald-300' : 'text-slate-500'}`}
+                    >
                       {step.title}
                     </span>
                   </button>
@@ -839,7 +901,7 @@ export default function DemoModePage() {
                   onChange={(e) => setAutoAdvance(e.target.checked)}
                   className="peer sr-only"
                 />
-                <div className="h-5 w-9 rounded-full bg-slate-700 after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-slate-300 after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-4" />
+                <div className="h-5 w-9 rounded-full bg-slate-700 peer-checked:bg-blue-600 after:absolute after:top-[2px] after:left-[2px] after:h-4 after:w-4 after:rounded-full after:bg-slate-300 after:transition-all after:content-[''] peer-checked:after:translate-x-4" />
               </div>
               <span className="text-xs text-slate-400">Auto-advance</span>
             </label>
@@ -860,7 +922,7 @@ export default function DemoModePage() {
         <div className="flex gap-8">
           {/* Left sidebar - step navigation (desktop) */}
           <div className="hidden w-72 shrink-0 space-y-3 md:block">
-            <div className="mb-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <div className="mb-4 text-xs font-semibold tracking-wider text-slate-500 uppercase">
               Demo Steps
             </div>
             {DEMO_STEPS.map((step, i) => (
@@ -962,7 +1024,9 @@ export default function DemoModePage() {
               </div>
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-3">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-blue-400">Multi-Agent System</h4>
+                  <h4 className="text-xs font-semibold tracking-wider text-blue-400 uppercase">
+                    Multi-Agent System
+                  </h4>
                   <div className="space-y-2">
                     {[
                       { name: 'Research Agent', role: 'Company intelligence & data gathering' },
@@ -982,7 +1046,9 @@ export default function DemoModePage() {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-emerald-400">Data Flow</h4>
+                  <h4 className="text-xs font-semibold tracking-wider text-emerald-400 uppercase">
+                    Data Flow
+                  </h4>
                   <div className="space-y-3">
                     {[
                       { from: 'User Input', to: 'Research Agent', via: 'HTTP / Cloud Run' },
@@ -992,9 +1058,13 @@ export default function DemoModePage() {
                       { from: 'CRM Agent', to: 'Proposal Agent', via: 'Event trigger' },
                     ].map((flow, i) => (
                       <div key={i} className="flex items-center gap-2 text-xs text-slate-400">
-                        <span className="rounded bg-slate-800 px-2 py-0.5 font-medium text-slate-300">{flow.from}</span>
+                        <span className="rounded bg-slate-800 px-2 py-0.5 font-medium text-slate-300">
+                          {flow.from}
+                        </span>
                         <ChevronRight className="h-3 w-3 shrink-0 text-slate-600" />
-                        <span className="rounded bg-slate-800 px-2 py-0.5 font-medium text-slate-300">{flow.to}</span>
+                        <span className="rounded bg-slate-800 px-2 py-0.5 font-medium text-slate-300">
+                          {flow.to}
+                        </span>
                         <span className="text-slate-600">({flow.via})</span>
                       </div>
                     ))}

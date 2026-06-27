@@ -5,9 +5,28 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { TopBar } from '@/components/top-bar';
 import {
-  LayoutDashboard, Users, Search, Mail, Database, FileText, Settings as SettingsIcon,
-  Bot, Menu, X, Lightbulb, Brain, Cpu, ShieldCheck,
-  Zap, Target, BarChart3, Radio, History, Play, Network, Presentation,
+  LayoutDashboard,
+  Users,
+  Search,
+  Mail,
+  Database,
+  FileText,
+  Settings as SettingsIcon,
+  Bot,
+  Menu,
+  X,
+  Lightbulb,
+  Brain,
+  Cpu,
+  ShieldCheck,
+  Zap,
+  Target,
+  BarChart3,
+  Radio,
+  History,
+  Play,
+  Network,
+  Presentation,
 } from 'lucide-react';
 
 interface NavItem {
@@ -72,14 +91,21 @@ export function NavigationShell({ children }: { children: React.ReactNode }) {
                   <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
                   <span className="flex-1">{item.label}</span>
                   {item.badge && (
-                    <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded ${
-                      item.badge === 'WOW' ? 'bg-yellow-500 text-yellow-950' :
-                      item.badge === 'NEW' ? 'bg-emerald-500 text-emerald-950' :
-                      item.badge === 'AI' ? 'bg-indigo-500 text-indigo-950' :
-                      item.badge === 'DEMO' ? 'bg-rose-500 text-rose-950' :
-                      item.badge === 'LIVE' ? 'bg-cyan-500 text-cyan-950' :
-                      'bg-slate-600 text-slate-200'
-                    }`}>
+                    <span
+                      className={`rounded px-1.5 py-0.5 text-[8px] font-bold ${
+                        item.badge === 'WOW'
+                          ? 'bg-yellow-500 text-yellow-950'
+                          : item.badge === 'NEW'
+                            ? 'bg-emerald-500 text-emerald-950'
+                            : item.badge === 'AI'
+                              ? 'bg-indigo-500 text-indigo-950'
+                              : item.badge === 'DEMO'
+                                ? 'bg-rose-500 text-rose-950'
+                                : item.badge === 'LIVE'
+                                  ? 'bg-cyan-500 text-cyan-950'
+                                  : 'bg-slate-600 text-slate-200'
+                      }`}
+                    >
                       {item.badge}
                     </span>
                   )}
@@ -154,14 +180,21 @@ export function NavigationShell({ children }: { children: React.ReactNode }) {
                         <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
                         <span className="flex-1">{item.label}</span>
                         {item.badge && (
-                          <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded ${
-                            item.badge === 'WOW' ? 'bg-yellow-500 text-yellow-950' :
-                            item.badge === 'NEW' ? 'bg-emerald-500 text-emerald-950' :
-                            item.badge === 'AI' ? 'bg-indigo-500 text-indigo-950' :
-                            item.badge === 'DEMO' ? 'bg-rose-500 text-rose-950' :
-                            item.badge === 'LIVE' ? 'bg-cyan-500 text-cyan-950' :
-                            'bg-slate-600 text-slate-200'
-                          }`}>
+                          <span
+                            className={`rounded px-1.5 py-0.5 text-[8px] font-bold ${
+                              item.badge === 'WOW'
+                                ? 'bg-yellow-500 text-yellow-950'
+                                : item.badge === 'NEW'
+                                  ? 'bg-emerald-500 text-emerald-950'
+                                  : item.badge === 'AI'
+                                    ? 'bg-indigo-500 text-indigo-950'
+                                    : item.badge === 'DEMO'
+                                      ? 'bg-rose-500 text-rose-950'
+                                      : item.badge === 'LIVE'
+                                        ? 'bg-cyan-500 text-cyan-950'
+                                        : 'bg-slate-600 text-slate-200'
+                            }`}
+                          >
                             {item.badge}
                           </span>
                         )}
