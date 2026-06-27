@@ -56,9 +56,24 @@ const timelineData: TimelineRun[] = [
     opportunityScore: 87,
     previousScore: 72,
     agents: [
-      { agent: 'Research', duration: '4m 12s', status: 'success', insights: ['Identified 3 key decision makers', 'Mapped org structure'] },
-      { agent: 'Opportunity', duration: '3m 08s', status: 'success', insights: ['Scored 87/100 overall fit', 'High intent signal detected'] },
-      { agent: 'Outreach', duration: '5m 14s', status: 'success', insights: ['Generated 4 email variants', 'A/B test ready'] },
+      {
+        agent: 'Research',
+        duration: '4m 12s',
+        status: 'success',
+        insights: ['Identified 3 key decision makers', 'Mapped org structure'],
+      },
+      {
+        agent: 'Opportunity',
+        duration: '3m 08s',
+        status: 'success',
+        insights: ['Scored 87/100 overall fit', 'High intent signal detected'],
+      },
+      {
+        agent: 'Outreach',
+        duration: '5m 14s',
+        status: 'success',
+        insights: ['Generated 4 email variants', 'A/B test ready'],
+      },
     ],
     insights: ['Strong product-market fit', 'Budget allocated for Q3', 'Competitor弱点 identified'],
     outreachMessage: 'Personalized cold outreach with case studies referencing their stack',
@@ -72,9 +87,24 @@ const timelineData: TimelineRun[] = [
     opportunityScore: 72,
     previousScore: 58,
     agents: [
-      { agent: 'Research', duration: '5m 01s', status: 'success', insights: ['Basic company profile', 'Industry overview'] },
-      { agent: 'Opportunity', duration: '4m 30s', status: 'success', insights: ['Scored 72/100', 'Moderate fit'] },
-      { agent: 'Outreach', duration: '5m 51s', status: 'success', insights: ['2 email drafts created'] },
+      {
+        agent: 'Research',
+        duration: '5m 01s',
+        status: 'success',
+        insights: ['Basic company profile', 'Industry overview'],
+      },
+      {
+        agent: 'Opportunity',
+        duration: '4m 30s',
+        status: 'success',
+        insights: ['Scored 72/100', 'Moderate fit'],
+      },
+      {
+        agent: 'Outreach',
+        duration: '5m 51s',
+        status: 'success',
+        insights: ['2 email drafts created'],
+      },
     ],
     insights: ['Mid-size account with growth potential', 'No direct competitor engagement yet'],
     outreachMessage: 'Generic outreach highlighting platform benefits',
@@ -87,8 +117,18 @@ const timelineData: TimelineRun[] = [
     status: 'success',
     opportunityScore: 58,
     agents: [
-      { agent: 'Research', duration: '6m 20s', status: 'success', insights: ['Domain verified', 'Tech stack detected'] },
-      { agent: 'Opportunity', duration: '7m 10s', status: 'success', insights: ['Scored 58/100', 'Early stage exploration'] },
+      {
+        agent: 'Research',
+        duration: '6m 20s',
+        status: 'success',
+        insights: ['Domain verified', 'Tech stack detected'],
+      },
+      {
+        agent: 'Opportunity',
+        duration: '7m 10s',
+        status: 'success',
+        insights: ['Scored 58/100', 'Early stage exploration'],
+      },
       { agent: 'Outreach', duration: '5m 15s', status: 'success', insights: ['1 draft generated'] },
     ],
     insights: ['Initial contact established', 'Exploring use cases'],
@@ -103,9 +143,24 @@ const timelineData: TimelineRun[] = [
     opportunityScore: 94,
     previousScore: 85,
     agents: [
-      { agent: 'Research', duration: '2m 45s', status: 'success', insights: ['Comprehensive profile already exists', 'Updated recent news'] },
-      { agent: 'Opportunity', duration: '2m 50s', status: 'success', insights: ['Scored 94/100', 'Renewal opportunity window'] },
-      { agent: 'Outreach', duration: '2m 37s', status: 'success', insights: ['5 personalized variants', 'Timing optimized'] },
+      {
+        agent: 'Research',
+        duration: '2m 45s',
+        status: 'success',
+        insights: ['Comprehensive profile already exists', 'Updated recent news'],
+      },
+      {
+        agent: 'Opportunity',
+        duration: '2m 50s',
+        status: 'success',
+        insights: ['Scored 94/100', 'Renewal opportunity window'],
+      },
+      {
+        agent: 'Outreach',
+        duration: '2m 37s',
+        status: 'success',
+        insights: ['5 personalized variants', 'Timing optimized'],
+      },
     ],
     insights: ['Existing customer - expansion opportunity', 'New department budget approved'],
     outreachMessage: 'Executive summary with ROI calculator personalized by department',
@@ -118,9 +173,24 @@ const timelineData: TimelineRun[] = [
     status: 'success',
     opportunityScore: 85,
     agents: [
-      { agent: 'Research', duration: '3m 20s', status: 'success', insights: ['Updated org changes', 'New leadership identified'] },
-      { agent: 'Opportunity', duration: '3m 45s', status: 'success', insights: ['Scored 85/100', 'Expansion signals strong'] },
-      { agent: 'Outreach', duration: '3m 25s', status: 'success', insights: ['3 variants generated'] },
+      {
+        agent: 'Research',
+        duration: '3m 20s',
+        status: 'success',
+        insights: ['Updated org changes', 'New leadership identified'],
+      },
+      {
+        agent: 'Opportunity',
+        duration: '3m 45s',
+        status: 'success',
+        insights: ['Scored 85/100', 'Expansion signals strong'],
+      },
+      {
+        agent: 'Outreach',
+        duration: '3m 25s',
+        status: 'success',
+        insights: ['3 variants generated'],
+      },
     ],
     insights: ['Usage metrics show 40% underutilization', 'Upsell opportunity in adjacent product'],
     outreachMessage: 'Product expansion pitch focused on underutilized features',
@@ -133,8 +203,18 @@ const timelineData: TimelineRun[] = [
     status: 'failed',
     opportunityScore: 0,
     agents: [
-      { agent: 'Research', duration: '2m 10s', status: 'success', insights: ['Basic info retrieved'] },
-      { agent: 'Opportunity', duration: '3m 08s', status: 'failed', insights: ['API rate limit exceeded'] },
+      {
+        agent: 'Research',
+        duration: '2m 10s',
+        status: 'success',
+        insights: ['Basic info retrieved'],
+      },
+      {
+        agent: 'Opportunity',
+        duration: '3m 08s',
+        status: 'failed',
+        insights: ['API rate limit exceeded'],
+      },
     ],
     insights: ['Partial data collected - retry recommended'],
   },
@@ -146,8 +226,18 @@ const timelineData: TimelineRun[] = [
     status: 'running',
     opportunityScore: 0,
     agents: [
-      { agent: 'Research', duration: '8m 30s', status: 'success', insights: ['Deep research completed', 'Competitor landscape mapped'] },
-      { agent: 'Opportunity', duration: '13m 44s', status: 'success', insights: ['Scoring in progress...'] },
+      {
+        agent: 'Research',
+        duration: '8m 30s',
+        status: 'success',
+        insights: ['Deep research completed', 'Competitor landscape mapped'],
+      },
+      {
+        agent: 'Opportunity',
+        duration: '13m 44s',
+        status: 'success',
+        insights: ['Scoring in progress...'],
+      },
     ],
     insights: ['Complex enterprise evaluation underway'],
   },
@@ -185,8 +275,8 @@ function ScoreDiff({ current, previous }: { current: number; previous?: number }
     <span
       className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
         improved
-          ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/50'
-          : 'bg-rose-950/60 text-rose-400 border border-rose-800/50'
+          ? 'border border-emerald-800/50 bg-emerald-950/60 text-emerald-400'
+          : 'border border-rose-800/50 bg-rose-950/60 text-rose-400'
       }`}
     >
       <TrendingUp className={`h-3 w-3 ${improved ? '' : 'rotate-180'}`} />
@@ -223,19 +313,19 @@ export default function MemoryTimeMachinePage() {
             Memory Time Machine
           </h1>
           <p className="mt-2 text-sm text-slate-400">
-            Trace workflow history, compare knowledge evolution, and watch opportunity scores improve
-            over time.
+            Trace workflow history, compare knowledge evolution, and watch opportunity scores
+            improve over time.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               placeholder="Search companies or insights..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-56 rounded-xl border border-slate-800 bg-slate-950 py-2 pl-9 pr-3 text-sm text-slate-200 placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
+              className="w-56 rounded-xl border border-slate-800 bg-slate-950 py-2 pr-3 pl-9 text-sm text-slate-200 placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
             />
           </div>
           <button className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-semibold text-slate-200 transition-all duration-200 hover:bg-slate-700">
@@ -299,7 +389,7 @@ export default function MemoryTimeMachinePage() {
       {/* Main Timeline */}
       <div className="relative">
         {/* Vertical Timeline Line */}
-        <div className="absolute left-[19px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-indigo-500/60 via-slate-700/40 to-slate-800/20" />
+        <div className="absolute top-0 bottom-0 left-[19px] w-0.5 bg-gradient-to-b from-indigo-500/60 via-slate-700/40 to-slate-800/20" />
 
         <div className="space-y-10">
           {filteredMonths.map(({ month, runs }) => (
@@ -330,7 +420,7 @@ export default function MemoryTimeMachinePage() {
                     }`}
                   >
                     {/* Timeline dot connector */}
-                    <div className="absolute -left-[3.15rem] top-7 h-3.5 w-3.5 rounded-full border-2 border-slate-700 bg-slate-900 transition-colors group-hover:border-indigo-500" />
+                    <div className="absolute top-7 -left-[3.15rem] h-3.5 w-3.5 rounded-full border-2 border-slate-700 bg-slate-900 transition-colors group-hover:border-indigo-500" />
 
                     {/* Run Header */}
                     <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
@@ -420,7 +510,9 @@ export default function MemoryTimeMachinePage() {
                       <div className="mt-3 flex items-center gap-2 rounded-lg border border-indigo-900/30 bg-indigo-950/20 px-3 py-2">
                         <BarChart3 className="h-4 w-4 text-indigo-400" />
                         <span className="text-[11px] text-slate-300">
-                          <strong className="text-indigo-300">+{run.opportunityScore - run.previousScore}pt score increase</strong>{' '}
+                          <strong className="text-indigo-300">
+                            +{run.opportunityScore - run.previousScore}pt score increase
+                          </strong>{' '}
                           from previous run — outreach strategy improved
                         </span>
                       </div>
@@ -471,7 +563,7 @@ export default function MemoryTimeMachinePage() {
             </div>
 
             {/* Body */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 space-y-6 overflow-y-auto p-6">
               {/* Status & Duration */}
               <div className="flex items-center gap-4">
                 {selectedRun.status === 'success' && (
@@ -530,7 +622,9 @@ export default function MemoryTimeMachinePage() {
                       <TrendingUp className="h-4 w-4" />
                       <span>
                         Improved by{' '}
-                        <strong>{selectedRun.opportunityScore - selectedRun.previousScore} points</strong>{' '}
+                        <strong>
+                          {selectedRun.opportunityScore - selectedRun.previousScore} points
+                        </strong>{' '}
                         from previous run
                       </span>
                     </div>
@@ -603,12 +697,12 @@ export default function MemoryTimeMachinePage() {
                     <MessageSquare className="h-4 w-4 text-indigo-400" /> Outreach Strategy
                   </h4>
                   <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
-                    <div className="text-xs text-slate-300 leading-relaxed">
+                    <div className="text-xs leading-relaxed text-slate-300">
                       {selectedRun.outreachMessage}
                     </div>
                     {selectedRun.previousOutreach && (
                       <div className="mt-3 border-t border-slate-800 pt-3">
-                        <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">
+                        <span className="text-[10px] font-semibold tracking-wide text-slate-500 uppercase">
                           Previous Strategy
                         </span>
                         <p className="mt-1 text-xs text-slate-500 line-through">
@@ -626,7 +720,7 @@ export default function MemoryTimeMachinePage() {
                   <h4 className="mb-2 flex items-center gap-2 text-sm font-bold text-indigo-300">
                     <ArrowUpRight className="h-4 w-4" /> Knowledge Evolution
                   </h4>
-                  <p className="text-xs text-slate-400 leading-relaxed">
+                  <p className="text-xs leading-relaxed text-slate-400">
                     Compared to the previous run, the system gained{' '}
                     <strong className="text-indigo-300">
                       {selectedRun.insights.length} new insights

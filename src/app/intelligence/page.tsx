@@ -39,11 +39,41 @@ interface AgentKnowledge {
 }
 
 const AGENT_KNOWLEDGE: AgentKnowledge[] = [
-  { id: 'research', name: 'Research', icon: Globe, description: 'Market intelligence & competitor analysis', color: 'from-cyan-500 to-blue-600' },
-  { id: 'opportunity', name: 'Opportunity', icon: Target, description: 'Lead scoring & pipeline insights', color: 'from-violet-500 to-purple-600' },
-  { id: 'outreach', name: 'Outreach', icon: Mail, description: 'Engagement & conversion patterns', color: 'from-pink-500 to-rose-600' },
-  { id: 'crm', name: 'CRM', icon: Database, description: 'Historical deal & customer data', color: 'from-amber-500 to-orange-600' },
-  { id: 'proposal', name: 'Proposal', icon: FileText, description: 'Past proposals & win/loss analysis', color: 'from-emerald-500 to-teal-600' },
+  {
+    id: 'research',
+    name: 'Research',
+    icon: Globe,
+    description: 'Market intelligence & competitor analysis',
+    color: 'from-cyan-500 to-blue-600',
+  },
+  {
+    id: 'opportunity',
+    name: 'Opportunity',
+    icon: Target,
+    description: 'Lead scoring & pipeline insights',
+    color: 'from-violet-500 to-purple-600',
+  },
+  {
+    id: 'outreach',
+    name: 'Outreach',
+    icon: Mail,
+    description: 'Engagement & conversion patterns',
+    color: 'from-pink-500 to-rose-600',
+  },
+  {
+    id: 'crm',
+    name: 'CRM',
+    icon: Database,
+    description: 'Historical deal & customer data',
+    color: 'from-amber-500 to-orange-600',
+  },
+  {
+    id: 'proposal',
+    name: 'Proposal',
+    icon: FileText,
+    description: 'Past proposals & win/loss analysis',
+    color: 'from-emerald-500 to-teal-600',
+  },
 ];
 
 const SUGGESTED_QUESTIONS = [
@@ -113,7 +143,9 @@ function TypingIndicator() {
       <div className="flex-1">
         <div className="mb-1 flex items-center gap-2">
           <span className="text-sm font-semibold text-slate-200">Executive Copilot</span>
-          <span className="rounded-full bg-indigo-500/10 px-2 py-0.5 text-[10px] font-medium text-indigo-400">AI</span>
+          <span className="rounded-full bg-indigo-500/10 px-2 py-0.5 text-[10px] font-medium text-indigo-400">
+            AI
+          </span>
         </div>
         <div className="flex items-center gap-2 rounded-2xl rounded-tl-sm border border-slate-800/50 bg-slate-900/60 px-5 py-4 backdrop-blur-sm">
           <Loader2 className="h-4 w-4 animate-spin text-indigo-400" />
@@ -167,10 +199,11 @@ function MarkdownRenderer({ content }: { content: string }) {
   const flushTable = (key: string) => {
     if (tableRows.length > 0) {
       elements.push(
-        <div key={key} className="my-4 overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/40">
-          <table className="w-full text-left text-sm">
-            {tableRows}
-          </table>
+        <div
+          key={key}
+          className="my-4 overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/40"
+        >
+          <table className="w-full text-left text-sm">{tableRows}</table>
         </div>,
       );
       tableRows = [];
@@ -187,7 +220,10 @@ function MarkdownRenderer({ content }: { content: string }) {
     if (trimmed.startsWith('```')) {
       if (inCodeBlock) {
         elements.push(
-          <pre key={key} className="my-3 overflow-x-auto rounded-xl border border-slate-800 bg-slate-950 p-4 font-mono text-sm text-slate-300">
+          <pre
+            key={key}
+            className="my-3 overflow-x-auto rounded-xl border border-slate-800 bg-slate-950 p-4 font-mono text-sm text-slate-300"
+          >
             {codeBlockContent.join('\n')}
           </pre>,
         );
@@ -209,17 +245,23 @@ function MarkdownRenderer({ content }: { content: string }) {
         return;
       }
       inTable = true;
-      const cells = trimmed.split('|').filter(Boolean).map((c) => c.trim());
+      const cells = trimmed
+        .split('|')
+        .filter(Boolean)
+        .map((c) => c.trim());
       const isHeader = tableRows.length === 0;
       const RowTag = isHeader ? 'thead' : 'tr';
       const CellTag = isHeader ? 'th' : 'td';
       tableRows.push(
-        <RowTag key={`table-row-${i}`} className={isHeader ? 'border-b border-slate-800' : 'border-b border-slate-800/50'}>
+        <RowTag
+          key={`table-row-${i}`}
+          className={isHeader ? 'border-b border-slate-800' : 'border-b border-slate-800/50'}
+        >
           <tr>
             {cells.map((cell, ci) => (
               <CellTag
                 key={`cell-${ci}`}
-                className={`px-4 py-3 text-xs ${isHeader ? 'font-semibold text-slate-400 uppercase tracking-wider' : 'text-slate-300'}`}
+                className={`px-4 py-3 text-xs ${isHeader ? 'font-semibold tracking-wider text-slate-400 uppercase' : 'text-slate-300'}`}
               >
                 {cell}
               </CellTag>
@@ -279,19 +321,22 @@ function MarkdownRenderer({ content }: { content: string }) {
 
     if (trimmed.startsWith('### ')) {
       elements.push(
-        <h3 key={key} className="mb-2 mt-6 text-base font-semibold text-white">
+        <h3 key={key} className="mt-6 mb-2 text-base font-semibold text-white">
           {renderInlineMarkdown(trimmed.replace('### ', ''))}
         </h3>,
       );
     } else if (trimmed.startsWith('## ')) {
       elements.push(
-        <h2 key={key} className="mb-3 mt-7 text-lg font-bold text-white">
+        <h2 key={key} className="mt-7 mb-3 text-lg font-bold text-white">
           {renderInlineMarkdown(trimmed.replace('## ', ''))}
         </h2>,
       );
     } else if (trimmed.startsWith('> ')) {
       elements.push(
-        <blockquote key={key} className="my-4 border-l-2 border-indigo-500 bg-gradient-to-r from-indigo-500/5 to-transparent py-3 pl-5 pr-4 text-sm italic leading-relaxed text-slate-300">
+        <blockquote
+          key={key}
+          className="my-4 border-l-2 border-indigo-500 bg-gradient-to-r from-indigo-500/5 to-transparent py-3 pr-4 pl-5 text-sm leading-relaxed text-slate-300 italic"
+        >
           {renderInlineMarkdown(trimmed.replace('> ', ''))}
         </blockquote>,
       );
@@ -308,7 +353,10 @@ function MarkdownRenderer({ content }: { content: string }) {
 
   if (inCodeBlock && codeBlockContent.length > 0) {
     elements.push(
-      <pre key="code-end" className="my-3 overflow-x-auto rounded-xl border border-slate-800 bg-slate-950 p-4 font-mono text-sm text-slate-300">
+      <pre
+        key="code-end"
+        className="my-3 overflow-x-auto rounded-xl border border-slate-800 bg-slate-950 p-4 font-mono text-sm text-slate-300"
+      >
         {codeBlockContent.join('\n')}
       </pre>,
     );
@@ -327,10 +375,21 @@ function renderInlineMarkdown(text: string): React.ReactNode {
   const parts = text.split(/(\*\*.*?\*\*|`.*?`)/g);
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={i} className="font-semibold text-white">{part.slice(2, -2)}</strong>;
+      return (
+        <strong key={i} className="font-semibold text-white">
+          {part.slice(2, -2)}
+        </strong>
+      );
     }
     if (part.startsWith('`') && part.endsWith('`')) {
-      return <code key={i} className="rounded-md bg-slate-800 px-1.5 py-0.5 font-mono text-xs text-indigo-300">{part.slice(1, -1)}</code>;
+      return (
+        <code
+          key={i}
+          className="rounded-md bg-slate-800 px-1.5 py-0.5 font-mono text-xs text-indigo-300"
+        >
+          {part.slice(1, -1)}
+        </code>
+      );
     }
     return part;
   });
@@ -430,16 +489,18 @@ export default function ExecutiveCopilot() {
         {/* Main Chat Area */}
         <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/40 backdrop-blur-sm">
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-track-slate-900 scrollbar-thumb-slate-800">
+          <div className="flex-1 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-slate-900 overflow-y-auto p-4">
             {messages.length === 0 && !isLoading ? (
               <div className="flex h-full flex-col items-center justify-center px-4 text-center">
                 <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-pink-500/20">
                   <Bot className="h-10 w-10 text-indigo-400" />
                 </div>
-                <h2 className="mb-2 text-xl font-bold text-white">What's your strategic question?</h2>
+                <h2 className="mb-2 text-xl font-bold text-white">
+                  What's your strategic question?
+                </h2>
                 <p className="mb-8 max-w-md text-sm text-slate-400">
-                  Ask me about market opportunities, competitive strategy, revenue optimization, or any
-                  business challenge you're facing.
+                  Ask me about market opportunities, competitive strategy, revenue optimization, or
+                  any business challenge you're facing.
                 </p>
                 <div className="grid w-full max-w-lg gap-2 sm:grid-cols-2">
                   {SUGGESTED_QUESTIONS.map((q, i) => (
@@ -513,7 +574,7 @@ export default function ExecutiveCopilot() {
                   onKeyDown={handleKeyDown}
                   placeholder="Ask a strategic question... (e.g., 'Should we target Stripe?')"
                   rows={1}
-                  className="w-full resize-none rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 pr-12 text-sm text-slate-200 placeholder-slate-500 backdrop-blur-sm transition-all focus:border-indigo-500/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/20"
+                  className="w-full resize-none rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 pr-12 text-sm text-slate-200 placeholder-slate-500 backdrop-blur-sm transition-all focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 focus:outline-none"
                   style={{ minHeight: '44px', maxHeight: '120px' }}
                   onInput={(e) => {
                     const target = e.currentTarget;
@@ -521,7 +582,7 @@ export default function ExecutiveCopilot() {
                     target.style.height = `${Math.min(target.scrollHeight, 120)}px`;
                   }}
                 />
-                <div className="absolute bottom-3 right-3 flex items-center gap-1.5">
+                <div className="absolute right-3 bottom-3 flex items-center gap-1.5">
                   <span className="text-[10px] text-slate-600">⏎ Send</span>
                 </div>
               </div>
@@ -576,16 +637,22 @@ export default function ExecutiveCopilot() {
               <div className="mt-6 rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-4">
                 <div className="mb-2 flex items-center gap-2">
                   <BarChart3 className="h-4 w-4 text-indigo-400" />
-                  <span className="text-xs font-semibold text-indigo-300">Session Intelligence</span>
+                  <span className="text-xs font-semibold text-indigo-300">
+                    Session Intelligence
+                  </span>
                 </div>
                 <div className="space-y-2 text-xs text-slate-400">
                   <div className="flex justify-between">
                     <span>Questions asked</span>
-                    <span className="font-mono text-indigo-300">{messages.filter((m) => m.role === 'user').length}</span>
+                    <span className="font-mono text-indigo-300">
+                      {messages.filter((m) => m.role === 'user').length}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Insights generated</span>
-                    <span className="font-mono text-indigo-300">{messages.filter((m) => m.role === 'assistant').length}</span>
+                    <span className="font-mono text-indigo-300">
+                      {messages.filter((m) => m.role === 'assistant').length}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Knowledge domains</span>

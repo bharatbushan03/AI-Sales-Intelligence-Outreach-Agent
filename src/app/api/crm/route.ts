@@ -23,7 +23,7 @@ export const GET = withAuth(async (req, { user }) => {
     const userId = user.uid;
     // Note: In a real implementation, we might filter results by user/tenant
     // For now, returning all data as the security is handled at the Firestore level
-    
+
     try {
       const searchParams = req.nextUrl.searchParams;
       const type = searchParams.get('type') || 'all';
@@ -81,7 +81,7 @@ export const GET = withAuth(async (req, { user }) => {
 export const POST = withAuth(async (req, { user }) => {
   try {
     const userId = user.uid;
-    
+
     const body = await req.json();
     const action = body.action || 'LOG_WORKFLOW_RUN';
 

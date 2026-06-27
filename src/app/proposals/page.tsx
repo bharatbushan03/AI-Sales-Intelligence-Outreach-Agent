@@ -21,12 +21,37 @@ import {
 } from 'lucide-react';
 
 const SLIDE_DEFINITIONS = [
-  { id: 'ceo-briefing', icon: Presentation, label: 'CEO Briefing', color: 'from-indigo-500 to-purple-600' },
-  { id: 'market-position', icon: BarChart3, label: 'Market Position', color: 'from-blue-500 to-cyan-600' },
+  {
+    id: 'ceo-briefing',
+    icon: Presentation,
+    label: 'CEO Briefing',
+    color: 'from-indigo-500 to-purple-600',
+  },
+  {
+    id: 'market-position',
+    icon: BarChart3,
+    label: 'Market Position',
+    color: 'from-blue-500 to-cyan-600',
+  },
   { id: 'key-risks', icon: Shield, label: 'Key Risks', color: 'from-amber-500 to-orange-600' },
-  { id: 'revenue-opportunities', icon: DollarSign, label: 'Revenue Opportunities', color: 'from-emerald-500 to-teal-600' },
-  { id: 'growth-strategy', icon: Rocket, label: 'Growth Strategy', color: 'from-violet-500 to-purple-600' },
-  { id: 'proposal-summary', icon: ClipboardCheck, label: 'Proposal Summary', color: 'from-rose-500 to-pink-600' },
+  {
+    id: 'revenue-opportunities',
+    icon: DollarSign,
+    label: 'Revenue Opportunities',
+    color: 'from-emerald-500 to-teal-600',
+  },
+  {
+    id: 'growth-strategy',
+    icon: Rocket,
+    label: 'Growth Strategy',
+    color: 'from-violet-500 to-purple-600',
+  },
+  {
+    id: 'proposal-summary',
+    icon: ClipboardCheck,
+    label: 'Proposal Summary',
+    color: 'from-rose-500 to-pink-600',
+  },
 ];
 
 const SLIDE_COUNT = SLIDE_DEFINITIONS.length;
@@ -108,13 +133,21 @@ export default function BoardroomMode() {
             </div>
             <div className="grid gap-4 md:grid-cols-3">
               {[
-                { label: 'Revenue Growth', value: '+18% YoY', icon: TrendingUp, color: 'text-emerald-400' },
+                {
+                  label: 'Revenue Growth',
+                  value: '+18% YoY',
+                  icon: TrendingUp,
+                  color: 'text-emerald-400',
+                },
                 { label: 'Market Share', value: '15-18%', icon: Target, color: 'text-blue-400' },
                 { label: 'Team Score', value: '92/100', icon: Users, color: 'text-purple-400' },
               ].map((stat) => {
                 const StatIcon = stat.icon;
                 return (
-                  <div key={stat.label} className="rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+                  <div
+                    key={stat.label}
+                    className="rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm"
+                  >
                     <StatIcon className={`mb-2 h-5 w-5 ${stat.color}`} />
                     <div className="text-xs font-medium text-slate-400">{stat.label}</div>
                     <div className="text-lg font-bold text-white">{stat.value}</div>
@@ -132,14 +165,32 @@ export default function BoardroomMode() {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               {[
-                { label: 'Competitive Advantage', value: 'Technology Leadership', icon: Lightbulb, color: 'text-cyan-400' },
-                { label: 'Market Segment', value: 'Enterprise B2B', icon: Target, color: 'text-indigo-400' },
-                { label: 'Growth Rate', value: '22% CAGR', icon: TrendingUp, color: 'text-emerald-400' },
+                {
+                  label: 'Competitive Advantage',
+                  value: 'Technology Leadership',
+                  icon: Lightbulb,
+                  color: 'text-cyan-400',
+                },
+                {
+                  label: 'Market Segment',
+                  value: 'Enterprise B2B',
+                  icon: Target,
+                  color: 'text-indigo-400',
+                },
+                {
+                  label: 'Growth Rate',
+                  value: '22% CAGR',
+                  icon: TrendingUp,
+                  color: 'text-emerald-400',
+                },
                 { label: 'Customer NPS', value: '72', icon: Users, color: 'text-blue-400' },
               ].map((item) => {
                 const ItemIcon = item.icon;
                 return (
-                  <div key={item.label} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+                  <div
+                    key={item.label}
+                    className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm"
+                  >
                     <ItemIcon className={`h-8 w-8 ${item.color}`} />
                     <div>
                       <div className="text-xs font-medium text-slate-400">{item.label}</div>
@@ -155,7 +206,10 @@ export default function BoardroomMode() {
         return (
           <div className="space-y-4">
             {data.keyRisks.map((risk, i) => (
-              <div key={i} className="flex items-start gap-4 rounded-xl border border-amber-500/20 bg-amber-500/5 p-5 backdrop-blur-sm transition-all hover:border-amber-500/30">
+              <div
+                key={i}
+                className="flex items-start gap-4 rounded-xl border border-amber-500/20 bg-amber-500/5 p-5 backdrop-blur-sm transition-all hover:border-amber-500/30"
+              >
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-500/10">
                   <span className="text-sm font-bold text-amber-400">{i + 1}</span>
                 </div>
@@ -168,7 +222,10 @@ export default function BoardroomMode() {
         return (
           <div className="space-y-4">
             {data.revenueOpportunities.map((opp, i) => (
-              <div key={i} className="flex items-start gap-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-5 backdrop-blur-sm transition-all hover:border-emerald-500/30">
+              <div
+                key={i}
+                className="flex items-start gap-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-5 backdrop-blur-sm transition-all hover:border-emerald-500/30"
+              >
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/10">
                   <DollarSign className="h-4 w-4 text-emerald-400" />
                 </div>
@@ -186,12 +243,25 @@ export default function BoardroomMode() {
             <div className="grid gap-4 md:grid-cols-3">
               {[
                 { label: 'R&D Investment', value: '$200M', sub: 'Over 24 months', icon: Lightbulb },
-                { label: 'Customer Target', value: '+30%', sub: 'Enterprise acquisition', icon: Users },
-                { label: 'LTV Improvement', value: '+25%', sub: 'Customer lifetime value', icon: TrendingUp },
+                {
+                  label: 'Customer Target',
+                  value: '+30%',
+                  sub: 'Enterprise acquisition',
+                  icon: Users,
+                },
+                {
+                  label: 'LTV Improvement',
+                  value: '+25%',
+                  sub: 'Customer lifetime value',
+                  icon: TrendingUp,
+                },
               ].map((item) => {
                 const ItemIcon = item.icon;
                 return (
-                  <div key={item.label} className="rounded-lg border border-violet-500/20 bg-violet-500/5 p-5 backdrop-blur-sm">
+                  <div
+                    key={item.label}
+                    className="rounded-lg border border-violet-500/20 bg-violet-500/5 p-5 backdrop-blur-sm"
+                  >
                     <ItemIcon className="mb-3 h-6 w-6 text-violet-400" />
                     <div className="text-2xl font-extrabold text-white">{item.value}</div>
                     <div className="mt-1 text-xs font-medium text-slate-400">{item.label}</div>
@@ -211,13 +281,31 @@ export default function BoardroomMode() {
             <div className="grid gap-3 md:grid-cols-2">
               {[
                 { label: 'Projected ROI', value: '3.5x', sub: 'Over 36 months', icon: TrendingUp },
-                { label: 'Confidence Level', value: 'High', sub: 'Based on analysis', icon: Shield },
-                { label: 'Time to Value', value: '6-9 months', sub: 'Implementation phase', icon: Target },
-                { label: 'Strategic Fit', value: 'Strong', sub: 'Portfolio alignment', icon: Lightbulb },
+                {
+                  label: 'Confidence Level',
+                  value: 'High',
+                  sub: 'Based on analysis',
+                  icon: Shield,
+                },
+                {
+                  label: 'Time to Value',
+                  value: '6-9 months',
+                  sub: 'Implementation phase',
+                  icon: Target,
+                },
+                {
+                  label: 'Strategic Fit',
+                  value: 'Strong',
+                  sub: 'Portfolio alignment',
+                  icon: Lightbulb,
+                },
               ].map((item) => {
                 const ItemIcon = item.icon;
                 return (
-                  <div key={item.label} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+                  <div
+                    key={item.label}
+                    className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm"
+                  >
                     <ItemIcon className="h-8 w-8 text-rose-400" />
                     <div>
                       <div className="text-lg font-bold text-white">{item.value}</div>
@@ -263,7 +351,7 @@ export default function BoardroomMode() {
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
                 placeholder="e.g. Acme Corp, TechGlobal Inc."
-                className="flex-1 rounded-xl border border-slate-700 bg-slate-800/50 px-5 py-3 text-sm text-white placeholder-slate-500 backdrop-blur-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="flex-1 rounded-xl border border-slate-700 bg-slate-800/50 px-5 py-3 text-sm text-white placeholder-slate-500 backdrop-blur-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
                 onKeyDown={(e) => e.key === 'Enter' && generateContent()}
               />
               <button
@@ -321,18 +409,20 @@ export default function BoardroomMode() {
           <div className="relative overflow-hidden rounded-2xl border border-slate-700/50 bg-gradient-to-br from-slate-900 via-slate-900/95 to-slate-800/90 p-1 shadow-2xl backdrop-blur-2xl">
             <div className="rounded-xl bg-slate-950/60 p-8 backdrop-blur-xl">
               <div className="mb-8 flex items-center gap-4 border-b border-white/5 pb-6">
-                <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${slideDef.color} shadow-lg`}>
+                <div
+                  className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${slideDef.color} shadow-lg`}
+                >
                   <SlideIcon className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <div className="text-xs font-medium uppercase tracking-widest text-slate-400">
+                  <div className="text-xs font-medium tracking-widest text-slate-400 uppercase">
                     Executive Briefing
                   </div>
                   <h2 className="text-2xl font-bold text-white">{slideDef.label}</h2>
                 </div>
               </div>
 
-              <div key={currentSlide} className="min-h-[320px] animate-fadeIn">
+              <div key={currentSlide} className="animate-fadeIn min-h-[320px]">
                 {renderSlideContent()}
               </div>
 
@@ -351,9 +441,7 @@ export default function BoardroomMode() {
                       key={i}
                       onClick={() => goToSlide(i)}
                       className={`h-2 w-2 rounded-full transition-all ${
-                        i === currentSlide
-                          ? 'w-6 bg-indigo-500'
-                          : 'bg-slate-600 hover:bg-slate-500'
+                        i === currentSlide ? 'w-6 bg-indigo-500' : 'bg-slate-600 hover:bg-slate-500'
                       }`}
                     />
                   ))}

@@ -37,30 +37,151 @@ interface NodePosition {
   y: number;
 }
 
-const NODE_META: Record<NodeType, { label: string; icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>; color: string; stroke: string; glow: string }> = {
-  company: { label: 'Company', icon: Building2, color: '#312e81', stroke: '#6366f1', glow: 'rgba(99,102,241,0.25)' },
-  competitor: { label: 'Competitor', icon: Crosshair, color: '#881337', stroke: '#f43f5e', glow: 'rgba(244,63,94,0.25)' },
-  opportunity: { label: 'Opportunity', icon: TrendingUp, color: '#064e3b', stroke: '#34d399', glow: 'rgba(52,211,153,0.25)' },
-  industry: { label: 'Industry', icon: Briefcase, color: '#3b0764', stroke: '#a78bfa', glow: 'rgba(167,139,250,0.25)' },
-  campaign: { label: 'Campaign', icon: Megaphone, color: '#78350f', stroke: '#fbbf24', glow: 'rgba(251,191,36,0.25)' },
+const NODE_META: Record<
+  NodeType,
+  {
+    label: string;
+    icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+    color: string;
+    stroke: string;
+    glow: string;
+  }
+> = {
+  company: {
+    label: 'Company',
+    icon: Building2,
+    color: '#312e81',
+    stroke: '#6366f1',
+    glow: 'rgba(99,102,241,0.25)',
+  },
+  competitor: {
+    label: 'Competitor',
+    icon: Crosshair,
+    color: '#881337',
+    stroke: '#f43f5e',
+    glow: 'rgba(244,63,94,0.25)',
+  },
+  opportunity: {
+    label: 'Opportunity',
+    icon: TrendingUp,
+    color: '#064e3b',
+    stroke: '#34d399',
+    glow: 'rgba(52,211,153,0.25)',
+  },
+  industry: {
+    label: 'Industry',
+    icon: Briefcase,
+    color: '#3b0764',
+    stroke: '#a78bfa',
+    glow: 'rgba(167,139,250,0.25)',
+  },
+  campaign: {
+    label: 'Campaign',
+    icon: Megaphone,
+    color: '#78350f',
+    stroke: '#fbbf24',
+    glow: 'rgba(251,191,36,0.25)',
+  },
 };
 
 const MOCK_NODES: GraphNode[] = [
-  { id: 'stripe', label: 'Stripe', type: 'company', description: 'Leading payment processing platform handling billions in transactions annually for internet businesses.' },
-  { id: 'hubspot', label: 'HubSpot', type: 'company', description: 'CRM and marketing automation platform for scaling businesses with inbound methodology.' },
-  { id: 'salesforce', label: 'Salesforce', type: 'company', description: 'Enterprise CRM platform with comprehensive sales intelligence and workflow automation.' },
-  { id: 'adyen', label: 'Adyen', type: 'competitor', description: 'Global payment company offering a unified commerce platform for omnichannel businesses.' },
-  { id: 'mailchimp', label: 'Mailchimp', type: 'competitor', description: 'Email marketing and automation platform popular with small to medium businesses.' },
-  { id: 'pipedrive', label: 'Pipedrive', type: 'competitor', description: 'Sales CRM platform built for SMB sales teams with pipeline management focus.' },
-  { id: 'payments-industry', label: 'Payments', type: 'industry', description: 'Digital payment processing and financial technology infrastructure sector.' },
-  { id: 'crm-industry', label: 'CRM', type: 'industry', description: 'Customer relationship management software market serving enterprise and SMB segments.' },
-  { id: 'martech-industry', label: 'Marketing Tech', type: 'industry', description: 'Marketing technology and automation software landscape for digital engagement.' },
-  { id: 'enterprise-deal', label: 'Enterprise Deal', type: 'opportunity', description: '$500K ARR enterprise agreement with tiered pricing and dedicated support.' },
-  { id: 'upselling', label: 'Upsell Growth', type: 'opportunity', description: 'Expansion revenue opportunity from existing customer base via cross-sell and upsell.' },
-  { id: 'expansion', label: 'Market Expansion', type: 'opportunity', description: 'New vertical and geographic market expansion into adjacent industry segments.' },
-  { id: 'q1-campaign', label: 'Q1 Outreach', type: 'campaign', description: 'Q1 outbound prospecting campaign targeting enterprise accounts in fintech.' },
-  { id: 'product-launch', label: 'Launch 2026', type: 'campaign', description: 'New product launch campaign with multi-channel distribution and demo-driven outreach.' },
-  { id: 'retargeting', label: 'Retargeting', type: 'campaign', description: 'Retargeting campaign for warm leads in the pipeline with personalized content.' },
+  {
+    id: 'stripe',
+    label: 'Stripe',
+    type: 'company',
+    description:
+      'Leading payment processing platform handling billions in transactions annually for internet businesses.',
+  },
+  {
+    id: 'hubspot',
+    label: 'HubSpot',
+    type: 'company',
+    description:
+      'CRM and marketing automation platform for scaling businesses with inbound methodology.',
+  },
+  {
+    id: 'salesforce',
+    label: 'Salesforce',
+    type: 'company',
+    description:
+      'Enterprise CRM platform with comprehensive sales intelligence and workflow automation.',
+  },
+  {
+    id: 'adyen',
+    label: 'Adyen',
+    type: 'competitor',
+    description:
+      'Global payment company offering a unified commerce platform for omnichannel businesses.',
+  },
+  {
+    id: 'mailchimp',
+    label: 'Mailchimp',
+    type: 'competitor',
+    description: 'Email marketing and automation platform popular with small to medium businesses.',
+  },
+  {
+    id: 'pipedrive',
+    label: 'Pipedrive',
+    type: 'competitor',
+    description: 'Sales CRM platform built for SMB sales teams with pipeline management focus.',
+  },
+  {
+    id: 'payments-industry',
+    label: 'Payments',
+    type: 'industry',
+    description: 'Digital payment processing and financial technology infrastructure sector.',
+  },
+  {
+    id: 'crm-industry',
+    label: 'CRM',
+    type: 'industry',
+    description:
+      'Customer relationship management software market serving enterprise and SMB segments.',
+  },
+  {
+    id: 'martech-industry',
+    label: 'Marketing Tech',
+    type: 'industry',
+    description: 'Marketing technology and automation software landscape for digital engagement.',
+  },
+  {
+    id: 'enterprise-deal',
+    label: 'Enterprise Deal',
+    type: 'opportunity',
+    description: '$500K ARR enterprise agreement with tiered pricing and dedicated support.',
+  },
+  {
+    id: 'upselling',
+    label: 'Upsell Growth',
+    type: 'opportunity',
+    description:
+      'Expansion revenue opportunity from existing customer base via cross-sell and upsell.',
+  },
+  {
+    id: 'expansion',
+    label: 'Market Expansion',
+    type: 'opportunity',
+    description: 'New vertical and geographic market expansion into adjacent industry segments.',
+  },
+  {
+    id: 'q1-campaign',
+    label: 'Q1 Outreach',
+    type: 'campaign',
+    description: 'Q1 outbound prospecting campaign targeting enterprise accounts in fintech.',
+  },
+  {
+    id: 'product-launch',
+    label: 'Launch 2026',
+    type: 'campaign',
+    description:
+      'New product launch campaign with multi-channel distribution and demo-driven outreach.',
+  },
+  {
+    id: 'retargeting',
+    label: 'Retargeting',
+    type: 'campaign',
+    description: 'Retargeting campaign for warm leads in the pipeline with personalized content.',
+  },
 ];
 
 const MOCK_EDGES: GraphEdge[] = [
@@ -143,10 +264,7 @@ export default function KnowledgeGraphPage() {
       nodes
         .filter((n) => {
           if (typeFilter !== 'all' && n.type !== typeFilter) return false;
-          if (
-            searchQuery &&
-            !n.label.toLowerCase().includes(searchQuery.toLowerCase())
-          )
+          if (searchQuery && !n.label.toLowerCase().includes(searchQuery.toLowerCase()))
             return false;
           return true;
         })
@@ -154,10 +272,8 @@ export default function KnowledgeGraphPage() {
     );
   }, [nodes, searchQuery, typeFilter]);
 
-  const handleZoomIn = () =>
-    setViewport((v) => ({ ...v, scale: Math.min(v.scale * 1.4, 5) }));
-  const handleZoomOut = () =>
-    setViewport((v) => ({ ...v, scale: Math.max(v.scale / 1.4, 0.15) }));
+  const handleZoomIn = () => setViewport((v) => ({ ...v, scale: Math.min(v.scale * 1.4, 5) }));
+  const handleZoomOut = () => setViewport((v) => ({ ...v, scale: Math.max(v.scale / 1.4, 0.15) }));
   const handleResetView = () => setViewport({ x: 0, y: 0, scale: 1 });
 
   const handleMouseDown = useCallback(
@@ -205,23 +321,17 @@ export default function KnowledgeGraphPage() {
     return () => container.removeEventListener('wheel', onWheel);
   }, []);
 
-  const handleNodeClick = useCallback(
-    (node: GraphNode) => {
-      setSelectedNode((prev) => (prev?.id === node.id ? null : node));
-    },
-    [],
-  );
+  const handleNodeClick = useCallback((node: GraphNode) => {
+    setSelectedNode((prev) => (prev?.id === node.id ? null : node));
+  }, []);
 
   const connectedEdges = useMemo(() => {
     if (!selectedNode) return [];
-    return edges.filter(
-      (e) => e.source === selectedNode.id || e.target === selectedNode.id,
-    );
+    return edges.filter((e) => e.source === selectedNode.id || e.target === selectedNode.id);
   }, [selectedNode, edges]);
 
   const getConnectedNode = (edge: GraphEdge, currentNodeId: string) => {
-    const connectedId =
-      edge.source === currentNodeId ? edge.target : edge.source;
+    const connectedId = edge.source === currentNodeId ? edge.target : edge.source;
     return nodes.find((n) => n.id === connectedId);
   };
 
@@ -247,8 +357,8 @@ export default function KnowledgeGraphPage() {
             Interactive Knowledge Graph
           </h1>
           <p className="mt-2 text-sm text-slate-400">
-            Explore relationships between companies, competitors, opportunities,
-            industries, and campaigns.
+            Explore relationships between companies, competitors, opportunities, industries, and
+            campaigns.
           </p>
         </div>
       </div>
@@ -257,18 +367,18 @@ export default function KnowledgeGraphPage() {
         <div className="flex flex-col space-y-4 xl:col-span-3">
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+              <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-500" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search nodes..."
-                className="w-full rounded-xl border border-slate-800 bg-slate-950 py-2.5 pl-10 pr-4 text-sm text-slate-200 placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-xl border border-slate-800 bg-slate-950 py-2.5 pr-4 pl-10 text-sm text-slate-200 placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-500 hover:text-slate-300"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -277,9 +387,7 @@ export default function KnowledgeGraphPage() {
 
             <select
               value={typeFilter}
-              onChange={(e) =>
-                setTypeFilter(e.target.value as NodeType | 'all')
-              }
+              onChange={(e) => setTypeFilter(e.target.value as NodeType | 'all')}
               className="rounded-xl border border-slate-800 bg-slate-950 px-3 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
             >
               <option value="all">All Types</option>
@@ -340,7 +448,7 @@ export default function KnowledgeGraphPage() {
             </div>
 
             {showLegend && (
-              <div className="pointer-events-none absolute left-3 top-3 z-10 space-y-1.5 rounded-xl border border-slate-800 bg-slate-900/90 px-3 py-2.5 backdrop-blur-sm">
+              <div className="pointer-events-none absolute top-3 left-3 z-10 space-y-1.5 rounded-xl border border-slate-800 bg-slate-900/90 px-3 py-2.5 backdrop-blur-sm">
                 <span className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
                   Legend
                 </span>
@@ -385,9 +493,7 @@ export default function KnowledgeGraphPage() {
                 ))}
               </defs>
 
-              <g
-                transform={`translate(${viewport.x}, ${viewport.y}) scale(${viewport.scale})`}
-              >
+              <g transform={`translate(${viewport.x}, ${viewport.y}) scale(${viewport.scale})`}>
                 {edges.map((edge, idx) => {
                   const sourcePos = nodePositions[edge.source];
                   const targetPos = nodePositions[edge.target];
@@ -397,10 +503,8 @@ export default function KnowledgeGraphPage() {
                   const midY = (sourcePos.y + targetPos.y) / 2;
                   const isConnectedToSelected =
                     selectedNode &&
-                    (edge.source === selectedNode.id ||
-                      edge.target === selectedNode.id);
-                  const isDimmed =
-                    selectedNode && !isConnectedToSelected;
+                    (edge.source === selectedNode.id || edge.target === selectedNode.id);
+                  const isDimmed = selectedNode && !isConnectedToSelected;
 
                   return (
                     <g key={`edge-${idx}`}>
@@ -463,19 +567,12 @@ export default function KnowledgeGraphPage() {
                     selectedNode &&
                     edges.some(
                       (e) =>
-                        (e.source === selectedNode.id &&
-                          e.target === node.id) ||
-                        (e.target === selectedNode.id &&
-                          e.source === node.id),
+                        (e.source === selectedNode.id && e.target === node.id) ||
+                        (e.target === selectedNode.id && e.source === node.id),
                     );
-                  const isDimmed =
-                    selectedNode &&
-                    !isSelected &&
-                    !isConnectedToSelected;
-                  const visible =
-                    !filteredNodeIds || filteredNodeIds.has(node.id);
-                  const radius =
-                    node.type === 'company' ? 24 : node.type === 'industry' ? 20 : 18;
+                  const isDimmed = selectedNode && !isSelected && !isConnectedToSelected;
+                  const visible = !filteredNodeIds || filteredNodeIds.has(node.id);
+                  const radius = node.type === 'company' ? 24 : node.type === 'industry' ? 20 : 18;
 
                   if (!visible) return null;
 
@@ -493,27 +590,12 @@ export default function KnowledgeGraphPage() {
                         cy={pos.y}
                         r={radius}
                         fill={meta.color}
-                        stroke={
-                          isSelected
-                            ? '#e2e8f0'
-                            : isHovered
-                              ? meta.stroke
-                              : meta.stroke
-                        }
+                        stroke={isSelected ? '#e2e8f0' : isHovered ? meta.stroke : meta.stroke}
                         strokeWidth={isSelected ? 3 : isHovered ? 2.5 : 2}
-                        filter={
-                          isSelected
-                            ? `url(#glow-${node.type})`
-                            : undefined
-                        }
-                        className={
-                          isSelected
-                            ? 'drop-shadow-lg'
-                            : 'hover:brightness-125'
-                        }
+                        filter={isSelected ? `url(#glow-${node.type})` : undefined}
+                        className={isSelected ? 'drop-shadow-lg' : 'hover:brightness-125'}
                         style={{
-                          transition:
-                            'stroke-width 0.2s, filter 0.2s, stroke 0.2s',
+                          transition: 'stroke-width 0.2s, filter 0.2s, stroke 0.2s',
                         }}
                       />
                       <text
@@ -521,29 +603,18 @@ export default function KnowledgeGraphPage() {
                         y={pos.y + 4}
                         textAnchor="middle"
                         fill="#f8fafc"
-                        fontSize={
-                          node.type === 'company'
-                            ? 10
-                            : node.type === 'industry'
-                              ? 9
-                              : 8
-                        }
+                        fontSize={node.type === 'company' ? 10 : node.type === 'industry' ? 9 : 8}
                         fontWeight="bold"
                         className="pointer-events-none select-none"
                         style={{
-                          textShadow:
-                            '0 1px 3px rgba(0,0,0,0.8), 0 0 6px rgba(0,0,0,0.5)',
+                          textShadow: '0 1px 3px rgba(0,0,0,0.8), 0 0 6px rgba(0,0,0,0.5)',
                         }}
                       >
-                        {node.label.length > 10
-                          ? node.label.slice(0, 9) + '...'
-                          : node.label}
+                        {node.label.length > 10 ? node.label.slice(0, 9) + '...' : node.label}
                       </text>
                       <title>
                         {node.label} ({meta.label})
-                        {!!filteredNodeIds && !visible
-                          ? ' (hidden by filter)'
-                          : ''}
+                        {!!filteredNodeIds && !visible ? ' (hidden by filter)' : ''}
                       </title>
                     </g>
                   );
@@ -572,8 +643,7 @@ export default function KnowledgeGraphPage() {
                       className="rounded border px-2 py-0.5 text-[9px] font-bold uppercase"
                       style={{
                         borderColor: NODE_META[selectedNode.type].stroke + '40',
-                        backgroundColor:
-                          NODE_META[selectedNode.type].color + '80',
+                        backgroundColor: NODE_META[selectedNode.type].color + '80',
                         color: NODE_META[selectedNode.type].stroke,
                       }}
                     >
@@ -589,9 +659,7 @@ export default function KnowledgeGraphPage() {
                 </button>
               </div>
 
-              <h3 className="mt-3 text-lg font-bold text-white">
-                {selectedNode.label}
-              </h3>
+              <h3 className="mt-3 text-lg font-bold text-white">{selectedNode.label}</h3>
               <p className="mt-1 text-xs leading-relaxed text-slate-400">
                 {selectedNode.description}
               </p>
@@ -603,10 +671,7 @@ export default function KnowledgeGraphPage() {
                   </span>
                   <div className="space-y-2">
                     {connectedEdges.map((edge, idx) => {
-                      const connectedNode = getConnectedNode(
-                        edge,
-                        selectedNode.id,
-                      );
+                      const connectedNode = getConnectedNode(edge, selectedNode.id);
                       if (!connectedNode) return null;
                       const meta = NODE_META[connectedNode.type];
                       return (
@@ -622,10 +687,7 @@ export default function KnowledgeGraphPage() {
                             {(() => {
                               const Icon = meta.icon;
                               return (
-                                <Icon
-                                  className="h-3.5 w-3.5"
-                                  style={{ color: meta.stroke }}
-                                />
+                                <Icon className="h-3.5 w-3.5" style={{ color: meta.stroke }} />
                               );
                             })()}
                           </span>
@@ -656,8 +718,7 @@ export default function KnowledgeGraphPage() {
               </div>
               <Info className="mb-3 h-5 w-5 text-slate-600" />
               <p className="text-sm text-slate-500">
-                Click any node on the graph to inspect its details and
-                relationships.
+                Click any node on the graph to inspect its details and relationships.
               </p>
               <p className="mt-2 text-xs text-slate-600">
                 Use the search and filter to find specific nodes.
@@ -671,15 +732,11 @@ export default function KnowledgeGraphPage() {
             </h4>
             <div className="mt-3 grid grid-cols-2 gap-2">
               <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-2.5 text-center">
-                <div className="text-lg font-bold text-white">
-                  {nodes.length}
-                </div>
+                <div className="text-lg font-bold text-white">{nodes.length}</div>
                 <div className="text-[10px] text-slate-500">Nodes</div>
               </div>
               <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-2.5 text-center">
-                <div className="text-lg font-bold text-white">
-                  {edges.length}
-                </div>
+                <div className="text-lg font-bold text-white">{edges.length}</div>
                 <div className="text-[10px] text-slate-500">Edges</div>
               </div>
             </div>

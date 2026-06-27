@@ -24,7 +24,7 @@ export const GET = withAuth(async (req, { user }) => {
     const userId = user.uid;
     // Note: In a multi-tenant system, we might want to filter by user/tenant
     // For now, returning all historical records (could be adjusted based on requirements)
-    
+
     try {
       const packages = await outreachCampaignsRepository.list(
         undefined,
@@ -49,7 +49,7 @@ export const GET = withAuth(async (req, { user }) => {
 export const POST = withAuth(async (req, { user }) => {
   try {
     const userId = user.uid;
-    
+
     const body = await req.json();
     const query = body.query || '';
 
