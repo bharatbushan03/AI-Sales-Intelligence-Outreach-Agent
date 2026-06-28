@@ -239,7 +239,7 @@ export interface Invitation {
   invitedBy: string;
   invitedByName: string;
   token: string;
-  status: 'pending' | 'accepted' | 'expired' | 'revoked';
+  status: 'pending' | 'accepted' | 'expired' | 'revoked' | 'declined';
   message?: string;
   expiresAt: string;
   acceptedAt?: string;

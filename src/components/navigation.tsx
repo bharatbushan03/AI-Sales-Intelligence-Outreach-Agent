@@ -1,9 +1,11 @@
 'use client';
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { TopBar } from '@/components/top-bar';
+
+const TopBar = dynamic(() => import('@/components/top-bar').then((m) => ({ default: m.TopBar })), { ssr: true });
 import {
   LayoutDashboard,
   Users,
@@ -56,7 +58,7 @@ export function NavigationShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-slate-950 font-sans text-slate-100">
       {/* Top Bar */}
-      <TopBar />
+      <TopBar pathname={pathname} />
 
       {/* Main Content Area */}
       <div className="flex flex-1 overflow-hidden">

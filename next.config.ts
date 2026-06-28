@@ -15,7 +15,7 @@ const securityHeaders = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://www.gstatic.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "img-src 'self' data: blob: https:",
+      "img-src 'self' blob: https:",
       "font-src 'self' https://fonts.gstatic.com",
       "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.firebaseapp.com wss://*.firebaseio.com",
       "frame-src 'self' https://accounts.google.com https://*.firebaseapp.com",

@@ -1,8 +1,6 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import {
   Bell,
   Search,
@@ -16,17 +14,20 @@ import {
   LogOut,
 } from 'lucide-react';
 
-export function TopBar() {
-  const pathname = usePathname();
-  const [openDropdown, setOpenDropdown] = useState<
+interface TopBarProps {
+  pathname: string;
+}
+
+export function TopBar({ pathname }: TopBarProps) {
+  const [openDropdown, setOpenDropdown] = React.useState<
     'notifications' | 'messages' | 'team' | 'user' | null
   >(null);
-  const notificationsRef = useRef<HTMLDivElement>(null);
-  const messagesRef = useRef<HTMLDivElement>(null);
-  const teamRef = useRef<HTMLDivElement>(null);
-  const userRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = React.useRef<HTMLDivElement>(null);
+  const messagesRef = React.useRef<HTMLDivElement>(null);
+  const teamRef = React.useRef<HTMLDivElement>(null);
+  const userRef = React.useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (openDropdown === null) return;
 
@@ -75,7 +76,7 @@ export function TopBar() {
             <LayoutDashboard className="h-5 w-5" />
           </button>
           <div className="hidden items-center gap-4 md:flex">
-            <Link
+            <a
               href="/dashboard"
               className={`text-sm font-medium ${
                 pathname === '/' || pathname === '/dashboard'
@@ -84,8 +85,8 @@ export function TopBar() {
               }`}
             >
               Dashboard
-            </Link>
-            <Link
+            </a>
+            <a
               href="/research"
               className={`text-sm font-medium ${
                 pathname === '/research'
@@ -94,7 +95,7 @@ export function TopBar() {
               }`}
             >
               Research
-            </Link>
+            </a>
           </div>
         </div>
 

@@ -1,157 +1,201 @@
-import { NextRequest, NextResponse } from 'next/server';
+/**
+ * Invitations API
+ * Handles invitation creation and listing
+ */
+
+import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { withAuth } from '@/lib/auth-middleware';
 import { hasPermission } from '@/lib/rbac';
-import {
-  invitationsRepository,
-  organizationsRepository,
-  workspacesRepository,
-} from '@/lib/repositories';
+import { createInvitation, getInvitations, validateInvitationLimits } from '@/lib/firestore-schema';
+import { organizationsRepository, workspacesRepository } from '@/lib/repositories';
 import { sendInvitationEmail } from '@/lib/email-service';
 import { ApiResponse } from '@/utils/api-response';
 import { logger } from '@/utils/logger';
-import { Invitation } from '@/types/auth';
+import { adminDb } from '@/lib/firebase-admin';
+import { COLLECTIONS } from '@/lib/firestore-schema';
 
 // Schema for creating invitations
 const createInvitationSchema = z.object({
   email: z.string().email('Invalid email address'),
-  organizationId: z.string().min(1, 'Organization ID is required'),
-  workspaceId: z.string().min(1, 'Workspace ID is required'),
-  role: z.enum(['owner', 'admin', 'manager', 'sales_rep', 'viewer']),
-  type: z.enum(['organization', 'workspace']).default('workspace'),
-  message: z.string().optional(),
-  expiresInDays: z.number().min(1).max(30).default(7),
+  organizationId: z.string().optional(),
+  workspaceIds: z.array(z.string()).optional(),
+  role: z.enum(['Owner', 'Admin', 'Manager', 'Sales Rep', 'Viewer']),
+  workspaceRole: z.enum(['Owner', 'Admin', 'Manager', 'Member', 'Viewer']).optional(),
+  message: z.string().max(500).optional(),
+  expiryDays: z.number().min(1).max(30).optional().default(7),
 });
 
 // Schema for querying invitations
 const queryInvitationsSchema = z.object({
   organizationId: z.string().optional(),
   workspaceId: z.string().optional(),
-  status: z.enum(['pending', 'accepted', 'declined', 'expired']).optional(),
-  type: z.enum(['organization', 'workspace']).optional(),
+  email: z.string().email().optional(),
+  status: z.enum(['pending', 'accepted', 'expired', 'revoked']).optional(),
   page: z
     .string()
     .optional()
     .transform((val) => (val ? parseInt(val, 10) : 1)),
-  limit: z
+  pageSize: z
     .string()
     .optional()
     .transform((val) => (val ? Math.min(parseInt(val, 10), 50) : 20)),
 });
 
-export async function POST(request: NextRequest) {
-  return withAuth(async (req, { user }) => {
-    try {
-      const body = await request.json();
-      const validatedData = createInvitationSchema.parse(body);
+/**
+ * POST /api/invitations
+ * Create a new invitation
+ */
+export const POST = withAuth(async (request, context) => {
+  try {
+    const body = await request.json();
+    const validatedData = createInvitationSchema.parse(body);
 
-      const { email, organizationId, workspaceId, role, type, message, expiresInDays } =
-        validatedData;
+    const { email, organizationId, workspaceIds, role, workspaceRole, message, expiryDays } =
+      validatedData;
 
-      // Check if user has permission to invite to this organization/workspace
-      const hasPerm = hasPermission(user.role, 'users.invite' as any);
+    // Use user's organization if not specified
+    const targetOrgId = organizationId || context.organizationId;
 
-      if (!hasPerm) {
-        return ApiResponse.forbidden('Insufficient permissions to send invitations');
-      }
+    // Check if user has permission to invite
+    if (!hasPermission(context.user.role, 'users.invite')) {
+      return ApiResponse.permissionDenied('You do not have permission to send invitations');
+    }
 
-      // Check if organization and workspace exist
-      const org = await organizationsRepository.get(organizationId);
-      if (!org) {
-        return ApiResponse.badRequest('Organization not found');
-      }
+    // Validate invitation limits
+    const validation = await validateInvitationLimits(targetOrgId, email);
+    if (!validation.allowed) {
+      return ApiResponse.planLimitExceeded(validation.reason || 'Cannot send invitation');
+    }
 
-      let wsName = '';
-      if (workspaceId) {
-        const ws = await workspacesRepository.get(workspaceId);
-        if (ws) wsName = ws.name || workspaceId;
-      }
+    // Get organization details
+    const org = await organizationsRepository.get(targetOrgId);
+    if (!org) {
+      return ApiResponse.organizationError('Organization not found');
+    }
 
-      const id = `inv_${Date.now()}`;
+    // Get workspace names if provided
+    let workspaceNames: string[] = [];
+    if (workspaceIds && workspaceIds.length > 0) {
+      const workspacePromises = workspaceIds.map((id) => workspacesRepository.get(id));
+      const workspaces = await Promise.all(workspacePromises);
+      workspaceNames = workspaces.filter((ws) => ws).map((ws) => ws!.name || 'Workspace');
+    }
 
-      const invitation = {
-        id,
+    // Create invitation
+    const invitation = await createInvitation({
+      organizationId: targetOrgId,
+      workspaceIds,
+      email,
+      role,
+      workspaceRole,
+      invitedBy: context.user.uid,
+      invitedByName: context.user.profile.name,
+      message,
+      expiryDays,
+    });
+
+    // Send invitation email
+    await sendInvitationEmail({
+      email,
+      invitation,
+      inviterName: context.user.profile.name,
+      organizationName: org.name || 'Organization',
+      workspaceName: workspaceNames.length > 0 ? workspaceNames.join(', ') : undefined,
+      message,
+    });
+
+    // Log activity
+    await adminDb.collection(COLLECTIONS.ACTIVITY_FEED).add({
+      userId: context.user.uid,
+      userName: context.user.profile.name,
+      userAvatar: context.user.profile.avatar,
+      organizationId: targetOrgId,
+      action: 'INVITED',
+      entityType: 'invitation',
+      entityId: invitation.id,
+      entityName: email,
+      details: `Invited ${email} to join as ${role}`,
+      metadata: {
         email,
-        organizationId,
-        workspaceId,
         role,
-        type: type as any,
-        invitedBy: user.uid,
-        message,
-        expiresInDays,
-        status: 'pending' as const,
-        createdAt: new Date().toISOString(),
-      };
+        workspaceIds,
+      },
+      timestamp: new Date().toISOString(),
+    });
 
-      // Create the invitation
-      await invitationsRepository.add(invitation);
+    logger.info('Invitation created successfully', {
+      invitationId: invitation.id,
+      email,
+      organizationId: targetOrgId,
+      invitedBy: context.user.uid,
+    });
 
-      // Send invitation email
-      await sendInvitationEmail({
-        email,
-        invitation,
-        inviterName: user.profile?.name || user.email || 'Team member',
-        organizationName: org.name || 'Organization',
-        workspaceName: wsName,
-        message,
-      });
-
-      logger.info('Invitation sent successfully', {
-        invitationId: id,
-        email,
-        organizationId,
-        workspaceId,
-        invitedBy: user.uid,
-      });
-
-      return ApiResponse.success(invitation, 201);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return ApiResponse.validationError('Invalid request data', (error as any).errors);
-      }
-
-      logger.error('Failed to send invitation', { error, userId: user.uid });
-      return ApiResponse.internalError('Failed to send invitation');
+    return ApiResponse.success(invitation, 201);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return ApiResponse.validationError('Invalid request data', error.errors);
     }
-  })(request);
-}
 
-export async function GET(request: NextRequest) {
-  return withAuth(async (req, { user }) => {
-    try {
-      const { searchParams } = new URL(request.url);
-      const query = Object.fromEntries(searchParams.entries());
-      const validatedQuery = queryInvitationsSchema.parse(query);
+    logger.error('Failed to create invitation', error, { userId: context.user.uid });
+    return ApiResponse.invitationError('Failed to create invitation');
+  }
+});
 
-      const { organizationId, workspaceId, status, type, page, limit } = validatedQuery;
+/**
+ * GET /api/invitations
+ * List invitations with optional filters
+ */
+export const GET = withAuth(async (request, context) => {
+  try {
+    const { searchParams } = new URL(request.url);
+    const query = Object.fromEntries(searchParams.entries());
+    const validatedQuery = queryInvitationsSchema.parse(query);
 
-      // If querying specific org/workspace, check permissions
-      if (organizationId || workspaceId) {
-        const hasPerm = hasPermission(user.role, 'users.read' as any);
+    const { organizationId, workspaceId, email, status, page, pageSize } = validatedQuery;
 
-        if (!hasPerm) {
-          return ApiResponse.forbidden('Insufficient permissions to view invitations');
-        }
-      }
+    // Use user's organization if not specified
+    const targetOrgId = organizationId || context.organizationId;
 
-      // Get invitations
-      const filters: any[] = [];
-      if (organizationId)
-        filters.push({ field: 'organizationId', operator: '==', value: organizationId });
-      if (workspaceId) filters.push({ field: 'workspaceId', operator: '==', value: workspaceId });
-      if (status) filters.push({ field: 'status', operator: '==', value: status });
-      if (type) filters.push({ field: 'type', operator: '==', value: type });
-
-      const result = await invitationsRepository.list(filters);
-
-      return ApiResponse.success(result);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return ApiResponse.validationError('Invalid query parameters', (error as any).errors);
-      }
-
-      logger.error('Failed to fetch invitations', { error, userId: user.uid });
-      return ApiResponse.internalError('Failed to fetch invitations');
+    // Check if user has permission to view invitations
+    if (!hasPermission(context.user.role, 'users.read')) {
+      return ApiResponse.permissionDenied('You do not have permission to view invitations');
     }
-  })(request);
-}
+
+    // Ensure user can only see invitations from their organization
+    if (targetOrgId !== context.organizationId && context.user.role !== 'Owner') {
+      return ApiResponse.permissionDenied('Cannot view invitations from other organizations');
+    }
+
+    // Get invitations
+    const result = await getInvitations({
+      organizationId: targetOrgId,
+      workspaceId,
+      email,
+      status,
+      page,
+      pageSize,
+    });
+
+    logger.info('Invitations retrieved', {
+      organizationId: targetOrgId,
+      count: result.invitations.length,
+      requestedBy: context.user.uid,
+    });
+
+    return ApiResponse.paginated(
+      result.invitations,
+      result.page,
+      result.pageSize,
+      result.total,
+      200,
+    );
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return ApiResponse.validationError('Invalid query parameters', error.errors);
+    }
+
+    logger.error('Failed to fetch invitations', error, { userId: context.user.uid });
+    return ApiResponse.invitationError('Failed to fetch invitations');
+  }
+});
