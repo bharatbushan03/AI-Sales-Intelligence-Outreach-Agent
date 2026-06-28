@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState, useRef, useEffect } from 'react';
 import {
   Bell,
   Search,
@@ -17,6 +18,53 @@ import {
 
 export function TopBar() {
   const pathname = usePathname();
+  const [openDropdown, setOpenDropdown] = useState<
+    'notifications' | 'messages' | 'team' | 'user' | null
+  >(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
+  const teamRef = useRef<HTMLDivElement>(null);
+  const userRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (openDropdown === null) return;
+
+      const target = event.target as Node;
+      let container = null;
+      switch (openDropdown) {
+        case 'notifications':
+          container = notificationsRef.current;
+          break;
+        case 'messages':
+          container = messagesRef.current;
+          break;
+        case 'team':
+          container = teamRef.current;
+          break;
+        case 'user':
+          container = userRef.current;
+          break;
+      }
+
+      if (container && !container.contains(target)) {
+        setOpenDropdown(null);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && openDropdown !== null) {
+        setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [openDropdown]);
 
   return (
     <header className="border-b border-slate-200/50 bg-white/5 px-4 py-3 backdrop-blur-md sm:px-6">
@@ -64,70 +112,93 @@ export function TopBar() {
 
         {/* Right Side: Notifications, User Menu, etc. */}
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <button className="relative text-slate-500 hover:text-slate-700">
+          {/* Notifications Dropdown */}
+          <div className="relative" ref={notificationsRef}>
+            <button
+              className="relative text-slate-500 hover:text-slate-700"
+              onClick={() =>
+                setOpenDropdown(openDropdown === 'notifications' ? null : 'notifications')
+              }
+            >
               <Bell className="h-5 w-5" />
               <span className="absolute -top-1 -right-1 flex h-2 w-2 items-center justify-center rounded-full bg-indigo-500 text-xs font-medium text-white">
                 3
               </span>
             </button>
-            <div className="absolute right-0 z-20 mt-2 w-56 rounded-md border border-slate-200 bg-white shadow-lg focus:outline-none">
-              <div className="py-1">
-                <div className="border-b border-slate-100 px-4 py-2 text-sm text-slate-700">
-                  New Opportunities
-                </div>
-                <div className="px-4 py-2 text-sm text-slate-600">
-                  You have 3 new high-value opportunities
-                </div>
-                <div className="border-t border-slate-100 px-4 py-2 text-sm text-slate-700">
-                  All Notifications
+            {openDropdown === 'notifications' && (
+              <div className="absolute right-0 z-20 mt-2 w-56 rounded-md border border-slate-200 bg-white shadow-lg focus:outline-none">
+                <div className="py-1">
+                  <div className="border-b border-slate-100 px-4 py-2 text-sm text-slate-700">
+                    New Opportunities
+                  </div>
+                  <div className="px-4 py-2 text-sm text-slate-600">
+                    You have 3 new high-value opportunities
+                  </div>
+                  <div className="border-t border-slate-100 px-4 py-2 text-sm text-slate-700">
+                    All Notifications
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
-          <div className="relative">
-            <button className="text-slate-500 hover:text-slate-700">
+          {/* Messages Dropdown */}
+          <div className="relative" ref={messagesRef}>
+            <button
+              className="text-slate-500 hover:text-slate-700"
+              onClick={() => setOpenDropdown(openDropdown === 'messages' ? null : 'messages')}
+            >
               <MessageCircle className="h-5 w-5" />
               <span className="absolute -top-1 -right-1 flex h-2 w-2 items-center justify-center rounded-full bg-indigo-500 text-xs font-medium text-white">
                 2
               </span>
             </button>
-            <div className="absolute right-0 z-20 mt-2 w-56 rounded-md border border-slate-200 bg-white shadow-lg focus:outline-none">
-              <div className="py-1">
-                <div className="border-b border-slate-100 px-4 py-2 text-sm text-slate-700">
-                  Messages
-                </div>
-                <div className="px-4 py-2 text-sm text-slate-600">2 unread messages</div>
-                <div className="border-t border-slate-100 px-4 py-2 text-sm text-slate-700">
-                  View All
+            {openDropdown === 'messages' && (
+              <div className="absolute right-0 z-20 mt-2 w-56 rounded-md border border-slate-200 bg-white shadow-lg focus:outline-none">
+                <div className="py-1">
+                  <div className="border-b border-slate-100 px-4 py-2 text-sm text-slate-700">
+                    Messages
+                  </div>
+                  <div className="px-4 py-2 text-sm text-slate-600">2 unread messages</div>
+                  <div className="border-t border-slate-100 px-4 py-2 text-sm text-slate-700">
+                    View All
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
-          <div className="relative">
-            <button className="text-slate-500 hover:text-slate-700">
+          {/* Team Dropdown */}
+          <div className="relative" ref={teamRef}>
+            <button
+              className="text-slate-500 hover:text-slate-700"
+              onClick={() => setOpenDropdown(openDropdown === 'team' ? null : 'team')}
+            >
               <UserPlus className="h-5 w-5" />
             </button>
-            <div className="absolute right-0 z-20 mt-2 w-56 rounded-md border border-slate-200 bg-white shadow-lg focus:outline-none">
-              <div className="py-1">
-                <div className="border-b border-slate-100 px-4 py-2 text-sm text-slate-700">
-                  Team
-                </div>
-                <div className="px-4 py-2 text-sm text-slate-600">
-                  Invite members to your organization
-                </div>
-                <div className="border-t border-slate-100 px-4 py-2 text-sm text-slate-700">
-                  Manage Team
+            {openDropdown === 'team' && (
+              <div className="absolute right-0 z-20 mt-2 w-56 rounded-md border border-slate-200 bg-white shadow-lg focus:outline-none">
+                <div className="py-1">
+                  <div className="border-b border-slate-100 px-4 py-2 text-sm text-slate-700">
+                    Team
+                  </div>
+                  <div className="px-4 py-2 text-sm text-slate-600">
+                    Invite members to your organization
+                  </div>
+                  <div className="border-t border-slate-100 px-4 py-2 text-sm text-slate-700">
+                    Manage Team
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* User Menu */}
-          <div className="relative">
-            <button className="flex items-center gap-2 text-slate-500 hover:text-slate-700">
+          <div className="relative" ref={userRef}>
+            <button
+              className="flex items-center gap-2 text-slate-500 hover:text-slate-700"
+              onClick={() => setOpenDropdown(openDropdown === 'user' ? null : 'user')}
+            >
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200">
                 JD
               </span>
@@ -137,19 +208,21 @@ export function TopBar() {
               </div>
               <ChevronDown className="h-4 w-4 text-slate-400" />
             </button>
-            <div className="absolute right-0 z-20 mt-2 w-48 rounded-md border border-slate-200 bg-white shadow-lg focus:outline-none">
-              <div className="py-1">
-                <div className="px-4 py-2 text-sm text-slate-700">
-                  <User className="mr-2 h-4 w-4" /> Profile
-                </div>
-                <div className="border-t border-slate-100 px-4 py-2 text-sm text-slate-700">
-                  <SettingsIcon className="mr-2 h-4 w-4" /> Settings
-                </div>
-                <div className="border-t border-slate-100 px-4 py-2 text-sm text-slate-700">
-                  <LogOut className="mr-2 h-4 w-4" /> Sign Out
+            {openDropdown === 'user' && (
+              <div className="absolute right-0 z-20 mt-2 w-48 rounded-md border border-slate-200 bg-white shadow-lg focus:outline-none">
+                <div className="py-1">
+                  <div className="px-4 py-2 text-sm text-slate-700">
+                    <User className="mr-2 h-4 w-4" /> Profile
+                  </div>
+                  <div className="border-t border-slate-100 px-4 py-2 text-sm text-slate-700">
+                    <SettingsIcon className="mr-2 h-4 w-4" /> Settings
+                  </div>
+                  <div className="border-t border-slate-100 px-4 py-2 text-sm text-slate-700">
+                    <LogOut className="mr-2 h-4 w-4" /> Sign Out
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
