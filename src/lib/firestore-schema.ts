@@ -522,3 +522,234 @@ export type FirestoreSchema = {
   [COLLECTIONS.SESSIONS]: Session;
   [COLLECTIONS.API_KEYS]: ApiKey;
 };
+
+/**
+ * Invitation Management Functions
+ */
+import crypto from 'crypto';
+import { adminDb } from './firebase-admin';
+import { PLAN_FEATURES } from './rbac';
+
+export interface CreateInvitationParams {
+  organizationId: string;
+  workspaceIds?: string[];
+  email: string;
+  role: import('../types/auth').Role;
+  workspaceRole?: import('../types/auth').WorkspaceRole;
+  invitedBy: string;
+  invitedByName: string;
+  message?: string;
+  expiryDays?: number;
+}
+
+export interface InvitationQuery {
+  organizationId?: string;
+  workspaceId?: string;
+  email?: string;
+  status?: 'pending' | 'accepted' | 'expired' | 'revoked';
+  page?: number;
+  pageSize?: number;
+}
+
+export async function createInvitation(params: CreateInvitationParams): Promise<Invitation> {
+  const {
+    organizationId,
+    workspaceIds,
+    email,
+    role,
+    workspaceRole,
+    invitedBy,
+    invitedByName,
+    message,
+    expiryDays = 7,
+  } = params;
+
+  // Generate secure token
+  const token = crypto.randomBytes(32).toString('hex');
+
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + expiryDays * 24 * 60 * 60 * 1000);
+
+  const invitation: Invitation = {
+    id: `inv_${crypto.randomBytes(8).toString('hex')}`,
+    organizationId,
+    workspaceIds,
+    email: email.toLowerCase(),
+    role,
+    workspaceRole,
+    invitedBy,
+    invitedByName,
+    token,
+    status: 'pending',
+    message,
+    expiresAt: expiresAt.toISOString(),
+    createdAt: now.toISOString(),
+    updatedAt: now.toISOString(),
+  };
+
+  await adminDb.collection(COLLECTIONS.INVITATIONS).doc(invitation.id).set(invitation);
+
+  return invitation;
+}
+
+export async function getInvitations(query: InvitationQuery): Promise<{
+  invitations: Invitation[];
+  total: number;
+  page: number;
+  pageSize: number;
+}> {
+  const { organizationId, workspaceId, email, status, page = 1, pageSize = 20 } = query;
+
+  let firestoreQuery = adminDb.collection(COLLECTIONS.INVITATIONS) as any;
+
+  if (organizationId) {
+    firestoreQuery = firestoreQuery.where('organizationId', '==', organizationId);
+  }
+
+  if (email) {
+    firestoreQuery = firestoreQuery.where('email', '==', email.toLowerCase());
+  }
+
+  if (status) {
+    firestoreQuery = firestoreQuery.where('status', '==', status);
+  }
+
+  // Get total count
+  const countSnapshot = await firestoreQuery.count().get();
+  const total = countSnapshot.data().count;
+
+  // Get paginated results
+  firestoreQuery = firestoreQuery.orderBy('createdAt', 'desc').limit(pageSize);
+
+  if (page > 1) {
+    const offset = (page - 1) * pageSize;
+    const offsetSnapshot = await firestoreQuery.offset(offset).get();
+    const invitations = offsetSnapshot.docs.map((doc: any) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Invitation[];
+
+    return { invitations, total, page, pageSize };
+  }
+
+  const snapshot = await firestoreQuery.get();
+  let invitations = snapshot.docs.map((doc: any) => ({
+    id: doc.id,
+    ...doc.data(),
+  })) as Invitation[];
+
+  // Filter by workspaceId in memory if provided (array contains check)
+  if (workspaceId) {
+    invitations = invitations.filter(
+      (inv) => inv.workspaceIds && inv.workspaceIds.includes(workspaceId),
+    );
+  }
+
+  return { invitations, total, page, pageSize };
+}
+
+export async function getInvitationByToken(token: string): Promise<Invitation | null> {
+  const snapshot = await adminDb
+    .collection(COLLECTIONS.INVITATIONS)
+    .where('token', '==', token)
+    .limit(1)
+    .get();
+
+  if (snapshot.empty) {
+    return null;
+  }
+
+  const doc = snapshot.docs[0];
+  const invitation = { id: doc.id, ...doc.data() } as Invitation;
+
+  // Check if expired
+  if (new Date(invitation.expiresAt) < new Date() && invitation.status === 'pending') {
+    // Auto-update status to expired
+    await adminDb
+      .collection(COLLECTIONS.INVITATIONS)
+      .doc(invitation.id)
+      .update({ status: 'expired', updatedAt: new Date().toISOString() });
+    invitation.status = 'expired';
+  }
+
+  return invitation;
+}
+
+export async function validateInvitationLimits(
+  organizationId: string,
+  email: string,
+): Promise<{
+  allowed: boolean;
+  reason?: string;
+  organizationName?: string;
+  planName?: string;
+}> {
+  // Get organization details
+  const orgDoc = await adminDb.collection(COLLECTIONS.ORGANIZATIONS).doc(organizationId).get();
+
+  if (!orgDoc.exists) {
+    return {
+      allowed: false,
+      reason: 'Organization not found',
+    };
+  }
+
+  const orgData = orgDoc.data() as OrganizationDocument;
+  const organizationName = orgData.name;
+  const plan = orgData.plan || 'Free';
+  const planFeatures = PLAN_FEATURES[plan];
+
+  // Check if user already exists in organization
+  const existingUserSnapshot = await adminDb
+    .collection(COLLECTIONS.USERS)
+    .where('email', '==', email.toLowerCase())
+    .where('organizationId', '==', organizationId)
+    .limit(1)
+    .get();
+
+  if (!existingUserSnapshot.empty) {
+    return {
+      allowed: false,
+      reason: 'User already exists in this organization',
+      organizationName,
+      planName: plan,
+    };
+  }
+
+  // Check if there's already a pending invitation
+  const pendingInviteSnapshot = await adminDb
+    .collection(COLLECTIONS.INVITATIONS)
+    .where('email', '==', email.toLowerCase())
+    .where('organizationId', '==', organizationId)
+    .where('status', '==', 'pending')
+    .limit(1)
+    .get();
+
+  if (!pendingInviteSnapshot.empty) {
+    return {
+      allowed: false,
+      reason: 'A pending invitation already exists for this email',
+      organizationName,
+      planName: plan,
+    };
+  }
+
+  // Check plan limits
+  const currentUsers = orgData.limits?.currentUsers || 0;
+  const maxUsers = planFeatures.maxUsers;
+
+  if (maxUsers !== -1 && currentUsers >= maxUsers) {
+    return {
+      allowed: false,
+      reason: `Plan limit reached. ${plan} plan allows maximum ${maxUsers} users.`,
+      organizationName,
+      planName: plan,
+    };
+  }
+
+  return {
+    allowed: true,
+    organizationName,
+    planName: plan,
+  };
+}
