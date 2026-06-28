@@ -35,11 +35,7 @@ export interface FollowUpStep {
 
 export interface LinkedInMessage {
   type:
-    | 'Connection Request'
-    | 'First Message'
-    | 'Follow-Up Message'
-    | 'Engagement Message'
-    | string;
+    'Connection Request' | 'First Message' | 'Follow-Up Message' | 'Engagement Message' | string;
   message: string;
 }
 

@@ -47,8 +47,7 @@ export class OutreachAgent implements IAgent {
     options?: Record<string, unknown>,
   ): Promise<AgentStepResult> {
     const researchData = (options?.research || context.sharedMemory.research) as unknown as
-      | ResearchReport
-      | undefined;
+      ResearchReport | undefined;
     const opportunityData = (options?.opportunityAnalysis ||
       context.sharedMemory.opportunityAnalysis) as unknown as OpportunityReport | undefined;
 

@@ -44,8 +44,7 @@ export class OpportunityAgent implements IAgent {
     options?: Record<string, unknown>,
   ): Promise<AgentStepResult> {
     const researchData = (options?.researchData || context.sharedMemory.research) as unknown as
-      | ResearchReport
-      | undefined;
+      ResearchReport | undefined;
 
     const company = researchData?.company || {
       name: this.extractCompanyName(context.userGoal) || 'Prospect Company',

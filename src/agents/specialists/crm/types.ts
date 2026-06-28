@@ -109,10 +109,7 @@ export interface PipelineReport {
 }
 
 export type RelationshipClassification =
-  | 'Strong Relationship'
-  | 'Moderate Relationship'
-  | 'Weak Relationship'
-  | 'At Risk';
+  'Strong Relationship' | 'Moderate Relationship' | 'Weak Relationship' | 'At Risk';
 
 export interface RelationshipScore {
   id?: string;
