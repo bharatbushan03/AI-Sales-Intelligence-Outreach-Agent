@@ -38,19 +38,60 @@ interface NavItem {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   badge?: string;
+  className?: string;
 }
 
 const navItems: NavItem[] = [
-  { label: 'Executive Command Center', href: '/dashboard', icon: LayoutDashboard, badge: 'NEW' },
-  { label: 'Sales War Room', href: '/war-room', icon: Zap, badge: 'WOW' },
-  { label: 'Executive AI Copilot', href: '/intelligence', icon: Brain, badge: 'AI' },
-  { label: 'One-Click Intelligence', href: '/research', icon: Target, badge: '1-CLICK' },
-  { label: 'AI Boardroom Mode', href: '/proposals', icon: Presentation, badge: 'DECK' },
-  { label: 'Knowledge Graph', href: '/memory', icon: Network, badge: '3D' },
+  { label: 'About Project', href: '/about', icon: LayoutDashboard, badge: 'PITCH' },
+  { label: 'System Architecture', href: '/architecture', icon: Network, badge: 'DIAGRAM' },
+  { label: 'Tech Stack', href: '/tech-stack', icon: Database, badge: 'STACK' },
+  {
+    label: 'Executive Command Center',
+    href: '/dashboard',
+    icon: LayoutDashboard,
+    badge: 'NEW',
+    className: 'nav-dashboard',
+  },
+  {
+    label: 'Sales War Room',
+    href: '/war-room',
+    icon: Zap,
+    badge: 'WOW',
+    className: 'nav-war-room',
+  },
+  {
+    label: 'Executive AI Copilot',
+    href: '/agent-command-center',
+    icon: Brain,
+    badge: 'AI',
+    className: 'nav-agent-command-center',
+  },
+  {
+    label: 'One-Click Intelligence',
+    href: '/research',
+    icon: Target,
+    badge: '1-CLICK',
+    className: 'nav-research',
+  },
+  {
+    label: 'AI Boardroom Mode',
+    href: '/proposals',
+    icon: Presentation,
+    badge: 'DECK',
+    className: 'nav-proposals',
+  },
+  {
+    label: 'Knowledge Graph',
+    href: '/memory',
+    icon: Network,
+    badge: '3D',
+    className: 'nav-intelligence',
+  },
+  { label: 'CRM Sync', href: '/crm', icon: Database, className: 'nav-crm' },
+  { label: 'Opportunities', href: '/opportunities', icon: Play, className: 'nav-opportunities' },
+  { label: 'Outreach', href: '/outreach', icon: Mail, className: 'nav-outreach' },
   { label: 'Predictive Revenue', href: '/analytics', icon: BarChart3, badge: 'AI' },
-  { label: 'Memory Time Machine', href: '/settings', icon: History, badge: 'HIST' },
   { label: 'Agent Visualizer', href: '/workflow-visualizer', icon: Radio, badge: 'LIVE' },
-  { label: 'Live Demo Mode', href: '/opportunities', icon: Play, badge: 'DEMO' },
 ];
 
 export function NavigationShell({ children }: { children: React.ReactNode }) {
@@ -90,7 +131,7 @@ export function NavigationShell({ children }: { children: React.ReactNode }) {
                     isActive
                       ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10'
                       : 'hover:bg-slate-800 hover:text-slate-200'
-                  }`}
+                  } ${item.className || ''}`}
                 >
                   <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
                   <span className="flex-1">{item.label}</span>

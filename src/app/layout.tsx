@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { NavigationShell } from '@/components/navigation';
 import { Providers } from './providers';
+import { GuidedTour } from '@/components/demo/GuidedTour';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -32,6 +33,7 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col bg-slate-950 text-slate-100">
         <Providers>
           <NavigationShell>{children}</NavigationShell>
+          <GuidedTour />
         </Providers>
       </body>
     </html>
