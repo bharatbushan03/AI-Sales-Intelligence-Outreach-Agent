@@ -8,7 +8,7 @@ import { CheckCircle, Clock, XCircle, Ban } from 'lucide-react';
 import { clsx } from 'clsx';
 
 interface InvitationBadgeProps {
-  status: 'pending' | 'accepted' | 'expired' | 'revoked';
+  status: 'pending' | 'accepted' | 'expired' | 'revoked' | 'declined';
   className?: string;
 }
 
@@ -37,6 +37,13 @@ const statusConfig = {
   revoked: {
     label: 'Revoked',
     icon: Ban,
+    bgColor: 'bg-red-100',
+    textColor: 'text-red-800',
+    borderColor: 'border-red-200',
+  },
+  declined: {
+    label: 'Declined',
+    icon: XCircle,
     bgColor: 'bg-red-100',
     textColor: 'text-red-800',
     borderColor: 'border-red-200',

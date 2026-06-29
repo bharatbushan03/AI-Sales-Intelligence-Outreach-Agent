@@ -134,7 +134,7 @@ export const POST = withAuth(async (request, context) => {
     return ApiResponse.success(invitation, 201);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return ApiResponse.validationError('Invalid request data', error.errors);
+      return ApiResponse.validationError('Invalid request data', (error as any).errors);
     }
 
     logger.error('Failed to create invitation', error, { userId: context.user.uid });
@@ -192,7 +192,7 @@ export const GET = withAuth(async (request, context) => {
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return ApiResponse.validationError('Invalid query parameters', error.errors);
+      return ApiResponse.validationError('Invalid query parameters', (error as any).errors);
     }
 
     logger.error('Failed to fetch invitations', error, { userId: context.user.uid });

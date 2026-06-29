@@ -4,7 +4,12 @@
  */
 
 import { AcceptInvitationPage } from '@/components/invitations/AcceptInvitationPage';
+import { Suspense } from 'react';
 
 export default function AcceptInvitation() {
-  return <AcceptInvitationPage />;
+  return (
+    <Suspense fallback={<div>Loading invitation...</div>}>
+      <AcceptInvitationPage />
+    </Suspense>
+  );
 }
