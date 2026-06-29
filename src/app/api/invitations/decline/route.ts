@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return ApiResponse.validationError('Invalid request data', error.errors);
+      return ApiResponse.validationError('Invalid request data', (error as any).errors);
     }
 
     logger.error('Failed to decline invitation', error);

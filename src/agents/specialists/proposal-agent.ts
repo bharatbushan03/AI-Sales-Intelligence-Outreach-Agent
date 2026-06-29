@@ -52,8 +52,7 @@ export class ProposalAgent implements IAgent {
     try {
       const research = context.sharedMemory.research as Record<string, unknown> | undefined;
       const opportunity = context.sharedMemory.opportunityAnalysis as
-        | Record<string, unknown>
-        | undefined;
+        Record<string, unknown> | undefined;
 
       const companyName =
         (options?.companyName as string) ||

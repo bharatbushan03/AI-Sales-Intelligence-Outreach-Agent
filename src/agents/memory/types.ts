@@ -77,13 +77,7 @@ export interface KnowledgeNode {
   id: string;
   label: string;
   type:
-    | 'company'
-    | 'competitor'
-    | 'industry'
-    | 'pain-point'
-    | 'opportunity'
-    | 'campaign'
-    | 'proposal';
+    'company' | 'competitor' | 'industry' | 'pain-point' | 'opportunity' | 'campaign' | 'proposal';
 }
 
 export interface KnowledgeEdge {

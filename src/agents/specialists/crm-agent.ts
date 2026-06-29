@@ -114,8 +114,7 @@ export class CrmAgent implements IAgent {
       // Synthesize full CRM mapping from pipeline memory
       const researchData = context.sharedMemory.research as ResearchReport | undefined;
       const opportunityData = context.sharedMemory.opportunityAnalysis as
-        | OpportunityReport
-        | undefined;
+        OpportunityReport | undefined;
 
       const companyName =
         researchData?.company?.name ||

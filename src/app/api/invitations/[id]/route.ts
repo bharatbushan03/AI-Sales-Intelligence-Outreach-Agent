@@ -23,10 +23,10 @@ const updateInvitationSchema = z.object({
  * GET /api/invitations/[id]
  * Retrieve specific invitation details
  */
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   return withAuth(async (req, context) => {
     try {
-      const { id } = params;
+      const { id } = await params;
 
       const invitationDoc = await adminDb.collection(COLLECTIONS.INVITATIONS).doc(id).get();
 
@@ -61,10 +61,10 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
  * PATCH /api/invitations/[id]
  * Update invitation - resend or revoke
  */
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   return withAuth(async (req, context) => {
     try {
-      const { id } = params;
+      const { id } = await params;
       const body = await request.json();
       const { action } = updateInvitationSchema.parse(body);
 
@@ -207,7 +207,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       return ApiResponse.badRequest('Invalid action');
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return ApiResponse.validationError('Invalid request data', error.errors);
+        return ApiResponse.validationError('Invalid request data', (error as any).errors);
       }
 
       logger.error('Failed to update invitation', error, { userId: context.user.uid });
@@ -220,10 +220,13 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
  * DELETE /api/invitations/[id]
  * Delete invitation (inviter or admin only)
  */
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
   return withAuth(async (req, context) => {
     try {
-      const { id } = params;
+      const { id } = await params;
 
       const invitationRef = adminDb.collection(COLLECTIONS.INVITATIONS).doc(id);
       const invitationDoc = await invitationRef.get();

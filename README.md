@@ -117,33 +117,22 @@ npx tsc --noEmit
 
 ---
 
-## ☁️ Google Cloud Deployment Instructions
+## ☁️ Vercel Free Tier Deployment Instructions
 
-### 1. Build and Host Frontend Assets on Firebase
-Initialize and deploy static aspects to Firebase Hosting:
+### 1. Configure Vercel Project
+Connect your GitHub repository to a new project in the Vercel dashboard. Vercel will automatically detect the Next.js framework.
+
+### 2. Environment Variables
+Add the required environment variables in the Vercel project settings (Settings > Environment Variables):
+- `GEMINI_API_KEY`
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_CLIENT_EMAIL`
+- `FIREBASE_PRIVATE_KEY`
+
+### 3. Deploy
+The GitHub Actions pipeline will automatically run tests and trigger Vercel deployments upon pushing to the repository.
+Alternatively, deploy via Vercel CLI:
 ```bash
-# Log in to Firebase CLI
-npx firebase login
-
-# Deploy build bundles
-npx firebase deploy --only hosting
+npm install -g vercel
+vercel deploy --prod
 ```
-
-### 2. Deploy Server Backend to Google Cloud Run
-Compile the backend API and containerize it to deploy securely to Cloud Run:
-```bash
-# Configure gcloud credentials
-gcloud auth login
-gcloud config set project <YOUR_PROJECT_ID>
-
-# Build the docker container via Cloud Build
-gcloud builds submit --tag gcr.io/<YOUR_PROJECT_ID>/sales-agent-backend
-
-# Deploy container on Cloud Run with environment bindings
-gcloud run deploy sales-agent-backend \
-  --image gcr.io/<YOUR_PROJECT_ID>/sales-agent-backend \
-  --platform managed \
-  --allow-unauthenticated \
-  --set-env-vars="GEMINI_API_KEY=<YOUR_KEY>,SKIP_ENV_VALIDATION=false"
-```
-Ensure to map Serverless VPC Access Connectors if restricting database access rules.

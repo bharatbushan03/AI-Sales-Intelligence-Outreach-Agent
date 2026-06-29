@@ -5,7 +5,9 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const TopBar = dynamic(() => import('@/components/top-bar').then((m) => ({ default: m.TopBar })), { ssr: true });
+const TopBar = dynamic(() => import('@/components/top-bar').then((m) => ({ default: m.TopBar })), {
+  ssr: true,
+});
 import {
   LayoutDashboard,
   Users,
