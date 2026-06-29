@@ -13,6 +13,7 @@ import {
   Share2,
   LogOut,
 } from 'lucide-react';
+import { JudgeModeToggle } from './demo/JudgeModeToggle';
 
 interface TopBarProps {
   pathname: string;
@@ -113,6 +114,8 @@ export function TopBar({ pathname }: TopBarProps) {
 
         {/* Right Side: Notifications, User Menu, etc. */}
         <div className="flex items-center gap-3">
+          <JudgeModeToggle />
+
           {/* Notifications Dropdown */}
           <div className="relative" ref={notificationsRef}>
             <button

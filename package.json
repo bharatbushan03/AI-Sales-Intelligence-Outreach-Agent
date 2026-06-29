@@ -31,6 +31,7 @@
     "next": "16.2.9",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-joyride": "^3.1.0",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3",
     "zustand": "^5.0.14"
@@ -45,6 +46,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/react-joyride": "^2.0.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "eslint-config-prettier": "^10.1.8",
