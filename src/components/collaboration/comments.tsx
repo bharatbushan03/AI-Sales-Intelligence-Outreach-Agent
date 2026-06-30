@@ -8,6 +8,7 @@ import {
   ThumbsDown,
   Reply,
 } from 'lucide-react';
+import Image from 'next/image';
 
 interface Comment {
   id: number;
@@ -114,10 +115,12 @@ export default function Comments() {
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-800/50">
-                    <img
+                    <Image
                       src={comment.authorAvatar}
                       alt={comment.author}
-                      className="h-full w-full rounded-full object-cover"
+                      width={32}
+                      height={32}
+                      className="rounded-full object-cover"
                     />
                   </div>
                 </div>

@@ -11,6 +11,8 @@ import {
   TrendingDown,
   Filter,
 } from 'lucide-react';
+import Image from 'next/image';
+import Image from 'next/image';
 
 interface ActivityItem {
   id: number;
@@ -144,10 +146,12 @@ export default function ActivityFeed() {
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-800/50">
-                    <img
+                    <Image
                       src={activity.authorAvatar}
                       alt={activity.author}
-                      className="h-full w-full rounded-full object-cover"
+                      width={32}
+                      height={32}
+                      className="rounded-full object-cover"
                     />
                   </div>
                 </div>
