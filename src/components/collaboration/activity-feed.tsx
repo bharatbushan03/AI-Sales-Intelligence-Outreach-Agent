@@ -12,7 +12,6 @@ import {
   Filter,
 } from 'lucide-react';
 import Image from 'next/image';
-import Image from 'next/image';
 
 interface ActivityItem {
   id: number;
