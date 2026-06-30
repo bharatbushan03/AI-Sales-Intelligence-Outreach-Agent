@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import Image from 'next/image';
 
 /**
  * Performance monitoring hook
@@ -114,36 +115,20 @@ export function LazyImage({
   height?: number | string;
   [key: string]: any;
 }) {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [hasError, setHasError] = useState(false);
+  // Ensure width and height are numbers for next/image
+  const imgWidth = width ? Number(width) : undefined;
+  const imgHeight = height ? Number(height) : undefined;
 
   return (
     <div className={`relative w-full h-[${height || 'auto'}] overflow-hidden`}>
-      {!isLoaded && !hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-800/50">
-          <div className="h-4 w-4 animate-pulse rounded-full bg-indigo-500" />
-        </div>
-      )}
-
-      <img
+      <Image
         src={src}
         alt={alt}
-        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ease-in-out ${className} ${isLoaded ? 'opacity-100' : 'opacity-0'} ${hasError ? 'hidden' : ''}`}
-        width={width}
-        height={height}
-        onLoad={() => setIsLoaded(true)}
-        onError={() => {
-          setHasError(true);
-          setIsLoaded(true);
-        }}
+        width={imgWidth}
+        height={imgHeight}
+        className={className}
         {...props}
       />
-
-      {hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-900/50">
-          <span className="text-sm text-slate-400">Failed to load image</span>
-        </div>
-      )}
     </div>
   );
 }

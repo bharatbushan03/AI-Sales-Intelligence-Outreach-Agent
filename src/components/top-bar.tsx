@@ -13,6 +13,8 @@ import {
   Share2,
   LogOut,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import { JudgeModeToggle } from './demo/JudgeModeToggle';
 
 interface TopBarProps {
@@ -20,6 +22,8 @@ interface TopBarProps {
 }
 
 export function TopBar({ pathname }: TopBarProps) {
+  const { profile, signOut, initializing } = useAuth();
+  const router = useRouter();
   const [openDropdown, setOpenDropdown] = React.useState<
     'notifications' | 'messages' | 'team' | 'user' | null
   >(null);
@@ -27,6 +31,24 @@ export function TopBar({ pathname }: TopBarProps) {
   const messagesRef = React.useRef<HTMLDivElement>(null);
   const teamRef = React.useRef<HTMLDivElement>(null);
   const userRef = React.useRef<HTMLDivElement>(null);
+
+  const displayName = profile?.name ?? 'User';
+  const displayEmail = profile?.email ?? '';
+  const initials = displayName
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      router.push('/login');
+    } catch (error) {
+      console.error('Sign out failed:', error);
+    }
+  };
 
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -199,20 +221,24 @@ export function TopBar({ pathname }: TopBarProps) {
 
           {/* User Menu */}
           <div className="relative" ref={userRef}>
-            <button
-              className="flex items-center gap-2 text-slate-500 hover:text-slate-700"
-              onClick={() => setOpenDropdown(openDropdown === 'user' ? null : 'user')}
-            >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200">
-                JD
-              </span>
-              <div className="hidden flex-col md:flex">
-                <span className="text-sm font-medium text-slate-900">John Doe</span>
-                <span className="text-xs text-slate-500">john@example.com</span>
-              </div>
-              <ChevronDown className="h-4 w-4 text-slate-400" />
-            </button>
-            {openDropdown === 'user' && (
+            {initializing ? (
+              <div className="flex h-8 w-8 animate-pulse items-center justify-center rounded-full bg-slate-200" />
+            ) : (
+              <button
+                className="flex items-center gap-2 text-slate-500 hover:text-slate-700"
+                onClick={() => setOpenDropdown(openDropdown === 'user' ? null : 'user')}
+              >
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 text-sm font-medium text-slate-700">
+                  {initials || 'U'}
+                </span>
+                <div className="hidden flex-col md:flex">
+                  <span className="text-sm font-medium text-slate-900">{displayName}</span>
+                  <span className="text-xs text-slate-500">{displayEmail}</span>
+                </div>
+                <ChevronDown className="h-4 w-4 text-slate-400" />
+              </button>
+            )}
+            {openDropdown === 'user' && !initializing && (
               <div className="absolute right-0 z-20 mt-2 w-48 rounded-md border border-slate-200 bg-white shadow-lg focus:outline-none">
                 <div className="py-1">
                   <div className="px-4 py-2 text-sm text-slate-700">
@@ -221,9 +247,12 @@ export function TopBar({ pathname }: TopBarProps) {
                   <div className="border-t border-slate-100 px-4 py-2 text-sm text-slate-700">
                     <SettingsIcon className="mr-2 h-4 w-4" /> Settings
                   </div>
-                  <div className="border-t border-slate-100 px-4 py-2 text-sm text-slate-700">
+                  <button
+                    className="flex w-full items-center border-t border-slate-100 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                    onClick={handleSignOut}
+                  >
                     <LogOut className="mr-2 h-4 w-4" /> Sign Out
-                  </div>
+                  </button>
                 </div>
               </div>
             )}

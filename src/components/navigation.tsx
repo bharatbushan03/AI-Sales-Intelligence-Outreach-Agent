@@ -4,9 +4,30 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 const TopBar = dynamic(() => import('@/components/top-bar').then((m) => ({ default: m.TopBar })), {
-  ssr: true,
+  ssr: false,
+  loading: () => (
+    <header className="border-b border-slate-200/50 bg-white/5 px-4 py-3 backdrop-blur-md sm:px-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="h-5 w-5 animate-pulse rounded bg-slate-200/20" />
+          <div className="hidden items-center gap-4 md:flex">
+            <div className="h-4 w-16 animate-pulse rounded bg-slate-200/20" />
+            <div className="h-4 w-16 animate-pulse rounded bg-slate-200/20" />
+          </div>
+        </div>
+        <div className="mx-4 flex-1">
+          <div className="h-9 w-full animate-pulse rounded-md bg-slate-200/20" />
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-24 animate-pulse rounded bg-slate-200/20" />
+          <div className="h-8 w-8 animate-pulse rounded-full bg-slate-200/20" />
+        </div>
+      </div>
+    </header>
+  ),
 });
 import {
   LayoutDashboard,
@@ -96,7 +117,22 @@ const navItems: NavItem[] = [
 
 export function NavigationShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { profile, initializing } = useAuth();
   const [isOpen, setIsOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const sidebarName = profile?.name ?? 'User';
+  const sidebarEmail = profile?.email ?? '';
+  const sidebarInitials = sidebarName
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-slate-950 font-sans text-slate-100">
@@ -159,14 +195,26 @@ export function NavigationShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
 
-          {/* User Card placeholder */}
+          {/* User Card */}
           <div className="flex items-center gap-3 border-t border-slate-800 bg-slate-900/50 p-4">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-700 bg-slate-800 font-bold text-slate-200">
-              JD
-            </div>
+            {!mounted || initializing ? (
+              <div className="flex h-9 w-9 animate-pulse items-center justify-center rounded-full border border-slate-700 bg-slate-800" />
+            ) : (
+              <div className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-xs font-bold text-slate-200">
+                {sidebarInitials || 'U'}
+              </div>
+            )}
             <div className="flex flex-col overflow-hidden">
-              <span className="truncate text-sm font-medium text-slate-200">John Doe</span>
-              <span className="truncate text-xs text-slate-500">sales@example.com</span>
+              {!mounted || initializing ? (
+                <div className="h-4 w-24 animate-pulse rounded bg-slate-800" />
+              ) : (
+                <span className="truncate text-sm font-medium text-slate-200">{sidebarName}</span>
+              )}
+              {!mounted || initializing ? (
+                <div className="mt-1 h-3 w-32 animate-pulse rounded bg-slate-800" />
+              ) : (
+                <span className="truncate text-xs text-slate-500">{sidebarEmail}</span>
+              )}
             </div>
           </div>
         </aside>
